@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Snippety</title>
+  <link rel="stylesheet" href="index.css">
+
+  <script type="importmap">
+    {
+      "imports": {
+        "src/": "./",
+        "lib/browser-fs-access": "https://unpkg.com/browser-fs-access@0.33.0/dist/index.modern.js"
+      }
+    }
+  </script>
+
+  <script type="module" src="index.js" defer></script>
+</head>
+
+<body>
+  <div style="margin-bottom: 1rem">
+    <button id="file-new-button">New</button>
+    <button id="file-open-button">Open</button>
+    <button id="file-save-button">Save</button>
+    <button id="file-save-as-button" style="display: none">Save As</button>
+  </div>
+
+  <p id="file-name"></p>
+  <textarea id="file-contents" style="width: 100%" rows="15"></textarea>
+</body>
+
+</html>
