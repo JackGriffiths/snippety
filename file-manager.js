@@ -69,7 +69,7 @@ export class FileManager {
                 options,
                 existingHandle,
                 /* throwIfExistingHandleNotGood */ false
-              );
+            );
 
             if (handle !== null) {
                 return {
