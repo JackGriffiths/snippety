@@ -1,0 +1,7 @@
+{
+  "name": "snippety",
+  "version": "1.0.0",
+  "devDependencies": {
+    "eslint": "^8.38.0"
+  }
+}
