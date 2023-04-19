@@ -1,4 +1,4 @@
-import { fileOpen, fileSave, supported as isFileSystemAccessSupported } from "browser-fs-access";
+import { FileWithHandle, fileOpen, fileSave, supported as isFileSystemAccessSupported } from "browser-fs-access";
 
 export class FileManager {
     #currentFileName = null;
@@ -31,7 +31,7 @@ export class FileManager {
         };
 
         try {
-            const file = await fileOpen(options);
+            const file = await fileOpen(options) as FileWithHandle;
 
             return {
                 name: file.name,

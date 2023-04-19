@@ -1,5 +1,5 @@
-import { FileManager } from "./file-manager.js";
-import { FileDragAndDrop } from "./file-drag-and-drop.js";
+import { FileManager } from "./file-manager";
+import { FileDragAndDrop } from "./file-drag-and-drop";
 
 const fileManager = new FileManager();
 FileDragAndDrop.init(document.body, "link", "application/xml", fileDropped);
@@ -33,7 +33,7 @@ document.getElementById("file-open-button")
 document.getElementById("file-save-button")
     .addEventListener("click", async () => {
         const defaultFileName = fileManager.currentFileName ?? "snippet.snippet";
-        const text = document.getElementById("file-contents").value;
+        const text = (document.getElementById("file-contents") as HTMLTextAreaElement).value;
         const file = await fileManager.trySave(defaultFileName, text);
 
         if (file !== null) {
@@ -51,7 +51,7 @@ if (fileManager.isSaveAsEnabled) {
     saveAsButton
         .addEventListener("click", async () => {
             const defaultFileName = fileManager.currentFileName ?? "snippet.snippet";
-            const text = document.getElementById("file-contents").value;
+            const text = (document.getElementById("file-contents") as HTMLTextAreaElement).value;
             const file = await fileManager.trySaveAs(defaultFileName, text);
 
             if (file !== null) {
@@ -69,7 +69,7 @@ async function fileDropped(file) {
 }
 
 function updateFileContents(text) {
-    document.getElementById("file-contents").value = text;
+    (document.getElementById("file-contents") as HTMLTextAreaElement).value = text;
 }
 
 function refreshFileName() {
