@@ -1,4 +1,4 @@
-import { fileOpen, fileSave, supported as isFileSystemAccessSupported } from "lib/browser-fs-access";
+import { fileOpen, fileSave, supported as isFileSystemAccessSupported } from "browser-fs-access";
 
 export class FileManager {
     #currentFileName = null;

@@ -1,5 +1,5 @@
-import { FileManager } from "src/file-manager.js";
-import { FileDragAndDrop } from "src/file-drag-and-drop.js";
+import { FileManager } from "./file-manager.js";
+import { FileDragAndDrop } from "./file-drag-and-drop.js";
 
 const fileManager = new FileManager();
 FileDragAndDrop.init(document.body, "link", "application/xml", fileDropped);
