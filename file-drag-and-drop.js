@@ -39,7 +39,7 @@ export class FileDragAndDrop {
                         name: handle.name,
                         blob: await handle.getFile(),
                         handle: handle,
-                    }
+                    };
                 }
             }
         }

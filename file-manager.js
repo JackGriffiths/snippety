@@ -28,7 +28,7 @@ export class FileManager {
             extensions: [".snippet"],
             multiple: false,
             excludeAcceptAllOption: true
-        }
+        };
 
         try {
             const file = await fileOpen(options);
@@ -75,12 +75,12 @@ export class FileManager {
                 return {
                     name: handle.name,
                     handle: handle,
-                }
+                };
             } else {
                 return {
                     name: defaultFileName,
                     handle: null,
-                }
+                };
             }
         } catch {
             // User most likely cancelled the operation.

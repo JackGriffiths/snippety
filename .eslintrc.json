@@ -1,0 +1,17 @@
+{
+    "root": true,
+    "env": {
+        "browser": true
+    },
+    "extends": [
+        "eslint:recommended"
+    ],
+    "parserOptions": {
+        "sourceType": "module",
+        "ecmaVersion": 2022
+    },
+    "rules": {
+        "semi": "error",
+        "quotes": ["error", "double"]
+    }
+}
