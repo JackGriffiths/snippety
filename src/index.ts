@@ -1,5 +1,6 @@
-import { FileManager } from "./file-manager";
 import { FileDragAndDrop } from "./file-drag-and-drop";
+import { FileManager } from "./file-manager";
+import { SnippetModel } from "./snippet-model";
 import { SnippetParser } from "./snippet-parser";
 import { SnippetWriter } from "./snippet-writer";
 
@@ -10,7 +11,7 @@ FileDragAndDrop.init(document.body, "link", "application/xml", fileDropped);
 document.getElementById("file-new-button")!
     .addEventListener("click", () => {
         fileManager.clearCurrentFile();
-        populateForm({ title: null, description: null});
+        populateForm(new SnippetModel());
         refreshFileName();
     });
 
@@ -76,14 +77,14 @@ async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemF
     refreshFileName();
 }
 
-function populateForm(snippet: { title: string | null, description: string | null}) {
+function populateForm(snippet: SnippetModel) {
     (document.getElementById("title") as HTMLInputElement).value = snippet.title ?? "";
-    document.getElementById("description")!.textContent = snippet.description;
+    (document.getElementById("description") as HTMLTextAreaElement).value = snippet.description ?? "";
 }
 
-function getFromForm() {
+function getFromForm(): SnippetModel {
     return {
-        format: "1.0.0",
+        format: "1.0.0", // TODO: might not be the value that was loaded from the snippet file.
         title: (document.getElementById("title") as HTMLInputElement).value,
         description: (document.getElementById("description") as HTMLTextAreaElement)!.value,
     }

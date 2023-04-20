@@ -1,9 +1,10 @@
+import { SnippetModel } from "./snippet-model";
 import xmlFormat from "xml-formatter";
 
 export class SnippetWriter {
     static readonly #schema = "http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet";
 
-    static toXml(snippet: { format: string, title: string, description: string | null}): string {
+    static toXml(snippet: SnippetModel): string {
         const xml = SnippetWriter.#writeXml(snippet);
 
         return xmlFormat(xml, {
@@ -11,19 +12,24 @@ export class SnippetWriter {
         })
     }
 
-    static #writeXml(snippet: { format: string, title: string, description: string | null}): string {
+    static #writeXml(snippet: SnippetModel): string {
         const doc = document.implementation.createDocument(null, null);
         SnippetWriter.#appendProcessingInstruction(doc);
 
         const codeSnippets = SnippetWriter.#appendChildElement(doc, SnippetWriter.#schema, "CodeSnippets");
         const codeSnippet = SnippetWriter.#appendChildElement(codeSnippets, SnippetWriter.#schema, "CodeSnippet");
-        codeSnippet.setAttribute("Format", snippet.format);
+
+        if (SnippetWriter.#isNotNullOrWhiteSpace(snippet.format)){
+            codeSnippet.setAttribute("Format", snippet.format);
+        }
 
         const header = SnippetWriter.#appendChildElement(codeSnippet, SnippetWriter.#schema, "Header");
 
-        SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "Title", snippet.title);
+        if (SnippetWriter.#isNotNullOrWhiteSpace(snippet.title)) {
+            SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "Title", snippet.title);
+        }
 
-        if (snippet.description !== null) {
+        if (SnippetWriter.#isNotNullOrWhiteSpace(snippet.description)) {
             SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "Description", snippet.description);
         }
 
@@ -46,5 +52,9 @@ export class SnippetWriter {
         const child = SnippetWriter.#appendChildElement(parent, schema, name);
         child.textContent = value;
         return child;
+    }
+
+    static #isNotNullOrWhiteSpace(value: string | null): value is string {
+        return value !== null && value.trim().length !== 0;
     }
 }
