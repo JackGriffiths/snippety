@@ -1,5 +1,7 @@
 import { FileManager } from "./file-manager";
 import { FileDragAndDrop } from "./file-drag-and-drop";
+import { SnippetParser } from "./snippet-parser";
+import { SnippetWriter } from "./snippet-writer";
 
 const fileManager = new FileManager();
 FileDragAndDrop.init(document.body, "link", "application/xml", fileDropped);
@@ -8,7 +10,7 @@ FileDragAndDrop.init(document.body, "link", "application/xml", fileDropped);
 document.getElementById("file-new-button")!
     .addEventListener("click", () => {
         fileManager.clearCurrentFile();
-        updateFileContents("");
+        populateForm({ title: null, description: null});
         refreshFileName();
     });
 
@@ -20,21 +22,23 @@ document.getElementById("file-open-button")!
             return;
         }
 
-        const fileContents = await file.text();
+        const xml = await file.text();
+        const snippet = SnippetParser.fromXml(xml);
 
         // TODO: validate that it's a valid snippet file.
 
         fileManager.setCurrentFile(file.name, file.handle ?? null);
-        updateFileContents(fileContents);
+        populateForm(snippet);
         refreshFileName();
     });
 
 // Save button
 document.getElementById("file-save-button")!
     .addEventListener("click", async () => {
+        const snippet = getFromForm();
+        const xml = SnippetWriter.toXml(snippet);
         const defaultFileName = fileManager.currentFileName ?? "snippet.snippet";
-        const text = (document.getElementById("file-contents") as HTMLTextAreaElement).value;
-        const file = await fileManager.trySave(defaultFileName, text);
+        const file = await fileManager.trySave(defaultFileName, xml);
 
         if (file !== null) {
             fileManager.setCurrentFile(file.name, file.handle);
@@ -50,9 +54,10 @@ if (fileManager.isSaveAsEnabled) {
 
     saveAsButton
         .addEventListener("click", async () => {
+            const snippet = getFromForm();
+            const xml = SnippetWriter.toXml(snippet);
             const defaultFileName = fileManager.currentFileName ?? "snippet.snippet";
-            const text = (document.getElementById("file-contents") as HTMLTextAreaElement).value;
-            const file = await fileManager.trySaveAs(defaultFileName, text);
+            const file = await fileManager.trySaveAs(defaultFileName, xml);
 
             if (file !== null) {
                 fileManager.setCurrentFile(file.name, file.handle);
@@ -63,13 +68,25 @@ if (fileManager.isSaveAsEnabled) {
 
 async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemFileHandle | null }) {
     // TODO: validate that it's a valid snippet file.
+    const xml = await file.blob.text();
+    const snippet = SnippetParser.fromXml(xml);
+
     fileManager.setCurrentFile(file.name, file.handle);
-    updateFileContents(await file.blob.text());
+    populateForm(snippet);
     refreshFileName();
 }
 
-function updateFileContents(text: string) {
-    (document.getElementById("file-contents") as HTMLTextAreaElement).value = text;
+function populateForm(snippet: { title: string | null, description: string | null}) {
+    (document.getElementById("title") as HTMLInputElement).value = snippet.title ?? "";
+    document.getElementById("description")!.textContent = snippet.description;
+}
+
+function getFromForm() {
+    return {
+        format: "1.0.0",
+        title: (document.getElementById("title") as HTMLInputElement).value,
+        description: (document.getElementById("description") as HTMLTextAreaElement)!.value,
+    }
 }
 
 function refreshFileName() {

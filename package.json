@@ -13,6 +13,7 @@
     "vite": "^4.2.2"
   },
   "dependencies": {
-    "browser-fs-access": "^0.33.1"
+    "browser-fs-access": "^0.33.1",
+    "xml-formatter": "^3.3.2"
   }
 }
