@@ -5,7 +5,7 @@ const fileManager = new FileManager();
 FileDragAndDrop.init(document.body, "link", "application/xml", fileDropped);
 
 // New button
-document.getElementById("file-new-button")
+document.getElementById("file-new-button")!
     .addEventListener("click", () => {
         fileManager.clearCurrentFile();
         updateFileContents("");
@@ -13,24 +13,24 @@ document.getElementById("file-new-button")
     });
 
 // Open button
-document.getElementById("file-open-button")
+document.getElementById("file-open-button")!
     .addEventListener("click", async () => {
         const file = await fileManager.tryOpen();
         if (file === null) {
             return;
         }
 
-        const fileContents = await file.blob.text();
+        const fileContents = await file.text();
 
         // TODO: validate that it's a valid snippet file.
 
-        fileManager.setCurrentFile(file.name, file.handle);
+        fileManager.setCurrentFile(file.name, file.handle ?? null);
         updateFileContents(fileContents);
         refreshFileName();
     });
 
 // Save button
-document.getElementById("file-save-button")
+document.getElementById("file-save-button")!
     .addEventListener("click", async () => {
         const defaultFileName = fileManager.currentFileName ?? "snippet.snippet";
         const text = (document.getElementById("file-contents") as HTMLTextAreaElement).value;
@@ -44,7 +44,7 @@ document.getElementById("file-save-button")
 
 // Save As button
 if (fileManager.isSaveAsEnabled) {
-    const saveAsButton = document.getElementById("file-save-as-button");
+    const saveAsButton = document.getElementById("file-save-as-button")!;
 
     saveAsButton.style.display = "inline-block";
 
@@ -61,19 +61,19 @@ if (fileManager.isSaveAsEnabled) {
         });
 }
 
-async function fileDropped(file) {
+async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemFileHandle | null }) {
     // TODO: validate that it's a valid snippet file.
     fileManager.setCurrentFile(file.name, file.handle);
     updateFileContents(await file.blob.text());
     refreshFileName();
 }
 
-function updateFileContents(text) {
+function updateFileContents(text: string) {
     (document.getElementById("file-contents") as HTMLTextAreaElement).value = text;
 }
 
 function refreshFileName() {
-    document.getElementById("file-name").textContent = fileManager.currentFileName;
+    document.getElementById("file-name")!.textContent = fileManager.currentFileName;
 
     if (fileManager.currentFileName !== null) {
         document.title = `${fileManager.currentFileName} - Snippety`;

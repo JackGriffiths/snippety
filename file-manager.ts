@@ -1,8 +1,13 @@
-import { FileWithHandle, fileOpen, fileSave, supported as isFileSystemAccessSupported } from "browser-fs-access";
+import {
+    FileWithHandle,
+    fileOpen,
+    fileSave,
+    supported as isFileSystemAccessSupported
+} from "browser-fs-access";
 
 export class FileManager {
-    #currentFileName = null;
-    #currentFileHandle = null;
+    #currentFileName: string | null = null;
+    #currentFileHandle: FileSystemFileHandle | null = null;
 
     get currentFileName() {
         return this.#currentFileName;
@@ -12,7 +17,7 @@ export class FileManager {
         return isFileSystemAccessSupported;
     }
 
-    setCurrentFile(name, handle) {
+    setCurrentFile(name: string, handle: FileSystemFileHandle | null) {
         this.#currentFileName = name;
         this.#currentFileHandle = handle;
     }
@@ -31,28 +36,22 @@ export class FileManager {
         };
 
         try {
-            const file = await fileOpen(options) as FileWithHandle;
-
-            return {
-                name: file.name,
-                blob: file,
-                handle: file.handle
-            };
+            return await fileOpen(options) as FileWithHandle;
         } catch (error) {
             // User most likely cancelled the operation.
             return null;
         }
     }
 
-    async trySave(defaultFileName, text) {
+    async trySave(defaultFileName: string, text: string) {
         return await FileManager.#trySaveText(defaultFileName, text, this.#currentFileHandle);
     }
 
-    async trySaveAs(defaultFileName, text) {
+    async trySaveAs(defaultFileName: string, text: string) {
         return await FileManager.#trySaveText(defaultFileName, text, null);
     }
 
-    static async #trySaveText(defaultFileName, text, existingHandle) {
+    static async #trySaveText(defaultFileName: string, text: string, existingHandle: FileSystemFileHandle | null) {
         const data = new Blob([text], {
             type: "application/xml"
         });

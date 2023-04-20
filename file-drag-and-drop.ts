@@ -1,7 +1,15 @@
 export class FileDragAndDrop {
-    static init(dropTargetElement, dropEffect, acceptedMimeType, fileDropped) {
+    static init(
+        dropTargetElement: HTMLElement,
+        dropEffect: "copy" | "none" | "link" | "move",
+        acceptedMimeType: string,
+        fileDropped: (file: { name: string, blob: Blob, handle: FileSystemFileHandle | null }) => void) {
 
         dropTargetElement.addEventListener("dragover", e => {
+            if (e.dataTransfer === null) {
+                return;
+            }
+
             e.preventDefault();
             e.dataTransfer.dropEffect = dropEffect;
         });
@@ -14,7 +22,11 @@ export class FileDragAndDrop {
         });
     }
 
-    static async #getFirstDroppedFile(dropEventArgs, acceptedMimeType) {
+    static async #getFirstDroppedFile(dropEventArgs: DragEvent, acceptedMimeType: string): Promise<{ name: string, blob: Blob, handle: FileSystemFileHandle | null } | null> {
+        if (dropEventArgs.dataTransfer === null) {
+            return null;
+        }
+
         for (const item of dropEventArgs.dataTransfer.items) {
             if (item.kind === "file" && item.type === acceptedMimeType) {
 
@@ -24,21 +36,22 @@ export class FileDragAndDrop {
 
                 // We prefer to get the handle to the file if the browser allows it so we
                 // can allow the user to overwrite the file with any changes they make.
-                if (item.getAsFileSystemHandle === undefined) {
-                    const file = item.getAsFile();
 
-                    return {
-                        name: file.name,
-                        blob: file,
-                        handle: null
-                    };
-                } else {
-                    const handle = await item.getAsFileSystemHandle();
+                if (typeof (item as any)["getAsFileSystemHandle"] === "function") {
+                    const handle = await (item as any)["getAsFileSystemHandle"]() as FileSystemFileHandle;
 
                     return {
                         name: handle.name,
                         blob: await handle.getFile(),
                         handle: handle,
+                    };
+                } else {
+                    const file = item.getAsFile()!;
+
+                    return {
+                        name: file.name,
+                        blob: file,
+                        handle: null
                     };
                 }
             }
