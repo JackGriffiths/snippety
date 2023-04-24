@@ -53,18 +53,22 @@
           </div>
 
           <div>
-            <label for="helpUrl">Help URL</label>
-            <input id="helpUrl" type="url" data-bind="helpUrl" autocomplete="off">
-          </div>
-
-          <div>
             <label for="language">Language</label>
-            <input id="language" type="text" data-bind="language" required autocomplete="off">
+            <select id="language" data-bind="language" required>
+              <option value="null">Choose a language...</option>
+              <option value="csharp">C#</option>
+              <option value="css">CSS</option>
+            </select>
           </div>
 
           <div>
             <label for="code">Code</label>
             <textarea id="code" data-bind="code" required rows="5" autocomplete="off"></textarea>
+          </div>
+
+          <div>
+            <label for="helpUrl">Help URL</label>
+            <input id="helpUrl" type="url" data-bind="helpUrl" autocomplete="off">
           </div>
         </form>
       </div>
