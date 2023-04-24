@@ -12,59 +12,73 @@
 </head>
 
 <body>
-  <div class="container">
-    <div class="toolbar">
+  <div id="container">
+    <div id="toolbar">
       <button id="file-new-button">New</button>
       <button id="file-open-button">Open</button>
       <button id="file-save-button" type="submit" form="main-form">Save</button>
       <button id="file-save-as-button" type="submit" form="main-form" style="display: none">Save As</button>
     </div>
 
-    <h1 id="page-title">New Snippet</h1>
-
-    <form id="main-form" action="">
+    <div id="inputs-and-preview">
       <div>
-        <label for="title">Title</label>
-        <input id="title" type="text" data-bind="title" required autocomplete="off">
+        <h1 id="page-title">New Snippet</h1>
 
-        <p class="help-text">The title appears in IntelliSense when browsing code snippets.</p>
+        <form id="main-form" action="">
+          <div>
+            <label for="title">Title</label>
+            <input id="title" type="text" data-bind="title" required autocomplete="off">
+
+            <p class="help-text">The title appears in IntelliSense when browsing code snippets.</p>
+          </div>
+
+          <div>
+            <label for="author">Author</label>
+            <input id="author" type="text" data-bind="author" autocomplete="name">
+          </div>
+
+          <div>
+            <label for="description">Description</label>
+            <textarea id="description" data-bind="description" rows="5" autocomplete="off"></textarea>
+
+            <p class="help-text">The description appears in IntelliSense when browsing code snippets.</p>
+          </div>
+
+          <div>
+            <label for="shortcut">Shortcut</label>
+            <input id="shortcut" type="text" data-bind="shortcut" autocomplete="off">
+
+            <p class="help-text">Must only contain alphanumeric characters and underscores. Snippets without a shortcut
+              can be inserted using the context menu.</p>
+          </div>
+
+          <div>
+            <label for="helpUrl">Help URL</label>
+            <input id="helpUrl" type="url" data-bind="helpUrl" autocomplete="off">
+          </div>
+
+          <div>
+            <label for="language">Language</label>
+            <input id="language" type="text" data-bind="language" required autocomplete="off">
+          </div>
+
+          <div>
+            <label for="code">Code</label>
+            <textarea id="code" data-bind="code" required rows="5" autocomplete="off"></textarea>
+          </div>
+        </form>
       </div>
 
-      <div>
-        <label for="author">Author</label>
-        <input id="author" type="text" data-bind="author" autocomplete="name">
+      <div id="preview">
+        <h2 class="screen-reader-only">Preview</h2>
+
+        <pre><code>public static void Main(string[] args) {
+    bool x = true;
+}</code></pre>
       </div>
+    </div>
+    </div>
 
-      <div>
-        <label for="description">Description</label>
-        <textarea id="description" data-bind="description" rows="5" autocomplete="off"></textarea>
-
-        <p class="help-text">The description appears in IntelliSense when browsing code snippets.</p>
-      </div>
-
-      <div>
-        <label for="shortcut">Shortcut</label>
-        <input id="shortcut" type="text" data-bind="shortcut" autocomplete="off">
-
-        <p class="help-text">Must only contain alphanumeric characters and underscores. Snippets without a shortcut
-          can be inserted using the context menu.</p>
-      </div>
-
-      <div>
-        <label for="helpUrl">Help URL</label>
-        <input id="helpUrl" type="url" data-bind="helpUrl" autocomplete="off">
-      </div>
-
-      <div>
-        <label for="language">Language</label>
-        <input id="language" type="text" data-bind="language" required autocomplete="off">
-      </div>
-
-      <div>
-        <label for="code">Code</label>
-        <textarea id="code" data-bind="code" required rows="5" autocomplete="off"></textarea>
-      </div>
-    </form>
   </div>
 </body>
 

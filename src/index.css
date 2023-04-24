@@ -10,14 +10,33 @@
         padding: 3rem;
     }
 
-    .toolbar {
+    #container {
+        max-width: 1300px;
+        margin-inline: auto;
+    }
+
+    #inputs-and-preview {
+        display: grid;
+        grid-template-rows: auto;
+        gap: 2rem;
+    }
+
+    @media (width >= 900px) {
+        #inputs-and-preview {
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+        }
+    }
+
+    #toolbar {
         display: flex;
         gap: 0.5rem;
+        margin-block-end: 2rem;
     }
 
     #page-title {
         font-size: 2rem;
-        margin-block: 2rem;
+        margin-block-end: 2rem;
     }
 
     form {
@@ -38,5 +57,11 @@
     div:has(> textarea) {
         display: flex;
         flex-direction: column;
+    }
+
+    #preview {
+        position: sticky;
+        top: 3rem;
+        align-self: flex-start;
     }
 }
