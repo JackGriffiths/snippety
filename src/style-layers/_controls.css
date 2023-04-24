@@ -1,0 +1,157 @@
+input,
+textarea,
+button {
+    --accent-color: hsl(261, 36%, 44%);
+}
+
+@media (prefers-color-scheme: light) {
+    input,
+    textarea {
+        --input-default-border-color: rgb(121, 121, 121);
+        --input-default-background-color: var(--body-background-color);
+        --input-default-text-color: var(--body-text-color);
+        --input-hover-border-color: rgb(29, 29, 29);
+        --input-hover-background-color: var(--input-default-background-color);
+        --input-hover-text-color: var(--input-default-text-color);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    input,
+    textarea {
+        --input-default-border-color: rgb(179, 179, 179);
+        --input-default-background-color: var(--body-background-color);
+        --input-default-text-color: var(--body-text-color);
+        --input-hover-border-color: rgb(102, 102, 102);
+        --input-hover-background-color: var(--input-default-background-color);
+        --input-hover-text-color: var(--input-default-text-color);
+    }
+}
+
+input,
+textarea {
+    display: block;
+    border-width: 1px;
+    border-radius: 2px;
+    border-style: solid;
+    border-color: var(--input-default-border-color);
+    background: var(--input-default-background-color);
+    color: var(--input-default-text-color);
+    padding-block: 0.4rem;
+    padding-inline: 0.5rem;
+}
+
+input:hover,
+textarea:hover {
+    border-color: var(--input-hover-border-color);
+    background: var(--input-hover-background-color);
+    color: var(--input-hover-text-color);
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+    accent-color: var(--accent-color);
+}
+
+textarea {
+    resize: vertical;
+}
+
+@media (prefers-color-scheme: light) {
+    select {
+        --select-default-border-color: black;
+        --select-default-background-color: white;
+        --select-default-text-color: var(--body-text-color);
+        --select-hover-border-color: var(--accent-color);
+        --select-hover-background-color: var(--accent-color);
+        --select-hover-text-color: white;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    select {
+        --select-default-border-color: darkgrey;
+        --select-default-background-color: black;
+        --select-default-text-color: var(--body-text-color);
+        --select-hover-border-color: var(--accent-color);
+        --select-hover-background-color: var(--accent-color);
+        --select-hover-text-color: var(--select-default-text-color);
+    }
+}
+
+select {
+    display: block;
+    border-width: 1px;
+    border-radius: 2px;
+    border-style: solid;
+    border-color: var(--select-default-border-color);
+    background: var(--select-default-background-color);
+    color: var(--select-default-text-color);
+    padding-block: 0.4rem;
+    padding-inline: 0.2rem;
+}
+
+select:hover {
+    border-color: var(--select-hover-border-color);
+    background: var(--select-hover-background-color);
+    color: var(--select-hover-text-color);
+}
+
+label {
+    display: inline-block;
+}
+
+:is(input[type="radio"], input[type="checkbox"]) + label {
+    margin-inline-start: 0.4rem;
+}
+
+label:has(+ :is(input, textarea, select)) {
+    margin-block-end: 0.25rem;
+}
+
+label:has(+ :is(input[required], textarea[required], select[required]))::after {
+    content: "*";
+    display: inline;
+    margin-inline-start: 0.25em;
+    color: red;
+}
+
+@media (prefers-color-scheme: light) {
+    button {
+        --btn-default-border-color: black;
+        --btn-default-background-color: white;
+        --btn-default-text-color: black;
+        --btn-hover-border-color: var(--accent-color);
+        --btn-hover-background-color: var(--accent-color);
+        --btn-hover-text-color: white;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    button {
+        --btn-default-border-color: darkgrey;
+        --btn-default-background-color: black;
+        --btn-default-text-color: white;
+        --btn-hover-border-color: var(--accent-color);
+        --btn-hover-background-color: var(--accent-color);
+        --btn-hover-text-color: var(--btn-default-text-color);
+    }
+}
+
+button {
+    align-self: flex-start; /* TODO: Is there a better way to stop buttons in a flex container from stretching? */
+    border-width: 1px;
+    border-radius: 2px;
+    border-style: solid;
+    border-color: var(--btn-default-border-color);
+    background: var(--btn-default-background-color);
+    color: var(--btn-default-text-color);
+    padding-block: 0.3rem;
+    padding-inline: 0.75rem;
+}
+
+button:hover {
+    border-color: var(--btn-hover-border-color);
+    background: var(--btn-hover-background-color);
+    color: var(--btn-hover-text-color);
+}

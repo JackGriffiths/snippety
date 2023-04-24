@@ -1,0 +1,72 @@
+:root {
+    --ff-normal: "Arial", sans-serif;
+    --ff-monospace: "Consolas", monospace;
+    --fw-normal: 400;
+    --fw-bold: 700;
+}
+
+@media (prefers-color-scheme: light) {
+    body {
+        --body-background-color: #e7e7e7;
+        --body-text-color: black;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        --body-background-color: #242323;
+        --body-text-color: white;
+    }
+}
+
+body {
+    background: var(--body-background-color);
+    color: var(--body-text-color);
+    font-family: var(--ff-normal);
+    font-weight: var(--fw-normal);
+}
+
+@media (prefers-color-scheme: light) {
+    p {
+        --inline-code-border-color: lightgrey;
+        --inline-code-background-color: white;
+        --inline-code-text-color: currentColor;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    p {
+        --inline-code-border-color: darkgrey;
+        --inline-code-background-color: #242323;
+        --inline-code-text-color: currentColor;
+    }
+}
+
+p {
+    --paragraph-spacing: 1rem;
+    --paragraph-line-height: 1.5;
+    --paragraph-max-width: 60ch;
+
+    line-height: var(--paragraph-line-height);
+    max-width: var(--paragraph-max-width);
+}
+
+p + p {
+    margin-top: var(--paragraph-spacing);
+}
+
+p code {
+    border-radius: 0px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--inline-code-border-color);
+    background: var(--inline-code-background-color);
+    color: var(--inline-code-text-color);
+    padding-block: 1px;
+    padding-inline: 0.1em;
+}
+
+pre,
+code {
+    font-family: var(--ff-monospace);
+}

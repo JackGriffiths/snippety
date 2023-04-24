@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark" />
 
   <title>Snippety</title>
   <link rel="stylesheet" href="src/index.css">
@@ -11,48 +12,59 @@
 </head>
 
 <body>
-  <div style="margin-bottom: 1rem">
-    <button id="file-new-button">New</button>
-    <button id="file-open-button">Open</button>
-    <button id="file-save-button">Save</button>
-    <button id="file-save-as-button" style="display: none">Save As</button>
-  </div>
+  <div class="container">
+    <div class="toolbar">
+      <button id="file-new-button">New</button>
+      <button id="file-open-button">Open</button>
+      <button id="file-save-button" type="submit" form="main-form">Save</button>
+      <button id="file-save-as-button" type="submit" form="main-form" style="display: none">Save As</button>
+    </div>
 
-  <p id="file-name"></p>
+    <h1 id="page-title">New Snippet</h1>
 
-  <div>
-    <label for="title">Title</label>
-    <input id="title" type="text" data-bind="title">
-  </div>
+    <form id="main-form" action="">
+      <div>
+        <label for="title">Title</label>
+        <input id="title" type="text" data-bind="title" required autocomplete="off">
 
-  <div>
-    <label for="description">Description</label>
-    <textarea id="description" data-bind="description"></textarea>
-  </div>
+        <p class="help-text">The title appears in IntelliSense when browsing code snippets.</p>
+      </div>
 
-  <div>
-    <label for="shortcut">shortcut</label>
-    <input id="shortcut" type="text" data-bind="shortcut">
-  </div>
+      <div>
+        <label for="author">Author</label>
+        <input id="author" type="text" data-bind="author" autocomplete="name">
+      </div>
 
-  <div>
-    <label for="author">author</label>
-    <input id="author" type="text" data-bind="author">
-  </div>
+      <div>
+        <label for="description">Description</label>
+        <textarea id="description" data-bind="description" rows="5" autocomplete="off"></textarea>
 
-  <div>
-    <label for="helpUrl">helpUrl</label>
-    <input id="helpUrl" type="text" data-bind="helpUrl">
-  </div>
+        <p class="help-text">The description appears in IntelliSense when browsing code snippets.</p>
+      </div>
 
-  <div>
-    <label for="language">language</label>
-    <input id="language" type="text" data-bind="language">
-  </div>
+      <div>
+        <label for="shortcut">Shortcut</label>
+        <input id="shortcut" type="text" data-bind="shortcut" autocomplete="off">
 
-  <div>
-    <label for="code">code</label>
-    <textarea id="code" data-bind="code"></textarea>
+        <p class="help-text">Must only contain alphanumeric characters and underscores. Snippets without a shortcut
+          can be inserted using the context menu.</p>
+      </div>
+
+      <div>
+        <label for="helpUrl">Help URL</label>
+        <input id="helpUrl" type="url" data-bind="helpUrl" autocomplete="off">
+      </div>
+
+      <div>
+        <label for="language">Language</label>
+        <input id="language" type="text" data-bind="language" required autocomplete="off">
+      </div>
+
+      <div>
+        <label for="code">Code</label>
+        <textarea id="code" data-bind="code" required rows="5" autocomplete="off"></textarea>
+      </div>
+    </form>
   </div>
 </body>
 

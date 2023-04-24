@@ -1,9 +1,42 @@
-* {
-    box-sizing: border-box;
-}
+@layer reset, typography, controls, page, utilities;
 
-body {
-    min-height: 100vh;
-    margin: 0;
-    padding: 1rem;
+@import url("style-layers/_reset.css") layer(reset);
+@import url("style-layers/_typography.css") layer(typography);
+@import url("style-layers/_controls.css") layer(controls);
+@import url("style-layers/_utilities.css") layer(utilities);
+
+@layer page {
+    body {
+        padding: 3rem;
+    }
+
+    .toolbar {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    #page-title {
+        font-size: 2rem;
+        margin-block: 2rem;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 2.5rem;
+    }
+
+    form label {
+        font-weight: var(--fw-bold);
+    }
+
+    :is(label, input, textarea, select) + .help-text {
+        margin-block-start: 0.75rem;
+    }
+
+    /* This is to stretch the text areas horizontally. */
+    div:has(> textarea) {
+        display: flex;
+        flex-direction: column;
+    }
 }

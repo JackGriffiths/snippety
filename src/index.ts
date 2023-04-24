@@ -16,7 +16,7 @@ document.getElementById("file-new-button")!
     .addEventListener("click", () => {
         snippet = bindingContext.bind(new SnippetModel());
         fileManager.clearCurrentFile();
-        refreshFileName();
+        refreshPageTitle();
     });
 
 // Open button
@@ -33,39 +33,32 @@ document.getElementById("file-open-button")!
         snippet = bindingContext.bind(parsedSnippet);
 
         fileManager.setCurrentFile(file.name, file.handle ?? null);
-        refreshFileName();
+        refreshPageTitle();
     });
 
-// Save button
-document.getElementById("file-save-button")!
-    .addEventListener("click", async () => {
+// Save / Save As button
+document.getElementById("main-form")!
+    .addEventListener("submit", async (e) => {
+        e.preventDefault();
+
         const xml = SnippetWriter.toXml(snippet);
         const defaultFileName = fileManager.currentFileName ?? "snippet.snippet";
-        const file = await fileManager.trySave(defaultFileName, xml);
+
+        const useSaveAs = e.submitter?.id === "file-save-as-button";
+
+        const file = useSaveAs ?
+            await fileManager.trySaveAs(defaultFileName, xml) :
+            await fileManager.trySave(defaultFileName, xml);
 
         if (file !== null) {
             fileManager.setCurrentFile(file.name, file.handle);
-            refreshFileName();
+            refreshPageTitle();
         }
     });
 
-// Save As button
 if (fileManager.isSaveAsEnabled) {
     const saveAsButton = document.getElementById("file-save-as-button")!;
-
     saveAsButton.style.display = "inline-block";
-
-    saveAsButton
-        .addEventListener("click", async () => {
-            const xml = SnippetWriter.toXml(snippet);
-            const defaultFileName = fileManager.currentFileName ?? "snippet.snippet";
-            const file = await fileManager.trySaveAs(defaultFileName, xml);
-
-            if (file !== null) {
-                fileManager.setCurrentFile(file.name, file.handle);
-                refreshFileName();
-            }
-        });
 }
 
 async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemFileHandle | null }) {
@@ -75,15 +68,11 @@ async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemF
     snippet = bindingContext.bind(parsedSnippet);
 
     fileManager.setCurrentFile(file.name, file.handle);
-    refreshFileName();
+    refreshPageTitle();
 }
 
-function refreshFileName() {
-    document.getElementById("file-name")!.textContent = fileManager.currentFileName;
-
-    if (fileManager.currentFileName !== null) {
-        document.title = `${fileManager.currentFileName} - Snippety`;
-    } else {
-        document.title = "Snippety";
-    }
+function refreshPageTitle() {
+    const title = fileManager.currentFileName ?? "New Snippet";
+    document.getElementById("page-title")!.textContent = title;
+    document.title = `${title} - Snippety`;
 }
