@@ -19,17 +19,30 @@ export class SnippetParser {
     }
 
     static #parseCodeSnippetElement(codeSnippetElement: Element): SnippetModel {
-        const snippet = new SnippetModel();
-        snippet.format = codeSnippetElement.getAttribute("Format");
+        const model = new SnippetModel();
+        model.format = codeSnippetElement.getAttribute("Format");
 
         const header = SnippetParser.#getSingleElement(codeSnippetElement, "Header");
 
         if (header !== null) {
-            snippet.title = SnippetParser.#getSingleStringValue(header, "Title");
-            snippet.description = SnippetParser.#getSingleStringValue(header, "Description");
+            model.title = SnippetParser.#getSingleStringValue(header, "Title");
+            model.shortcut = SnippetParser.#getSingleStringValue(header, "Shortcut");
+            model.description = SnippetParser.#getSingleStringValue(header, "Description");
+            model.author = SnippetParser.#getSingleStringValue(header, "Author");
+            model.helpUrl = SnippetParser.#getSingleStringValue(header, "HelpUrl");
         }
 
-        return snippet;
+        const snippet = SnippetParser.#getSingleElement(codeSnippetElement, "Snippet");
+
+        if (snippet !== null) {
+            const code = SnippetParser.#getSingleElement(snippet, "Code");
+            if (code !== null) {
+                model.language = code.getAttribute("Language");
+                model.code = code.textContent;
+            }
+        }
+
+        return model;
     }
 
     static #getSingleElement(parent: Element, tagName: string): Element | null {

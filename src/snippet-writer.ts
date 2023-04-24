@@ -4,33 +4,57 @@ import xmlFormat from "xml-formatter";
 export class SnippetWriter {
     static readonly #schema = "http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet";
 
-    static toXml(snippet: SnippetModel): string {
-        const xml = SnippetWriter.#writeXml(snippet);
+    static toXml(model: SnippetModel): string {
+        const xml = SnippetWriter.#writeXml(model);
 
         return xmlFormat(xml, {
             collapseContent: true,
         })
     }
 
-    static #writeXml(snippet: SnippetModel): string {
+    static #writeXml(model: SnippetModel): string {
         const doc = document.implementation.createDocument(null, null);
         SnippetWriter.#appendProcessingInstruction(doc);
 
         const codeSnippets = SnippetWriter.#appendChildElement(doc, SnippetWriter.#schema, "CodeSnippets");
         const codeSnippet = SnippetWriter.#appendChildElement(codeSnippets, SnippetWriter.#schema, "CodeSnippet");
 
-        if (SnippetWriter.#isNotNullOrWhiteSpace(snippet.format)){
-            codeSnippet.setAttribute("Format", snippet.format);
+        if (SnippetWriter.#isNotNullOrWhiteSpace(model.format)){
+            codeSnippet.setAttribute("Format", model.format);
         }
 
         const header = SnippetWriter.#appendChildElement(codeSnippet, SnippetWriter.#schema, "Header");
 
-        if (SnippetWriter.#isNotNullOrWhiteSpace(snippet.title)) {
-            SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "Title", snippet.title);
+        if (SnippetWriter.#isNotNullOrWhiteSpace(model.title)) {
+            SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "Title", model.title);
         }
 
-        if (SnippetWriter.#isNotNullOrWhiteSpace(snippet.description)) {
-            SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "Description", snippet.description);
+        if (SnippetWriter.#isNotNullOrWhiteSpace(model.shortcut)) {
+            SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "Shortcut", model.shortcut);
+        }
+
+        if (SnippetWriter.#isNotNullOrWhiteSpace(model.description)) {
+            SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "Description", model.description);
+        }
+
+        if (SnippetWriter.#isNotNullOrWhiteSpace(model.author)) {
+            SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "Author", model.author);
+        }
+
+        if (SnippetWriter.#isNotNullOrWhiteSpace(model.helpUrl)) {
+            SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "HelpUrl", model.helpUrl);
+        }
+
+        const snippet = SnippetWriter.#appendChildElement(codeSnippet, SnippetWriter.#schema, "Snippet");
+
+        if (SnippetWriter.#isNotNullOrWhiteSpace(model.code)) {
+            const code = SnippetWriter.#appendChildElement(snippet, SnippetWriter.#schema, "Code");
+
+            if (SnippetWriter.#isNotNullOrWhiteSpace(model.language)) {
+                snippet.setAttribute("Language", model.language);
+            }
+
+            code.appendChild(doc.createCDATASection(model.code));
         }
 
         return new XMLSerializer().serializeToString(doc);

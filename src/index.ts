@@ -1,8 +1,12 @@
+import { BindingContext } from "./bindings/binding-context";
 import { FileDragAndDrop } from "./file-drag-and-drop";
 import { FileManager } from "./file-manager";
 import { SnippetModel } from "./snippet-model";
 import { SnippetParser } from "./snippet-parser";
 import { SnippetWriter } from "./snippet-writer";
+
+const bindingContext = new BindingContext<SnippetModel>(document);
+let snippet = bindingContext.bind(new SnippetModel());
 
 const fileManager = new FileManager();
 FileDragAndDrop.init(document.body, "link", "application/xml", fileDropped);
@@ -10,8 +14,8 @@ FileDragAndDrop.init(document.body, "link", "application/xml", fileDropped);
 // New button
 document.getElementById("file-new-button")!
     .addEventListener("click", () => {
+        snippet = bindingContext.bind(new SnippetModel());
         fileManager.clearCurrentFile();
-        populateForm(new SnippetModel());
         refreshFileName();
     });
 
@@ -23,20 +27,18 @@ document.getElementById("file-open-button")!
             return;
         }
 
-        const xml = await file.text();
-        const snippet = SnippetParser.fromXml(xml);
-
         // TODO: validate that it's a valid snippet file.
+        const xml = await file.text();
+        const parsedSnippet = SnippetParser.fromXml(xml);
+        snippet = bindingContext.bind(parsedSnippet);
 
         fileManager.setCurrentFile(file.name, file.handle ?? null);
-        populateForm(snippet);
         refreshFileName();
     });
 
 // Save button
 document.getElementById("file-save-button")!
     .addEventListener("click", async () => {
-        const snippet = getFromForm();
         const xml = SnippetWriter.toXml(snippet);
         const defaultFileName = fileManager.currentFileName ?? "snippet.snippet";
         const file = await fileManager.trySave(defaultFileName, xml);
@@ -55,7 +57,6 @@ if (fileManager.isSaveAsEnabled) {
 
     saveAsButton
         .addEventListener("click", async () => {
-            const snippet = getFromForm();
             const xml = SnippetWriter.toXml(snippet);
             const defaultFileName = fileManager.currentFileName ?? "snippet.snippet";
             const file = await fileManager.trySaveAs(defaultFileName, xml);
@@ -70,24 +71,11 @@ if (fileManager.isSaveAsEnabled) {
 async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemFileHandle | null }) {
     // TODO: validate that it's a valid snippet file.
     const xml = await file.blob.text();
-    const snippet = SnippetParser.fromXml(xml);
+    const parsedSnippet = SnippetParser.fromXml(xml);
+    snippet = bindingContext.bind(parsedSnippet);
 
     fileManager.setCurrentFile(file.name, file.handle);
-    populateForm(snippet);
     refreshFileName();
-}
-
-function populateForm(snippet: SnippetModel) {
-    (document.getElementById("title") as HTMLInputElement).value = snippet.title ?? "";
-    (document.getElementById("description") as HTMLTextAreaElement).value = snippet.description ?? "";
-}
-
-function getFromForm(): SnippetModel {
-    return {
-        format: "1.0.0", // TODO: might not be the value that was loaded from the snippet file.
-        title: (document.getElementById("title") as HTMLInputElement).value,
-        description: (document.getElementById("description") as HTMLTextAreaElement)!.value,
-    }
 }
 
 function refreshFileName() {
