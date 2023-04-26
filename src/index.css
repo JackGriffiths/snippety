@@ -59,6 +59,13 @@
         flex-direction: column;
     }
 
+    #imports {
+        margin-block: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
     #preview {
         position: sticky;
         top: 3rem;

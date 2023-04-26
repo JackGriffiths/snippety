@@ -7,9 +7,10 @@ export interface SnippetModel {
     helpUrl: string;
     language: string;
     code: string;
+    namespaces: string[];
 }
 
-export function createDefaultSnippet() {
+export function createDefaultSnippet(): SnippetModel {
     return {
         format: "1.0.0",
         title: "",
@@ -18,6 +19,7 @@ export function createDefaultSnippet() {
         author: "",
         helpUrl: "",
         language: "",
-        code: ""
+        code: "",
+        namespaces: [],
     };
 }

@@ -57,6 +57,16 @@ export class SnippetWriter {
             code.appendChild(doc.createCDATASection(model.code));
         }
 
+        const nonEmptyNamespaces = model.namespaces.filter(i => i !== "");
+
+        if (nonEmptyNamespaces.length > 0) {
+            const imports = SnippetWriter.#appendChildElement(snippet, SnippetWriter.#schema, "Imports");
+            for (const namespace of nonEmptyNamespaces) {
+                const _import = SnippetWriter.#appendChildElement(imports, SnippetWriter.#schema, "Import");
+                SnippetWriter.#appendChildStringElement(_import, SnippetWriter.#schema, "Namespace", namespace);
+            }
+        }
+
         return new XMLSerializer().serializeToString(doc);
     }
 

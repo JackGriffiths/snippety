@@ -42,9 +42,27 @@ export class SnippetParser {
                 model.language = code.getAttribute("Language") ?? "";
                 model.code = code.textContent ?? "";
             }
+
+            const imports = SnippetParser.#getSingleElement(snippet, "Imports");
+            if (imports !== null) {
+                model.namespaces = this.#parseImports(imports);
+            }
         }
 
         return model;
+    }
+
+    static #parseImports(imports: Element) {
+        const namesapces: string[] = [];
+
+        for (const _import of imports.getElementsByTagName("Import")) {
+            const namespace = SnippetParser.#getSingleStringValue(_import, "Namespace");
+            if (namespace !== null) {
+                namesapces.push(namespace);
+            }
+        }
+
+        return namesapces;
     }
 
     static #getSingleElement(parent: Element, tagName: string): Element | null {

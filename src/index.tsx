@@ -6,7 +6,7 @@ import { SnippetParser } from "./snippet-parser";
 import { SnippetWriter } from "./snippet-writer";
 import { createSignal, createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
-import { render, Show } from "solid-js/web";
+import { render, Show, Index } from "solid-js/web";
 
 const fileManager = new FileManager();
 FileDragAndDrop.init(document.body, "link", "application/xml", fileDropped);
@@ -93,6 +93,22 @@ function Inputs() {
                     <label for="helpUrl">Help URL</label>
                     <input id="helpUrl" type="url" autocomplete="off" value={snippet.helpUrl} onInput={(e) => updateSnippet("helpUrl", e.target.value)} />
                 </div>
+
+                <div>
+                    <label>Imports</label>
+                    <p class="help-text">The namespaces that need to be imported for this snippet to compile.</p>
+
+                    <div id="imports">
+                        <Index each={snippet.namespaces}>{
+                            (namespace, index) =>
+                                <input type="text" placeholder="e.g. using System.Linq" value={namespace()} onInput={(e) => updateNamespace(index, e.target.value)} />
+                        }</Index>
+                    </div>
+
+                    <button type="button" onClick={addNamespace}>
+                        Add
+                    </button>
+                </div>
             </form>
         </div>
     );
@@ -154,6 +170,14 @@ async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemF
 
     fileManager.setCurrentFile(file.name, file.handle);
     setPageTitle(file.name);
+}
+
+function addNamespace() {
+    updateSnippet("namespaces", (namespaces) => [...namespaces, ""]);
+}
+
+function updateNamespace(index: number, value: string) {
+    updateSnippet("namespaces", index, value);
 }
 
 render(() => <App />, document.getElementById("app") as HTMLElement);
