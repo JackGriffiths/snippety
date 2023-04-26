@@ -1,15 +1,15 @@
 import { FileManager } from "./file-manager";
-import { FileDragAndDrop } from "./file-drag-and-drop";
+import { initFileDragAndDrop } from "./file-drag-and-drop";
 import type { SnippetModel } from "./snippet-model";
 import { createDefaultSnippet } from "./snippet-model";
-import { SnippetParser } from "./snippet-parser";
-import { SnippetWriter } from "./snippet-writer";
+import { parseSnippetFromXml } from "./snippet-parser";
+import { writeSnippetToXml } from "./snippet-writer";
 import { createSignal, createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
 import { render, Show, Index } from "solid-js/web";
 
 const fileManager = new FileManager();
-FileDragAndDrop.init(document.body, "link", "application/xml", fileDropped);
+initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
 
 const [pageTitle, setPageTitle] = createSignal("New Snippet");
 const [snippet, updateSnippet] = createStore<SnippetModel>(createDefaultSnippet());
@@ -137,7 +137,7 @@ async function openSnippet() {
 
     // TODO: validate that it's a valid snippet file.
     const xml = await file.text();
-    const parsedSnippet = SnippetParser.fromXml(xml);
+    const parsedSnippet = parseSnippetFromXml(xml);
     updateSnippet(parsedSnippet);
 
     fileManager.setCurrentFile(file.name, file.handle ?? null);
@@ -147,7 +147,7 @@ async function openSnippet() {
 async function saveSnippet(e: SubmitEvent) {
     e.preventDefault();
 
-    const xml = SnippetWriter.toXml(snippet);
+    const xml = writeSnippetToXml(snippet);
     const defaultFileName = fileManager.currentFileName ?? "snippet.snippet";
 
     const useSaveAs = e.submitter?.dataset.submitType === "save-as";
@@ -165,7 +165,7 @@ async function saveSnippet(e: SubmitEvent) {
 async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemFileHandle | null }) {
     // TODO: validate that it's a valid snippet file.
     const xml = await file.blob.text();
-    const parsedSnippet = SnippetParser.fromXml(xml);
+    const parsedSnippet = parseSnippetFromXml(xml);
     updateSnippet(parsedSnippet);
 
     fileManager.setCurrentFile(file.name, file.handle);

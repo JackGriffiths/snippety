@@ -1,94 +1,92 @@
-import { SnippetModel } from "./snippet-model";
+import type { SnippetModel } from "./snippet-model";
 import xmlFormat from "xml-formatter";
 
-export class SnippetWriter {
-    static readonly #schema = "http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet";
+export function writeSnippetToXml(model: SnippetModel): string {
+    const xml = writeXml(model);
 
-    static toXml(model: SnippetModel): string {
-        const xml = SnippetWriter.#writeXml(model);
+    return xmlFormat(xml, {
+        collapseContent: true,
+    })
+}
 
-        return xmlFormat(xml, {
-            collapseContent: true,
-        })
+function writeXml(model: SnippetModel): string {
+    const schema = "http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet";
+
+    const doc = document.implementation.createDocument(null, null);
+    appendProcessingInstruction(doc);
+
+    const codeSnippets = appendChildElement(doc, schema, "CodeSnippets");
+    const codeSnippet = appendChildElement(codeSnippets, schema, "CodeSnippet");
+
+    if (isNotNullOrWhiteSpace(model.format)){
+        codeSnippet.setAttribute("Format", model.format);
     }
 
-    static #writeXml(model: SnippetModel): string {
-        const doc = document.implementation.createDocument(null, null);
-        SnippetWriter.#appendProcessingInstruction(doc);
+    const header = appendChildElement(codeSnippet, schema, "Header");
 
-        const codeSnippets = SnippetWriter.#appendChildElement(doc, SnippetWriter.#schema, "CodeSnippets");
-        const codeSnippet = SnippetWriter.#appendChildElement(codeSnippets, SnippetWriter.#schema, "CodeSnippet");
-
-        if (SnippetWriter.#isNotNullOrWhiteSpace(model.format)){
-            codeSnippet.setAttribute("Format", model.format);
-        }
-
-        const header = SnippetWriter.#appendChildElement(codeSnippet, SnippetWriter.#schema, "Header");
-
-        if (SnippetWriter.#isNotNullOrWhiteSpace(model.title)) {
-            SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "Title", model.title);
-        }
-
-        if (SnippetWriter.#isNotNullOrWhiteSpace(model.shortcut)) {
-            SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "Shortcut", model.shortcut);
-        }
-
-        if (SnippetWriter.#isNotNullOrWhiteSpace(model.description)) {
-            SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "Description", model.description);
-        }
-
-        if (SnippetWriter.#isNotNullOrWhiteSpace(model.author)) {
-            SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "Author", model.author);
-        }
-
-        if (SnippetWriter.#isNotNullOrWhiteSpace(model.helpUrl)) {
-            SnippetWriter.#appendChildStringElement(header, SnippetWriter.#schema, "HelpUrl", model.helpUrl);
-        }
-
-        const snippet = SnippetWriter.#appendChildElement(codeSnippet, SnippetWriter.#schema, "Snippet");
-
-        if (SnippetWriter.#isNotNullOrWhiteSpace(model.code)) {
-            const code = SnippetWriter.#appendChildElement(snippet, SnippetWriter.#schema, "Code");
-
-            if (SnippetWriter.#isNotNullOrWhiteSpace(model.language)) {
-                code.setAttribute("Language", model.language);
-            }
-
-            code.appendChild(doc.createCDATASection(model.code));
-        }
-
-        const nonEmptyNamespaces = model.namespaces.filter(i => i !== "");
-
-        if (nonEmptyNamespaces.length > 0) {
-            const imports = SnippetWriter.#appendChildElement(snippet, SnippetWriter.#schema, "Imports");
-            for (const namespace of nonEmptyNamespaces) {
-                const _import = SnippetWriter.#appendChildElement(imports, SnippetWriter.#schema, "Import");
-                SnippetWriter.#appendChildStringElement(_import, SnippetWriter.#schema, "Namespace", namespace);
-            }
-        }
-
-        return new XMLSerializer().serializeToString(doc);
+    if (isNotNullOrWhiteSpace(model.title)) {
+        appendChildStringElement(header, schema, "Title", model.title);
     }
 
-    static #appendProcessingInstruction(doc: XMLDocument) {
-        const pi = doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\"");
-        doc.appendChild(pi);
+    if (isNotNullOrWhiteSpace(model.shortcut)) {
+        appendChildStringElement(header, schema, "Shortcut", model.shortcut);
     }
 
-    static #appendChildElement(parent: Node, schema: string, name: string) {
-        const doc = parent instanceof Document ? parent : parent.ownerDocument!;
-        const child = doc.createElementNS(schema, name);
-        parent.appendChild(child);
-        return child;
+    if (isNotNullOrWhiteSpace(model.description)) {
+        appendChildStringElement(header, schema, "Description", model.description);
     }
 
-    static #appendChildStringElement(parent: Node, schema: string, name: string, value: string) {
-        const child = SnippetWriter.#appendChildElement(parent, schema, name);
-        child.textContent = value;
-        return child;
+    if (isNotNullOrWhiteSpace(model.author)) {
+        appendChildStringElement(header, schema, "Author", model.author);
     }
 
-    static #isNotNullOrWhiteSpace(value: string | null): value is string {
-        return value !== null && value.trim().length !== 0;
+    if (isNotNullOrWhiteSpace(model.helpUrl)) {
+        appendChildStringElement(header, schema, "HelpUrl", model.helpUrl);
     }
+
+    const snippet = appendChildElement(codeSnippet, schema, "Snippet");
+
+    if (isNotNullOrWhiteSpace(model.code)) {
+        const code = appendChildElement(snippet, schema, "Code");
+
+        if (isNotNullOrWhiteSpace(model.language)) {
+            code.setAttribute("Language", model.language);
+        }
+
+        code.appendChild(doc.createCDATASection(model.code));
+    }
+
+    const nonEmptyNamespaces = model.namespaces.filter(i => i !== "");
+
+    if (nonEmptyNamespaces.length > 0) {
+        const imports = appendChildElement(snippet, schema, "Imports");
+        for (const namespace of nonEmptyNamespaces) {
+            const _import = appendChildElement(imports, schema, "Import");
+            appendChildStringElement(_import, schema, "Namespace", namespace);
+        }
+    }
+
+    return new XMLSerializer().serializeToString(doc);
+}
+
+function appendProcessingInstruction(doc: XMLDocument) {
+    const pi = doc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\"");
+    doc.appendChild(pi);
+}
+
+function appendChildElement(parent: Node, schema: string, name: string) {
+    const doc = parent instanceof Document ? parent : parent.ownerDocument!;
+    const child = doc.createElementNS(schema, name);
+    parent.appendChild(child);
+    return child;
+}
+
+function appendChildStringElement(parent: Node, schema: string, name: string, value: string) {
+    const child = appendChildElement(parent, schema, name);
+    child.textContent = value;
+    return child;
+}
+
+function isNotNullOrWhiteSpace(value: string | null): value is string {
+    return value !== null && value.trim().length !== 0;
 }
