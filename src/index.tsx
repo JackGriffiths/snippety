@@ -160,14 +160,10 @@ function Inputs() {
 }
 
 function Preview() {
-    const sampleCode = `public static void Main(string[] args) {
-    bool x = true;
-}`;
-
     return (
         <div id="preview">
             <h2 class="screen-reader-only">Preview</h2>
-            <pre><code>{sampleCode}</code></pre>
+            <pre><code>{snippet.code}</code></pre>
         </div>
     );
 }
