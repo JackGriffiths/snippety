@@ -3,7 +3,7 @@ import { FileDragAndDrop } from "./file-drag-and-drop";
 import type { SnippetModel } from "./snippet-model";
 import { SnippetParser } from "./snippet-parser";
 import { SnippetWriter } from "./snippet-writer";
-import { createSignal } from "solid-js";
+import { createSignal, createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
 import { render, Show } from "solid-js/web";
 
@@ -11,7 +11,7 @@ const fileManager = new FileManager();
 FileDragAndDrop.init(document.body, "link", "application/xml", fileDropped);
 
 const [pageTitle, setPageTitle] = createSignal("New Snippet");
-const [snippet, updateSnippet] = createStore<SnippetModel>(createBlankSnippet())
+const [snippet, updateSnippet] = createStore<SnippetModel>(createBlankSnippet());
 
 function createBlankSnippet() {
     return {
@@ -29,7 +29,7 @@ function createBlankSnippet() {
 function newSnippet() {
     updateSnippet(createBlankSnippet());
     fileManager.clearCurrentFile();
-    refreshPageTitle();
+    setPageTitle("New Snippet");
 }
 
 async function openSnippet() {
@@ -44,7 +44,7 @@ async function openSnippet() {
     updateSnippet(parsedSnippet);
 
     fileManager.setCurrentFile(file.name, file.handle ?? null);
-    refreshPageTitle();
+    setPageTitle(file.name);
 }
 
 async function saveSnippet(e: SubmitEvent) {
@@ -61,7 +61,7 @@ async function saveSnippet(e: SubmitEvent) {
 
     if (file !== null) {
         fileManager.setCurrentFile(file.name, file.handle);
-        refreshPageTitle();
+        setPageTitle(file.name);
     }
 }
 
@@ -72,16 +72,12 @@ async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemF
     updateSnippet(parsedSnippet);
 
     fileManager.setCurrentFile(file.name, file.handle);
-    refreshPageTitle();
-}
-
-function refreshPageTitle() {
-    const title = fileManager.currentFileName ?? "New Snippet";
-    setPageTitle(title);
-    document.title = `${title} - Snippety`;
+    setPageTitle(file.name);
 }
 
 function App() {
+    createEffect(() => document.title = `${pageTitle()} - Snippety`);
+
     return (
         <div class="container">
             <Toolbar />
