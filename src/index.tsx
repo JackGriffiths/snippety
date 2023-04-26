@@ -13,68 +13,6 @@ FileDragAndDrop.init(document.body, "link", "application/xml", fileDropped);
 const [pageTitle, setPageTitle] = createSignal("New Snippet");
 const [snippet, updateSnippet] = createStore<SnippetModel>(createBlankSnippet());
 
-function createBlankSnippet() {
-    return {
-        format: "1.0.0",
-        title: "",
-        shortcut: "",
-        description: "",
-        author: "",
-        helpUrl: "",
-        language: "",
-        code: ""
-    };
-};
-
-function newSnippet() {
-    updateSnippet(createBlankSnippet());
-    fileManager.clearCurrentFile();
-    setPageTitle("New Snippet");
-}
-
-async function openSnippet() {
-    const file = await fileManager.tryOpen();
-    if (file === null) {
-        return;
-    }
-
-    // TODO: validate that it's a valid snippet file.
-    const xml = await file.text();
-    const parsedSnippet = SnippetParser.fromXml(xml);
-    updateSnippet(parsedSnippet);
-
-    fileManager.setCurrentFile(file.name, file.handle ?? null);
-    setPageTitle(file.name);
-}
-
-async function saveSnippet(e: SubmitEvent) {
-    e.preventDefault();
-
-    const xml = SnippetWriter.toXml(snippet);
-    const defaultFileName = fileManager.currentFileName ?? "snippet.snippet";
-
-    const useSaveAs = e.submitter?.dataset.submitType === "save-as";
-
-    const file = useSaveAs ?
-        await fileManager.trySaveAs(defaultFileName, xml) :
-        await fileManager.trySave(defaultFileName, xml);
-
-    if (file !== null) {
-        fileManager.setCurrentFile(file.name, file.handle);
-        setPageTitle(file.name);
-    }
-}
-
-async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemFileHandle | null }) {
-    // TODO: validate that it's a valid snippet file.
-    const xml = await file.blob.text();
-    const parsedSnippet = SnippetParser.fromXml(xml);
-    updateSnippet(parsedSnippet);
-
-    fileManager.setCurrentFile(file.name, file.handle);
-    setPageTitle(file.name);
-}
-
 function App() {
     createEffect(() => document.title = `${pageTitle()} - Snippety`);
 
@@ -166,6 +104,68 @@ function Preview() {
             <pre><code>{snippet.code}</code></pre>
         </div>
     );
+}
+
+function createBlankSnippet() {
+    return {
+        format: "1.0.0",
+        title: "",
+        shortcut: "",
+        description: "",
+        author: "",
+        helpUrl: "",
+        language: "",
+        code: ""
+    };
+};
+
+function newSnippet() {
+    updateSnippet(createBlankSnippet());
+    fileManager.clearCurrentFile();
+    setPageTitle("New Snippet");
+}
+
+async function openSnippet() {
+    const file = await fileManager.tryOpen();
+    if (file === null) {
+        return;
+    }
+
+    // TODO: validate that it's a valid snippet file.
+    const xml = await file.text();
+    const parsedSnippet = SnippetParser.fromXml(xml);
+    updateSnippet(parsedSnippet);
+
+    fileManager.setCurrentFile(file.name, file.handle ?? null);
+    setPageTitle(file.name);
+}
+
+async function saveSnippet(e: SubmitEvent) {
+    e.preventDefault();
+
+    const xml = SnippetWriter.toXml(snippet);
+    const defaultFileName = fileManager.currentFileName ?? "snippet.snippet";
+
+    const useSaveAs = e.submitter?.dataset.submitType === "save-as";
+
+    const file = useSaveAs ?
+        await fileManager.trySaveAs(defaultFileName, xml) :
+        await fileManager.trySave(defaultFileName, xml);
+
+    if (file !== null) {
+        fileManager.setCurrentFile(file.name, file.handle);
+        setPageTitle(file.name);
+    }
+}
+
+async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemFileHandle | null }) {
+    // TODO: validate that it's a valid snippet file.
+    const xml = await file.blob.text();
+    const parsedSnippet = SnippetParser.fromXml(xml);
+    updateSnippet(parsedSnippet);
+
+    fileManager.setCurrentFile(file.name, file.handle);
+    setPageTitle(file.name);
 }
 
 render(() => <App />, document.getElementById("app") as HTMLElement);
