@@ -51,7 +51,7 @@ export class SnippetWriter {
             const code = SnippetWriter.#appendChildElement(snippet, SnippetWriter.#schema, "Code");
 
             if (SnippetWriter.#isNotNullOrWhiteSpace(model.language)) {
-                snippet.setAttribute("Language", model.language);
+                code.setAttribute("Language", model.language);
             }
 
             code.appendChild(doc.createCDATASection(model.code));

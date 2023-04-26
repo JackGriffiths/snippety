@@ -10,10 +10,12 @@
   "devDependencies": {
     "eslint": "^8.38.0",
     "typescript": "^5.0.4",
-    "vite": "^4.2.2"
+    "vite": "^4.2.2",
+    "vite-plugin-solid": "^2.7.0"
   },
   "dependencies": {
     "browser-fs-access": "^0.33.1",
+    "solid-js": "^1.7.3",
     "xml-formatter": "^3.3.2"
   }
 }

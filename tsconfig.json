@@ -5,7 +5,9 @@
         "moduleResolution": "node",
         "strict": true,
         "isolatedModules": true,
-        "noEmit": true
+        "noEmit": true,
+        "jsx": "preserve",
+        "jsxImportSource": "solid-js"
     },
     "include": ["src"]
 }

@@ -1,4 +1,4 @@
-import { SnippetModel } from "./snippet-model";
+import type { SnippetModel } from "./snippet-model";
 
 export class SnippetParser {
 
@@ -19,17 +19,27 @@ export class SnippetParser {
     }
 
     static #parseCodeSnippetElement(codeSnippetElement: Element): SnippetModel {
-        const model = new SnippetModel();
-        model.format = codeSnippetElement.getAttribute("Format");
+        const model: SnippetModel = {
+            format: "1.0.0",
+            title: "",
+            shortcut: "",
+            description: "",
+            author: "",
+            helpUrl: "",
+            language: "",
+            code: ""
+        };
+
+        model.format = codeSnippetElement.getAttribute("Format") ?? "";
 
         const header = SnippetParser.#getSingleElement(codeSnippetElement, "Header");
 
         if (header !== null) {
-            model.title = SnippetParser.#getSingleStringValue(header, "Title");
-            model.shortcut = SnippetParser.#getSingleStringValue(header, "Shortcut");
-            model.description = SnippetParser.#getSingleStringValue(header, "Description");
-            model.author = SnippetParser.#getSingleStringValue(header, "Author");
-            model.helpUrl = SnippetParser.#getSingleStringValue(header, "HelpUrl");
+            model.title = SnippetParser.#getSingleStringValue(header, "Title") ?? "";
+            model.shortcut = SnippetParser.#getSingleStringValue(header, "Shortcut") ?? "";
+            model.description = SnippetParser.#getSingleStringValue(header, "Description") ?? "";
+            model.author = SnippetParser.#getSingleStringValue(header, "Author") ?? "";
+            model.helpUrl = SnippetParser.#getSingleStringValue(header, "HelpUrl") ?? "";
         }
 
         const snippet = SnippetParser.#getSingleElement(codeSnippetElement, "Snippet");
@@ -37,8 +47,8 @@ export class SnippetParser {
         if (snippet !== null) {
             const code = SnippetParser.#getSingleElement(snippet, "Code");
             if (code !== null) {
-                model.language = code.getAttribute("Language");
-                model.code = code.textContent;
+                model.language = code.getAttribute("Language") ?? "";
+                model.code = code.textContent ?? "";
             }
         }
 
