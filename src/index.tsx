@@ -1,6 +1,7 @@
 import { FileManager } from "./file-manager";
 import { FileDragAndDrop } from "./file-drag-and-drop";
 import type { SnippetModel } from "./snippet-model";
+import { createDefaultSnippet } from "./snippet-model";
 import { SnippetParser } from "./snippet-parser";
 import { SnippetWriter } from "./snippet-writer";
 import { createSignal, createEffect } from "solid-js";
@@ -11,7 +12,7 @@ const fileManager = new FileManager();
 FileDragAndDrop.init(document.body, "link", "application/xml", fileDropped);
 
 const [pageTitle, setPageTitle] = createSignal("New Snippet");
-const [snippet, updateSnippet] = createStore<SnippetModel>(createBlankSnippet());
+const [snippet, updateSnippet] = createStore<SnippetModel>(createDefaultSnippet());
 
 function App() {
     createEffect(() => document.title = `${pageTitle()} - Snippety`);
@@ -106,21 +107,8 @@ function Preview() {
     );
 }
 
-function createBlankSnippet() {
-    return {
-        format: "1.0.0",
-        title: "",
-        shortcut: "",
-        description: "",
-        author: "",
-        helpUrl: "",
-        language: "",
-        code: ""
-    };
-};
-
 function newSnippet() {
-    updateSnippet(createBlankSnippet());
+    updateSnippet(createDefaultSnippet());
     fileManager.clearCurrentFile();
     setPageTitle("New Snippet");
 }

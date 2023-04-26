@@ -1,4 +1,5 @@
 import type { SnippetModel } from "./snippet-model";
+import { createDefaultSnippet } from "./snippet-model";
 
 export class SnippetParser {
 
@@ -19,16 +20,7 @@ export class SnippetParser {
     }
 
     static #parseCodeSnippetElement(codeSnippetElement: Element): SnippetModel {
-        const model: SnippetModel = {
-            format: "1.0.0",
-            title: "",
-            shortcut: "",
-            description: "",
-            author: "",
-            helpUrl: "",
-            language: "",
-            code: ""
-        };
+        const model = createDefaultSnippet();
 
         model.format = codeSnippetElement.getAttribute("Format") ?? "";
 

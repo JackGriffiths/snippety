@@ -8,3 +8,16 @@ export interface SnippetModel {
     language: string;
     code: string;
 }
+
+export function createDefaultSnippet() {
+    return {
+        format: "1.0.0",
+        title: "",
+        shortcut: "",
+        description: "",
+        author: "",
+        helpUrl: "",
+        language: "",
+        code: ""
+    };
+}
