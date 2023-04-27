@@ -1,7 +1,6 @@
 import * as fileManager from "./file-manager";
 import { initFileDragAndDrop } from "./file-drag-and-drop";
-import type { SnippetModel } from "./snippet-model";
-import { createDefaultSnippet } from "./snippet-model";
+import { SnippetModel, SnippetType, snippetTypeDescriptions, createDefaultSnippet } from "./snippet-model";
 import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
 import { createEffect } from "solid-js";
@@ -145,6 +144,22 @@ function Inputs() {
                         Add
                     </button>
                 </div>
+
+                <div>
+                    <label>Type</label>
+                    <p class="help-text">The type of snippet. If no types are selected, the snippet can be inserted anywhere in the code.</p>
+
+                    <For each={Array.from(snippetTypeDescriptions)}>{(value) =>
+                        <Show when={value[0] !== SnippetType.Refactoring || snippet.types.includes(SnippetType.Refactoring)}>
+                            <div>
+                                <input id={`type-${value[0]}`} type="checkbox" checked={snippet.types.includes(value[0])} onChange={(e) => updateType(value[0], e.target.checked)} />
+                                <label for={`type-${value[0]}`}>
+                                    {value[1]}
+                                </label>
+                            </div>
+                        </Show>
+                    }</For>
+                </div>
             </form>
         </div>
     );
@@ -255,6 +270,14 @@ function addNamespace() {
 
 function updateNamespace(index: number, value: string) {
     updateSnippet("namespaces", index, value);
+}
+
+function updateType(type: SnippetType, isSelected: boolean) {
+    if (isSelected && !snippet.types.includes(type)) {
+        updateSnippet("types", (types) => [...types, type]);
+    } else if (!isSelected && snippet.types.includes(type)) {
+        updateSnippet("types", (types) => types.filter(t => t !== type));
+    }
 }
 
 render(() => <App />, document.getElementById("app") as HTMLElement);

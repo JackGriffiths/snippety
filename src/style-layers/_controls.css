@@ -6,7 +6,7 @@ button {
 }
 
 @media (prefers-color-scheme: light) {
-    input,
+    input:not([type='checkbox']):not([type='radio']),
     textarea {
         --input-default-border-color: rgb(121, 121, 121);
         --input-default-background-color: var(--body-background-color);
@@ -18,7 +18,7 @@ button {
 }
 
 @media (prefers-color-scheme: dark) {
-    input,
+    input:not([type='checkbox']):not([type='radio']),
     textarea {
         --input-default-border-color: rgb(179, 179, 179);
         --input-default-background-color: var(--body-background-color);
@@ -29,7 +29,7 @@ button {
     }
 }
 
-input,
+input:not([type='checkbox']):not([type='radio']),
 textarea {
     display: block;
     border-width: 1px;
@@ -42,15 +42,15 @@ textarea {
     padding-inline: 0.5rem;
 }
 
-input:hover,
-textarea:hover {
+input:not([type='checkbox']):not([type='radio']):hover,
+input:not([type='checkbox']):not([type='radio']):hover {
     border-color: var(--input-hover-border-color);
     background: var(--input-hover-background-color);
     color: var(--input-hover-text-color);
 }
 
-input[type="radio"],
-input[type="checkbox"] {
+input[type="checkbox"],
+input[type="radio"] {
     accent-color: var(--accent-color);
 }
 

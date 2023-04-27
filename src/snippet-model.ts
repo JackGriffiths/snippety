@@ -9,6 +9,7 @@ export interface SnippetModel {
     code: string;
     placeholders: Placeholder[];
     namespaces: string[];
+    types: SnippetType[];
 }
 
 export interface Placeholder {
@@ -17,6 +18,18 @@ export interface Placeholder {
     tooltip: string;
     isEditable: boolean;
 }
+
+export enum SnippetType {
+    Expansion = "Expansion",
+    SurroundsWith = "SurroundsWith",
+    Refactoring = "Refactoring",
+}
+
+export const snippetTypeDescriptions: ReadonlyMap<SnippetType, string> = new Map([
+    [SnippetType.Expansion, "Expansion"],
+    [SnippetType.SurroundsWith, "Surrounds With"],
+    [SnippetType.Refactoring, "Refactoring"],
+])
 
 export function createDefaultSnippet(): SnippetModel {
     return {
@@ -30,5 +43,6 @@ export function createDefaultSnippet(): SnippetModel {
         code: "",
         placeholders: [],
         namespaces: [],
+        types: [],
     };
 }

@@ -44,6 +44,15 @@ function writeXml(model: SnippetModel): string {
         appendChildStringElement(header, schema, "HelpUrl", model.helpUrl);
     }
 
+    if (model.types.length > 0) {
+        const snippetTypes = appendChildElement(header, schema, "SnippetTypes");
+        const sortedSelectedTypes = Array.from(model.types).sort((a, b) => a.localeCompare(b));
+
+        for (const type of sortedSelectedTypes) {
+            appendChildStringElement(snippetTypes, schema, "SnippetType", type);
+        }
+    }
+
     const snippet = appendChildElement(codeSnippet, schema, "Snippet");
 
     if (model.placeholders.length > 0) {
