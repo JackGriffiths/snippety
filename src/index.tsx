@@ -68,7 +68,7 @@ function Inputs() {
 
                 <div>
                     <label for="shortcut">Shortcut</label>
-                    <input id="shortcut" type="text" autocomplete="off" value={snippet.shortcut} onInput={(e) => updateSnippet("shortcut", e.target.value)} />
+                    <input id="shortcut" type="text" autocomplete="off" pattern="[A-Za-z0-9_]*" value={snippet.shortcut} onInput={(e) => updateSnippet("shortcut", e.target.value)} />
 
                     <p class="help-text">Must only contain alphanumeric characters and underscores. Snippets without a shortcut
                     can be inserted using the context menu.</p>
