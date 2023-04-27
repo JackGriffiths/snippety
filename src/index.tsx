@@ -226,13 +226,14 @@ async function saveSnippet(e: SubmitEvent) {
     e.preventDefault();
 
     const xml = writeSnippetToXml(snippet);
-    const defaultFileName = fileManager.currentFileName() ?? "snippet.snippet";
 
+    const defaultFileName = snippet.shortcut || snippet.title; // TODO: strip invalid file name chars from the title.
+    const defaultFileNameWithExt = `${defaultFileName}.snippet`;
     const useSaveAs = e.submitter?.dataset.submitType === "save-as";
 
     const file = useSaveAs ?
-        await fileManager.trySaveAs(defaultFileName, xml) :
-        await fileManager.trySave(defaultFileName, xml);
+        await fileManager.trySaveAs(xml, defaultFileNameWithExt) :
+        await fileManager.trySave(xml, defaultFileNameWithExt);
 
     if (file !== null) {
         fileManager.setCurrentFile(file.name, file.handle);

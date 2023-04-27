@@ -38,15 +38,16 @@ export async function tryOpen() {
     }
 }
 
-export async function trySave(defaultFileName: string, text: string) {
-    return await trySaveText(defaultFileName, text, currentFileHandle()); // TODO: do we need to specify untracked access?
+export async function trySave(text: string, defaultFileName: string) {
+    // TODO: do we need to specify untracked access?
+    return await trySaveText(text, currentFileName() ?? defaultFileName, currentFileHandle());
 }
 
-export async function trySaveAs(defaultFileName: string, text: string) {
-    return await trySaveText(defaultFileName, text, null);
+export async function trySaveAs(text: string, defaultFileName: string) {
+    return await trySaveText(text, currentFileName() ?? defaultFileName, null);
 }
 
-async function trySaveText(defaultFileName: string, text: string, existingHandle: FileSystemFileHandle | null) {
+async function trySaveText(text: string, defaultFileName: string, existingHandle: FileSystemFileHandle | null) {
     const data = new Blob([text], {
         type: "application/xml"
     });
