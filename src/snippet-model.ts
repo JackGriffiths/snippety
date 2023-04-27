@@ -1,4 +1,4 @@
-export interface SnippetModel {
+export interface Snippet {
     format: string;
     title: string;
     shortcut: string;
@@ -48,7 +48,7 @@ export const snippetKindDescriptions: ReadonlyMap<SnippetKind, string> = new Map
     [SnippetKind.MethodBody, "Method Body"],
 ]);
 
-export function createDefaultSnippet(): SnippetModel {
+export function createDefaultSnippet(): Snippet {
     return {
         format: "1.0.0",
         title: "",

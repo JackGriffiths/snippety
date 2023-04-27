@@ -1,7 +1,7 @@
-import { Placeholder, SnippetKind, SnippetModel, SnippetType } from "./snippet-model";
+import { Placeholder, SnippetKind, Snippet, SnippetType } from "./snippet-model";
 import { createDefaultSnippet } from "./snippet-model";
 
-export function parseSnippetFromXml(xml: string): SnippetModel {
+export function parseSnippetFromXml(xml: string): Snippet {
     // TODO: what if it's not unparsable XML?
     const doc = new DOMParser().parseFromString(xml, "application/xml");
     const codeSnippets = doc.getElementsByTagName("CodeSnippet");
@@ -17,7 +17,7 @@ export function parseSnippetFromXml(xml: string): SnippetModel {
     return parseCodeSnippetElement(codeSnippets[0]);
 }
 
-function parseCodeSnippetElement(codeSnippetElement: Element): SnippetModel {
+function parseCodeSnippetElement(codeSnippetElement: Element): Snippet {
     const model = createDefaultSnippet();
 
     model.format = codeSnippetElement.getAttribute("Format") ?? "";

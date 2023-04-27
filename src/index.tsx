@@ -1,13 +1,13 @@
 import * as fileManager from "./file-manager";
 import { initFileDragAndDrop } from "./file-drag-and-drop";
-import { SnippetModel, SnippetType, snippetTypeDescriptions, createDefaultSnippet, snippetKindDescriptions } from "./snippet-model";
+import { Snippet, SnippetType, snippetTypeDescriptions, createDefaultSnippet, snippetKindDescriptions } from "./snippet-model";
 import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
 import { createEffect, createUniqueId } from "solid-js";
 import { createStore } from "solid-js/store";
 import { render, Show, For, Index } from "solid-js/web";
 
-const [snippet, updateSnippet] = createStore<SnippetModel>(createDefaultSnippet());
+const [snippet, updateSnippet] = createStore<Snippet>(createDefaultSnippet());
 
 const pageTitle = () => fileManager.currentFileName() ?? "New Snippet";
 initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);

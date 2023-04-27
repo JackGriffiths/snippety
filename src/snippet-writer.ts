@@ -1,7 +1,7 @@
-import type { SnippetModel } from "./snippet-model";
+import type { Snippet } from "./snippet-model";
 import xmlFormat from "xml-formatter";
 
-export function writeSnippetToXml(model: SnippetModel): string {
+export function writeSnippetToXml(model: Snippet): string {
     const xml = writeXml(model);
 
     return xmlFormat(xml, {
@@ -9,7 +9,7 @@ export function writeSnippetToXml(model: SnippetModel): string {
     })
 }
 
-function writeXml(model: SnippetModel): string {
+function writeXml(model: Snippet): string {
     const schema = "http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet";
 
     const doc = document.implementation.createDocument(null, null);
