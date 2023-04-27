@@ -154,16 +154,14 @@ function Inputs() {
                     <label>Type</label>
                     <p class="help-text">The type of snippet. If no types are selected, the snippet can be inserted anywhere in the code.</p>
 
-                    <For each={Array.from(snippetTypeDescriptions)}>{(value) => {
+                    <For each={Array.from(snippetTypeDescriptions)}>{([value, description]) => {
                         const checkboxInputId = createUniqueId();
 
                         return (
-                            <Show when={value[0] !== SnippetType.Refactoring || snippet.types.includes(SnippetType.Refactoring)}>
+                            <Show when={value !== SnippetType.Refactoring || snippet.types.includes(SnippetType.Refactoring)}>
                                 <div>
-                                    <input id={checkboxInputId} type="checkbox" checked={snippet.types.includes(value[0])} onChange={(e) => updateType(value[0], e.target.checked)} />
-                                    <label for={checkboxInputId}>
-                                        {value[1]}
-                                    </label>
+                                    <input id={checkboxInputId} type="checkbox" checked={snippet.types.includes(value)} onChange={(e) => updateType(value, e.target.checked)} />
+                                    <label for={checkboxInputId}>{description}</label>
                                 </div>
                             </Show>
                         );
@@ -174,15 +172,13 @@ function Inputs() {
                     <label>Kind</label>
                     <p>Specifies the kind of code that the snippet contains.</p>
 
-                    <For each={Array.from(snippetKindDescriptions)}>{(value) => {
+                    <For each={Array.from(snippetKindDescriptions)}>{([value, description]) => {
                         const radioInputId = createUniqueId();
 
                         return (
                             <div>
-                                <input id={radioInputId} type="radio" name="kind" checked={snippet.kind === value[0]} onChange={(e) => updateSnippet("kind", value[0])} />
-                                <label for={radioInputId}>
-                                    {value[1]}
-                                </label>
+                                <input id={radioInputId} type="radio" name="kind" checked={snippet.kind === value} onChange={(e) => updateSnippet("kind", value)} />
+                                <label for={radioInputId}>{description}</label>
                             </div>
                         );
                     }}</For>
