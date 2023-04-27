@@ -3,7 +3,7 @@ import { initFileDragAndDrop } from "./file-drag-and-drop";
 import { SnippetModel, SnippetType, snippetTypeDescriptions, createDefaultSnippet, snippetKindDescriptions } from "./snippet-model";
 import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
-import { createEffect } from "solid-js";
+import { createEffect, createUniqueId } from "solid-js";
 import { createStore } from "solid-js/store";
 import { render, Show, For, Index } from "solid-js/web";
 
@@ -102,24 +102,29 @@ function Inputs() {
 
                     <Show when={snippet.placeholders.length > 0} fallback={<p class="help-text">No placeholders added to the code snippet.</p>}>
                         <ol id="placeholders">
-                            <For each={snippet.placeholders}>{
-                                (placeholder, index) =>
+                            <For each={snippet.placeholders}>{(placeholder, index) => {
+
+                                const defaultValueInputId = createUniqueId();
+                                const tooltipInputId = createUniqueId();
+
+                                return (
                                     <li>
                                         <p>{`$${placeholder.name}$`}</p>
 
                                         <div class="flex-horizontal" style="gap: 1rem;">
                                             <div>
-                                                <label for={`placeholder-${placeholder.name}-default-value`}>Default Value</label>
-                                                <input id={`placeholder-${placeholder.name}-default-value`} type="text" required value={placeholder.defaultValue} onInput={(e) => updateSnippet("placeholders", index(), "defaultValue", e.target.value)} />
+                                                <label for={defaultValueInputId}>Default Value</label>
+                                                <input id={defaultValueInputId} type="text" required value={placeholder.defaultValue} onInput={(e) => updateSnippet("placeholders", index(), "defaultValue", e.target.value)} />
                                             </div>
 
                                             <div>
-                                                <label for={`placeholder-${placeholder.name}-tooltip-value`}>Tooltip</label>
-                                                <input id={`placeholder-${placeholder.name}-tooltip-value`} type="text" value={placeholder.tooltip} onInput={(e) => updateSnippet("placeholders", index(), "tooltip", e.target.value)} />
+                                                <label for={tooltipInputId}>Tooltip</label>
+                                                <input id={tooltipInputId} type="text" value={placeholder.tooltip} onInput={(e) => updateSnippet("placeholders", index(), "tooltip", e.target.value)} />
                                             </div>
                                         </div>
                                     </li>
-                            }</For>
+                                );
+                            }}</For>
                         </ol>
                     </Show>
                 </div>
@@ -149,30 +154,38 @@ function Inputs() {
                     <label>Type</label>
                     <p class="help-text">The type of snippet. If no types are selected, the snippet can be inserted anywhere in the code.</p>
 
-                    <For each={Array.from(snippetTypeDescriptions)}>{(value) =>
-                        <Show when={value[0] !== SnippetType.Refactoring || snippet.types.includes(SnippetType.Refactoring)}>
-                            <div>
-                                <input id={`type-${value[0]}`} type="checkbox" checked={snippet.types.includes(value[0])} onChange={(e) => updateType(value[0], e.target.checked)} />
-                                <label for={`type-${value[0]}`}>
-                                    {value[1]}
-                                </label>
-                            </div>
-                        </Show>
-                    }</For>
+                    <For each={Array.from(snippetTypeDescriptions)}>{(value) => {
+                        const checkboxInputId = createUniqueId();
+
+                        return (
+                            <Show when={value[0] !== SnippetType.Refactoring || snippet.types.includes(SnippetType.Refactoring)}>
+                                <div>
+                                    <input id={checkboxInputId} type="checkbox" checked={snippet.types.includes(value[0])} onChange={(e) => updateType(value[0], e.target.checked)} />
+                                    <label for={checkboxInputId}>
+                                        {value[1]}
+                                    </label>
+                                </div>
+                            </Show>
+                        );
+                    }}</For>
                 </div>
 
                 <div>
                     <label>Kind</label>
                     <p>Specifies the kind of code that the snippet contains.</p>
 
-                    <For each={Array.from(snippetKindDescriptions)}>{(value) =>
-                        <div>
-                            <input id={`type-${value[0]}`} type="radio" name="kind" checked={snippet.kind === value[0]} onChange={(e) => updateSnippet("kind", value[0])} />
-                            <label for={`type-${value[0]}`}>
-                                {value[1]}
-                            </label>
-                        </div>
-                    }</For>
+                    <For each={Array.from(snippetKindDescriptions)}>{(value) => {
+                        const radioInputId = createUniqueId();
+
+                        return (
+                            <div>
+                                <input id={radioInputId} type="radio" name="kind" checked={snippet.kind === value[0]} onChange={(e) => updateSnippet("kind", value[0])} />
+                                <label for={radioInputId}>
+                                    {value[1]}
+                                </label>
+                            </div>
+                        );
+                    }}</For>
                 </div>
             </form>
         </div>
