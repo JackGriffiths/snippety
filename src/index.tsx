@@ -4,13 +4,13 @@ import type { SnippetModel } from "./snippet-model";
 import { createDefaultSnippet } from "./snippet-model";
 import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
-import { createSignal, createEffect } from "solid-js";
+import { createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
 import { render, Show, For, Index } from "solid-js/web";
 
-const [pageTitle, setPageTitle] = createSignal("New Snippet");
 const [snippet, updateSnippet] = createStore<SnippetModel>(createDefaultSnippet());
 
+const pageTitle = () => fileManager.currentFileName() ?? "New Snippet";
 initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
 
 function App() {
@@ -206,7 +206,6 @@ function parsePlaceholdersFromCode(code: string): Set<string> {
 function newSnippet() {
     updateSnippet(createDefaultSnippet());
     fileManager.clearCurrentFile();
-    setPageTitle("New Snippet");
 }
 
 async function openSnippet() {
@@ -221,7 +220,6 @@ async function openSnippet() {
     updateSnippet(parsedSnippet);
 
     fileManager.setCurrentFile(file.name, file.handle ?? null);
-    setPageTitle(file.name);
 }
 
 async function saveSnippet(e: SubmitEvent) {
@@ -238,7 +236,6 @@ async function saveSnippet(e: SubmitEvent) {
 
     if (file !== null) {
         fileManager.setCurrentFile(file.name, file.handle);
-        setPageTitle(file.name);
     }
 }
 
@@ -249,7 +246,6 @@ async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemF
     updateSnippet(parsedSnippet);
 
     fileManager.setCurrentFile(file.name, file.handle);
-    setPageTitle(file.name);
 }
 
 function addNamespace() {
