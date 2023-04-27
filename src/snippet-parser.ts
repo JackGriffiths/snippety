@@ -1,4 +1,4 @@
-import type { SnippetModel } from "./snippet-model";
+import type { Placeholder, SnippetModel } from "./snippet-model";
 import { createDefaultSnippet } from "./snippet-model";
 
 export function parseSnippetFromXml(xml: string): SnippetModel {
@@ -41,6 +41,11 @@ function parseCodeSnippetElement(codeSnippetElement: Element): SnippetModel {
             model.code = code.textContent ?? "";
         }
 
+        const declarations = getSingleElement(snippet, "Declarations");
+        if (declarations !== null) {
+            model.placeholders = parseDeclarations(declarations);
+        }
+
         const imports = getSingleElement(snippet, "Imports");
         if (imports !== null) {
             model.namespaces = parseImports(imports);
@@ -48,6 +53,26 @@ function parseCodeSnippetElement(codeSnippetElement: Element): SnippetModel {
     }
 
     return model;
+}
+
+function parseDeclarations(declarations: Element) {
+    const placeholders: Placeholder[] = [];
+
+    for (const literal of declarations.getElementsByTagName("Literal")) {
+        const name = getSingleStringValue(literal, "ID");
+        if (name === null) {
+            continue;
+        }
+
+        placeholders.push({
+            name: name,
+            defaultValue: getSingleStringValue(literal, "Default") ?? "",
+            tooltip: getSingleStringValue(literal, "ToolTip") ?? "",
+            isEditable: Boolean(getSingleStringValue(literal, "Editable") ?? "true"),
+        })
+    }
+
+    return placeholders;
 }
 
 function parseImports(imports: Element) {

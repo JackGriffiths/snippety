@@ -46,6 +46,22 @@ function writeXml(model: SnippetModel): string {
 
     const snippet = appendChildElement(codeSnippet, schema, "Snippet");
 
+    if (model.placeholders.length > 0) {
+        const declarations = appendChildElement(snippet, schema, "Declarations");
+
+        for (const placeholder of model.placeholders) {
+            const literal = appendChildElement(declarations, schema, "Literal");
+
+            literal.setAttribute("IsEditable", String(placeholder.isEditable));
+            appendChildStringElement(literal, schema, "ID", placeholder.name);
+            appendChildStringElement(literal, schema, "Default", placeholder.defaultValue);
+
+            if (isNotNullOrWhiteSpace(placeholder.tooltip)) {
+                appendChildStringElement(literal, schema, "ToolTip", placeholder.tooltip);
+            }
+        }
+    }
+
     if (isNotNullOrWhiteSpace(model.code)) {
         const code = appendChildElement(snippet, schema, "Code");
 

@@ -59,6 +59,22 @@
         flex-direction: column;
     }
 
+    #placeholders {
+        margin-block-start: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    #placeholders label {
+        /* Remove the default bold styling */
+        font-weight: inherit;
+    }
+
+    #placeholders li > p {
+        margin-block-end: 0.5rem;
+    }
+
     #imports {
         margin-block: 1rem;
         display: flex;

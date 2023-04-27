@@ -6,7 +6,7 @@ import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
 import { createSignal, createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
-import { render, Show, Index } from "solid-js/web";
+import { render, Show, For, Index } from "solid-js/web";
 
 const fileManager = new FileManager();
 initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
@@ -86,7 +86,44 @@ function Inputs() {
 
                 <div>
                     <label for="code">Code</label>
-                    <textarea id="code" required rows="5" autocomplete="off" value={snippet.code} onInput={(e) => updateSnippet("code", e.target.value)} />
+                    <textarea id="code" required rows="5" autocomplete="off" value={snippet.code} onInput={(e) => updateSnippetCode(e.target.value)} />
+
+                    <p class="help-text">The code block that should be inserted. Use placeholders like
+                        <code>$propertyName$</code> to define parts of the code which will likely be customised after the code is inserted.
+                    </p>
+
+                    <p class="help-text">There are two reserved placeholders that you can use in your snippets.
+                        <code>$selected$</code> represents text selected in the document that is to be inserted into the snippet
+                        when it is invoked. <code>$end$</code>
+                        marks the location to place the cursor after the code snippet is inserted.
+                    </p>
+                </div>
+
+                <div>
+                    <label>Placeholders</label>
+
+                    <Show when={snippet.placeholders.length > 0} fallback={<p class="help-text">No placeholders added to the code snippet.</p>}>
+                        <ol id="placeholders">
+                            <For each={snippet.placeholders}>{
+                                (placeholder, index) =>
+                                    <li>
+                                        <p>{`$${placeholder.name}$`}</p>
+
+                                        <div class="flex-horizontal" style="gap: 1rem;">
+                                            <div>
+                                                <label for={`placeholder-${placeholder.name}-default-value`}>Default Value</label>
+                                                <input id={`placeholder-${placeholder.name}-default-value`} type="text" required value={placeholder.defaultValue} onInput={(e) => updateSnippet("placeholders", index(), "defaultValue", e.target.value)} />
+                                            </div>
+
+                                            <div>
+                                                <label for={`placeholder-${placeholder.name}-tooltip-value`}>Tooltip</label>
+                                                <input id={`placeholder-${placeholder.name}-tooltip-value`} type="text" value={placeholder.tooltip} onInput={(e) => updateSnippet("placeholders", index(), "tooltip", e.target.value)} />
+                                            </div>
+                                        </div>
+                                    </li>
+                            }</For>
+                        </ol>
+                    </Show>
                 </div>
 
                 <div>
@@ -121,6 +158,50 @@ function Preview() {
             <pre><code>{snippet.code}</code></pre>
         </div>
     );
+}
+
+function updateSnippetCode(code: string) {
+    updateSnippet("code", code);
+
+    const placeholdersNames = parsePlaceholdersFromCode(code);
+    const existingPlaceholderNames = snippet.placeholders.map(i => i.name);
+
+    const newPlaceholderNames = Array.from(placeholdersNames).filter(i => !existingPlaceholderNames.includes(i));
+    const newPlaceholders = newPlaceholderNames.map(i => ({
+        name: i,
+        defaultValue: "",
+        tooltip: "",
+        isEditable: true,
+    }));
+
+    const removedPlaceholderNames = Array.from(existingPlaceholderNames).filter(i => !placeholdersNames.has(i));
+    const removedPlaceholders = snippet.placeholders.filter(i => removedPlaceholderNames.includes(i.name));
+
+    let updatePlaceholders = Array.from(snippet.placeholders);
+    updatePlaceholders.push(...newPlaceholders);
+    updatePlaceholders = updatePlaceholders.filter(i => !removedPlaceholders.includes(i));
+    updatePlaceholders.sort((a, b) => a.name.localeCompare(b.name));
+
+    updateSnippet("placeholders", updatePlaceholders);
+}
+
+function parsePlaceholdersFromCode(code: string): Set<string> {
+    const placeholderRegex = /\$(\w+)\$/g;
+
+    const reservedPlaceholders = new Set(["selected", "end"]);
+    const foundPlaceholders = new Set<string>([]);
+
+    for (const match of code.matchAll(placeholderRegex)) {
+        const name = match[1];
+
+        if (reservedPlaceholders.has(name) || foundPlaceholders.has(name)) {
+            continue;
+        }
+
+        foundPlaceholders.add(name);
+    }
+
+    return foundPlaceholders;
 }
 
 function newSnippet() {

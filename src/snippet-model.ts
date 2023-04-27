@@ -7,7 +7,15 @@ export interface SnippetModel {
     helpUrl: string;
     language: string;
     code: string;
+    placeholders: Placeholder[];
     namespaces: string[];
+}
+
+export interface Placeholder {
+    name: string;
+    defaultValue: string;
+    tooltip: string;
+    isEditable: boolean;
 }
 
 export function createDefaultSnippet(): SnippetModel {
@@ -20,6 +28,7 @@ export function createDefaultSnippet(): SnippetModel {
         helpUrl: "",
         language: "",
         code: "",
+        placeholders: [],
         namespaces: [],
     };
 }
