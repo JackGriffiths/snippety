@@ -78,6 +78,10 @@ function writeXml(model: SnippetModel): string {
             code.setAttribute("Language", model.language);
         }
 
+        if (isNotNullOrWhiteSpace(model.kind)) {
+            code.setAttribute("Kind", model.kind);
+        }
+
         code.appendChild(doc.createCDATASection(model.code));
     }
 

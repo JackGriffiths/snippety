@@ -1,4 +1,4 @@
-import { Placeholder, SnippetModel, SnippetType } from "./snippet-model";
+import { Placeholder, SnippetKind, SnippetModel, SnippetType } from "./snippet-model";
 import { createDefaultSnippet } from "./snippet-model";
 
 export function parseSnippetFromXml(xml: string): SnippetModel {
@@ -44,6 +44,13 @@ function parseCodeSnippetElement(codeSnippetElement: Element): SnippetModel {
         if (code !== null) {
             model.language = code.getAttribute("Language") ?? "";
             model.code = code.textContent ?? "";
+
+            const kind = code.getAttribute("Kind");
+            if (kind !== null && Object.values(SnippetKind).includes(kind as SnippetKind)) {
+                model.kind = kind as SnippetKind;
+            } else {
+                model.kind = SnippetKind.Any;
+            }
         }
 
         const declarations = getSingleElement(snippet, "Declarations");

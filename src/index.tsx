@@ -1,6 +1,6 @@
 import * as fileManager from "./file-manager";
 import { initFileDragAndDrop } from "./file-drag-and-drop";
-import { SnippetModel, SnippetType, snippetTypeDescriptions, createDefaultSnippet } from "./snippet-model";
+import { SnippetModel, SnippetType, snippetTypeDescriptions, createDefaultSnippet, snippetKindDescriptions } from "./snippet-model";
 import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
 import { createEffect } from "solid-js";
@@ -158,6 +158,20 @@ function Inputs() {
                                 </label>
                             </div>
                         </Show>
+                    }</For>
+                </div>
+
+                <div>
+                    <label>Kind</label>
+                    <p>Specifies the kind of code that the snippet contains.</p>
+
+                    <For each={Array.from(snippetKindDescriptions)}>{(value) =>
+                        <div>
+                            <input id={`type-${value[0]}`} type="radio" name="kind" checked={snippet.kind === value[0]} onChange={(e) => updateSnippet("kind", value[0])} />
+                            <label for={`type-${value[0]}`}>
+                                {value[1]}
+                            </label>
+                        </div>
                     }</For>
                 </div>
             </form>
