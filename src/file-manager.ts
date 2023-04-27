@@ -4,86 +4,80 @@ import {
     fileSave,
     supported as isFileSystemAccessSupported
 } from "browser-fs-access";
+import { createSignal } from "solid-js";
 
-export class FileManager {
-    #currentFileName: string | null = null;
-    #currentFileHandle: FileSystemFileHandle | null = null;
+const [currentFileName, setCurrentFileName] = createSignal<string | null>(null);
+const [currentFileHandle, setCurrentFileHandle] = createSignal<FileSystemFileHandle | null>(null);
 
-    get currentFileName() {
-        return this.#currentFileName;
+export { currentFileName };
+export { isFileSystemAccessSupported as isSaveAsEnabled};
+
+export function setCurrentFile(name: string, handle: FileSystemFileHandle | null) {
+    setCurrentFileName(name);
+    setCurrentFileHandle(handle);
+}
+
+export function clearCurrentFile() {
+    setCurrentFileName(null);
+    setCurrentFileHandle(null);
+}
+
+export async function tryOpen() {
+    const options = {
+        mimeTypes: ["application/xml"],
+        extensions: [".snippet"],
+        multiple: false,
+        excludeAcceptAllOption: true
+    };
+
+    try {
+        return await fileOpen(options) as FileWithHandle;
+    } catch (error) {
+        // User most likely cancelled the operation.
+        return null;
     }
+}
 
-    get isSaveAsEnabled() {
-        return isFileSystemAccessSupported;
-    }
+export async function trySave(defaultFileName: string, text: string) {
+    return await trySaveText(defaultFileName, text, currentFileHandle()); // TODO: do we need to specify untracked access?
+}
 
-    setCurrentFile(name: string, handle: FileSystemFileHandle | null) {
-        this.#currentFileName = name;
-        this.#currentFileHandle = handle;
-    }
+export async function trySaveAs(defaultFileName: string, text: string) {
+    return await trySaveText(defaultFileName, text, null);
+}
 
-    clearCurrentFile() {
-        this.#currentFileName = null;
-        this.#currentFileHandle = null;
-    }
+async function trySaveText(defaultFileName: string, text: string, existingHandle: FileSystemFileHandle | null) {
+    const data = new Blob([text], {
+        type: "application/xml"
+    });
 
-    async tryOpen() {
-        const options = {
-            mimeTypes: ["application/xml"],
-            extensions: [".snippet"],
-            multiple: false,
-            excludeAcceptAllOption: true
-        };
+    const options = {
+        fileName: defaultFileName,
+        extensions: [".snippet"],
+        excludeAcceptAllOption: true,
+    };
 
-        try {
-            return await fileOpen(options) as FileWithHandle;
-        } catch (error) {
-            // User most likely cancelled the operation.
-            return null;
+    try {
+        const handle = await fileSave(
+            data,
+            options,
+            existingHandle,
+            /* throwIfExistingHandleNotGood */ false
+        );
+
+        if (handle !== null) {
+            return {
+                name: handle.name,
+                handle: handle,
+            };
+        } else {
+            return {
+                name: defaultFileName,
+                handle: null,
+            };
         }
-    }
-
-    async trySave(defaultFileName: string, text: string) {
-        return await FileManager.#trySaveText(defaultFileName, text, this.#currentFileHandle);
-    }
-
-    async trySaveAs(defaultFileName: string, text: string) {
-        return await FileManager.#trySaveText(defaultFileName, text, null);
-    }
-
-    static async #trySaveText(defaultFileName: string, text: string, existingHandle: FileSystemFileHandle | null) {
-        const data = new Blob([text], {
-            type: "application/xml"
-        });
-
-        const options = {
-            fileName: defaultFileName,
-            extensions: [".snippet"],
-            excludeAcceptAllOption: true,
-        };
-
-        try {
-            const handle = await fileSave(
-                data,
-                options,
-                existingHandle,
-                /* throwIfExistingHandleNotGood */ false
-            );
-
-            if (handle !== null) {
-                return {
-                    name: handle.name,
-                    handle: handle,
-                };
-            } else {
-                return {
-                    name: defaultFileName,
-                    handle: null,
-                };
-            }
-        } catch {
-            // User most likely cancelled the operation.
-            return null;
-        }
+    } catch {
+        // User most likely cancelled the operation.
+        return null;
     }
 }

@@ -1,4 +1,4 @@
-import { FileManager } from "./file-manager";
+import * as fileManager from "./file-manager";
 import { initFileDragAndDrop } from "./file-drag-and-drop";
 import type { SnippetModel } from "./snippet-model";
 import { createDefaultSnippet } from "./snippet-model";
@@ -8,11 +8,10 @@ import { createSignal, createEffect } from "solid-js";
 import { createStore } from "solid-js/store";
 import { render, Show, For, Index } from "solid-js/web";
 
-const fileManager = new FileManager();
-initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
-
 const [pageTitle, setPageTitle] = createSignal("New Snippet");
 const [snippet, updateSnippet] = createStore<SnippetModel>(createDefaultSnippet());
+
+initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
 
 function App() {
     createEffect(() => document.title = `${pageTitle()} - Snippety`);
@@ -229,7 +228,7 @@ async function saveSnippet(e: SubmitEvent) {
     e.preventDefault();
 
     const xml = writeSnippetToXml(snippet);
-    const defaultFileName = fileManager.currentFileName ?? "snippet.snippet";
+    const defaultFileName = fileManager.currentFileName() ?? "snippet.snippet";
 
     const useSaveAs = e.submitter?.dataset.submitType === "save-as";
 
