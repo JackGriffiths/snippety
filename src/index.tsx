@@ -139,9 +139,11 @@ function Inputs() {
                     <p class="help-text">The namespaces that need to be imported for this snippet to compile.</p>
 
                     <div id="imports">
-                        <Index each={snippet.namespaces}>{
-                            (namespace, index) =>
+                        <Index each={snippet.namespaces}>{(namespace, index) =>
+                            <div class="import">
                                 <input type="text" placeholder="e.g. using System.Linq" value={namespace()} onInput={(e) => updateNamespace(index, e.target.value)} />
+                                <button type="button" onClick={(e) => removeNamespace(index)}>Remove</button>
+                            </div>
                         }</Index>
                     </div>
 
@@ -293,6 +295,10 @@ function addNamespace() {
 
 function updateNamespace(index: number, value: string) {
     updateSnippet("namespaces", index, value);
+}
+
+function removeNamespace(index: number) {
+    updateSnippet("namespaces", (namespaces) => namespaces.filter((_, i) => i !== index));
 }
 
 function updateType(type: SnippetType, isSelected: boolean) {

@@ -82,6 +82,11 @@
         gap: 0.5rem;
     }
 
+    .import {
+        display: flex;
+        align-items: stretch;
+    }
+
     #preview {
         position: sticky;
         top: 3rem;

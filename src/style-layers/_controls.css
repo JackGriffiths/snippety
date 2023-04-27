@@ -140,7 +140,6 @@ label:has(+ :is(input[required], textarea[required], select[required]))::after {
 }
 
 button {
-    align-self: flex-start; /* TODO: Is there a better way to stop buttons in a flex container from stretching? */
     border-width: 1px;
     border-radius: 2px;
     border-style: solid;
