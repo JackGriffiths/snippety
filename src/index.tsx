@@ -1,13 +1,14 @@
 import * as fileManager from "./file-manager";
 import { initFileDragAndDrop } from "./file-drag-and-drop";
-import { Snippet, SnippetType, snippetTypeDescriptions, createDefaultSnippet, snippetKindDescriptions } from "./snippet-model";
+import { Snippet, SnippetType, snippetTypeDescriptions, createDefaultSnippet, snippetKindDescriptions, Placeholder } from "./snippet-model";
 import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
-import { createEffect, createUniqueId } from "solid-js";
+import { batch, createEffect, createMemo, createUniqueId } from "solid-js";
 import { createStore } from "solid-js/store";
 import { render, Show, For, Index } from "solid-js/web";
 
 const [snippet, updateSnippet] = createStore<Snippet>(createDefaultSnippet());
+const reservedPlaceholders: ReadonlySet<string> = new Set(["selected", "end"]);
 
 const pageTitle = () => fileManager.currentFileName() ?? "New Snippet";
 initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
@@ -141,7 +142,7 @@ function Inputs() {
                     <div id="imports">
                         <Index each={snippet.namespaces}>{(namespace, index) =>
                             <div class="import">
-                                <input type="text" placeholder="e.g. using System.Linq" value={namespace()} onInput={(e) => updateNamespace(index, e.target.value)} />
+                                <input type="text" placeholder="e.g. System.Linq" value={namespace()} onInput={(e) => updateNamespace(index, e.target.value)} />
                                 <button type="button" onClick={(e) => removeNamespace(index)}>Remove</button>
                             </div>
                         }</Index>
@@ -191,43 +192,73 @@ function Inputs() {
 }
 
 function Preview() {
+    const codePreview = createMemo(() => {
+        let preview = "";
+
+        // TODO: handle VB style of imports.
+        const importStatements = snippet.namespaces
+            .filter(i => i !== "")
+            .map(i => i.endsWith(";") ? i : `${i};`)
+            .map(i => `using ${i}`)
+            .join("\n");
+
+        if (importStatements !== "") {
+            preview += `${importStatements}\n\n`;
+        }
+
+        let code = snippet.code;
+
+        const getPlaceholderPreview = (placeholder: Placeholder) => placeholder.defaultValue || placeholder.name;
+        const replacePlaceholder = (name: string, replacement: string) => code.replaceAll(`$${name}$`, replacement);
+
+        // Remove the reserved placeholders from the code.
+        for (let name of reservedPlaceholders) {
+            code = replacePlaceholder(name, "");
+        }
+
+        for (let placeholder of snippet.placeholders) {
+            code = replacePlaceholder(placeholder.name, getPlaceholderPreview(placeholder));
+        }
+
+        preview += code;
+
+        return preview;
+    });
+
     return (
         <div id="preview">
             <h2 class="screen-reader-only">Preview</h2>
-            <pre><code>{snippet.code}</code></pre>
+            <pre><code>{codePreview()}</code></pre>
         </div>
     );
 }
 
 function updateSnippetCode(code: string) {
-    updateSnippet("code", code);
+    const previousPlaceholderNames = snippet.placeholders.map(i => i.name);
+    const currentPlaceholdersNames = parsePlaceholdersFromCode(code);
 
-    const placeholdersNames = parsePlaceholdersFromCode(code);
-    const existingPlaceholderNames = snippet.placeholders.map(i => i.name);
+    const removedPlaceholderNames = Array.from(previousPlaceholderNames).filter(i => !currentPlaceholdersNames.has(i));
+    const newPlaceholderNames = Array.from(currentPlaceholdersNames).filter(i => !previousPlaceholderNames.includes(i));
 
-    const newPlaceholderNames = Array.from(placeholdersNames).filter(i => !existingPlaceholderNames.includes(i));
-    const newPlaceholders = newPlaceholderNames.map(i => ({
-        name: i,
-        defaultValue: "",
-        tooltip: "",
-        isEditable: true,
-    }));
+    batch(() => {
+        updateSnippet("code", code);
 
-    const removedPlaceholderNames = Array.from(existingPlaceholderNames).filter(i => !placeholdersNames.has(i));
-    const removedPlaceholders = snippet.placeholders.filter(i => removedPlaceholderNames.includes(i.name));
+        if (removedPlaceholderNames.length > 0 || newPlaceholderNames.length > 0) {
+            const placeholdersToRetain = snippet.placeholders.filter(i => !removedPlaceholderNames.includes(i.name));
+            const placeholdersToAdd = newPlaceholderNames.map(i => ({
+                name: i,
+                defaultValue: "",
+                tooltip: "",
+                isEditable: true,
+            }));
 
-    let updatePlaceholders = Array.from(snippet.placeholders);
-    updatePlaceholders.push(...newPlaceholders);
-    updatePlaceholders = updatePlaceholders.filter(i => !removedPlaceholders.includes(i));
-    updatePlaceholders.sort((a, b) => a.name.localeCompare(b.name));
-
-    updateSnippet("placeholders", updatePlaceholders);
+            updateSnippet("placeholders", [...placeholdersToRetain, ...placeholdersToAdd].sort((a, b) => a.name.localeCompare(b.name)));
+        }
+    })
 }
 
 function parsePlaceholdersFromCode(code: string): Set<string> {
     const placeholderRegex = /\$(\w+)\$/g;
-
-    const reservedPlaceholders = new Set(["selected", "end"]);
     const foundPlaceholders = new Set<string>([]);
 
     for (const match of code.matchAll(placeholderRegex)) {
