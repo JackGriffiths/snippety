@@ -15,14 +15,14 @@
         margin-inline: auto;
     }
 
-    #inputs-and-preview {
+    #form-and-preview {
         display: grid;
         grid-template-rows: auto;
         gap: 2rem;
     }
 
     @media (width >= 900px) {
-        #inputs-and-preview {
+        #form-and-preview {
             grid-template-columns: 1fr 1fr;
             gap: 5rem;
         }
