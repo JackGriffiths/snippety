@@ -1,12 +1,19 @@
-import * as fileManager from "./file-manager";
 import { initFileDragAndDrop } from "./file-drag-and-drop";
-import { Snippet, SnippetType, snippetTypeDescriptions, createDefaultSnippet, snippetKindDescriptions, Placeholder } from "./snippet-model";
+import * as fileManager from "./file-manager";
+import {
+    createDefaultSnippet,
+    Snippet,
+    snippetKindDescriptions,
+    SnippetType,
+    snippetTypeDescriptions,
+    Placeholder
+} from "./snippet-model";
 import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
 import { registerWebComponents } from "./web-components";
 import { batch, createEffect, createMemo, createUniqueId } from "solid-js";
 import { createStore, produce } from "solid-js/store";
-import { render, Show, For, Index } from "solid-js/web";
+import { For, Index, render, Show } from "solid-js/web";
 
 registerWebComponents();
 
@@ -74,7 +81,7 @@ function Inputs() {
                     <input id="shortcut" type="text" autocomplete="off" pattern="[A-Za-z0-9_]*" value={snippet.shortcut} onInput={(e) => updateSnippet("shortcut", e.target.value)} />
 
                     <p class="help-text">Must only contain alphanumeric characters and underscores. Snippets without a shortcut
-                    can be inserted using the context menu.</p>
+                        can be inserted using the context menu.</p>
                 </div>
 
                 <div>
