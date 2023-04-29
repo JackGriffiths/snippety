@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "browser-fs-access": "^0.33.1",
+    "highlight.js": "^11.7.0",
     "solid-js": "^1.7.3",
     "xml-formatter": "^3.3.2"
   }

@@ -3,9 +3,12 @@ import { initFileDragAndDrop } from "./file-drag-and-drop";
 import { Snippet, SnippetType, snippetTypeDescriptions, createDefaultSnippet, snippetKindDescriptions, Placeholder } from "./snippet-model";
 import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
+import { registerWebComponents } from "./web-components";
 import { batch, createEffect, createMemo, createUniqueId } from "solid-js";
 import { createStore } from "solid-js/store";
 import { render, Show, For, Index } from "solid-js/web";
+
+registerWebComponents();
 
 const [snippet, updateSnippet] = createStore<Snippet>(createDefaultSnippet());
 const reservedPlaceholders: ReadonlySet<string> = new Set(["selected", "end"]);
@@ -228,7 +231,7 @@ function Preview() {
     return (
         <div id="preview">
             <h2 class="screen-reader-only">Preview</h2>
-            <pre><code>{codePreview()}</code></pre>
+            <highlighted-code-block attr:language={snippet.language} attr:code={codePreview()}></highlighted-code-block>
         </div>
     );
 }
