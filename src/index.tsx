@@ -1,12 +1,12 @@
 import { initFileDragAndDrop } from "./file-drag-and-drop";
 import * as fileManager from "./file-manager";
+import { generateCodePreview, parsePlaceholdersFromCode } from "./snippet-helpers";
 import {
     createDefaultSnippet,
     Snippet,
     snippetKindDescriptions,
     SnippetType,
-    snippetTypeDescriptions,
-    Placeholder
+    snippetTypeDescriptions
 } from "./snippet-model";
 import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
@@ -18,8 +18,6 @@ import { For, Index, render, Show } from "solid-js/web";
 registerWebComponents();
 
 const [snippet, updateSnippet] = createStore<Snippet>(createDefaultSnippet());
-const reservedPlaceholders: ReadonlySet<string> = new Set(["selected", "end"]);
-
 const pageTitle = () => fileManager.currentFileName() ?? "New Snippet";
 initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
 
@@ -202,38 +200,7 @@ function Inputs() {
 }
 
 function Preview() {
-    const codePreview = createMemo(() => {
-        let preview = "";
-
-        // TODO: handle VB style of imports.
-        const importStatements = snippet.namespaces
-            .filter(i => i !== "")
-            .map(i => i.endsWith(";") ? i : `${i};`)
-            .map(i => `using ${i}`)
-            .join("\n");
-
-        if (importStatements !== "") {
-            preview += `${importStatements}\n\n`;
-        }
-
-        let code = snippet.code;
-
-        const getPlaceholderPreview = (placeholder: Placeholder) => placeholder.defaultValue || placeholder.name;
-        const replacePlaceholder = (name: string, replacement: string) => code.replaceAll(`$${name}$`, replacement);
-
-        // Remove the reserved placeholders from the code.
-        for (let name of reservedPlaceholders) {
-            code = replacePlaceholder(name, "");
-        }
-
-        for (let placeholder of snippet.placeholders) {
-            code = replacePlaceholder(placeholder.name, getPlaceholderPreview(placeholder));
-        }
-
-        preview += code;
-
-        return preview;
-    });
+    const codePreview = createMemo(() => generateCodePreview(snippet));
 
     return (
         <div id="preview">
@@ -269,23 +236,6 @@ function updateSnippetCode(code: string) {
             }));
         }
     })
-}
-
-function parsePlaceholdersFromCode(code: string): Set<string> {
-    const placeholderRegex = /\$(\w+)\$/g;
-    const foundPlaceholders = new Set<string>([]);
-
-    for (const match of code.matchAll(placeholderRegex)) {
-        const name = match[1];
-
-        if (reservedPlaceholders.has(name) || foundPlaceholders.has(name)) {
-            continue;
-        }
-
-        foundPlaceholders.add(name);
-    }
-
-    return foundPlaceholders;
 }
 
 function newSnippet() {
