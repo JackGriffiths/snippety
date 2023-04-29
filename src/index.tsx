@@ -5,7 +5,7 @@ import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
 import { registerWebComponents } from "./web-components";
 import { batch, createEffect, createMemo, createUniqueId } from "solid-js";
-import { createStore } from "solid-js/store";
+import { createStore, produce } from "solid-js/store";
 import { render, Show, For, Index } from "solid-js/web";
 
 registerWebComponents();
@@ -255,7 +255,11 @@ function updateSnippetCode(code: string) {
                 isEditable: true,
             }));
 
-            updateSnippet("placeholders", [...placeholdersToRetain, ...placeholdersToAdd].sort((a, b) => a.name.localeCompare(b.name)));
+            updateSnippet(produce(s => {
+                s.placeholders = placeholdersToRetain;
+                s.placeholders.push(...placeholdersToAdd);
+                s.placeholders.sort((a, b) => a.name.localeCompare(b.name));
+            }));
         }
     })
 }
@@ -324,22 +328,22 @@ async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemF
 }
 
 function addNamespace() {
-    updateSnippet("namespaces", (namespaces) => [...namespaces, ""]);
+    updateSnippet(produce(s => { s.namespaces.push(""); }));
 }
 
 function updateNamespace(index: number, value: string) {
-    updateSnippet("namespaces", index, value);
+    updateSnippet(produce(s => { s.namespaces[index] = value; }));
 }
 
 function removeNamespace(index: number) {
-    updateSnippet("namespaces", (namespaces) => namespaces.filter((_, i) => i !== index));
+    updateSnippet(produce(s => { s.namespaces.splice(index, 1); }));
 }
 
 function updateType(type: SnippetType, isSelected: boolean) {
     if (isSelected && !snippet.types.includes(type)) {
-        updateSnippet("types", (types) => [...types, type]);
+        updateSnippet(produce(s => { s.types.push(type); }));
     } else if (!isSelected && snippet.types.includes(type)) {
-        updateSnippet("types", (types) => types.filter(t => t !== type));
+        updateSnippet(produce(s => { s.types = s.types.filter(t => t !== type); }));
     }
 }
 
