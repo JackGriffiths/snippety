@@ -206,7 +206,7 @@ function Form() {
                                                     type="text"
                                                     required
                                                     value={placeholder.defaultValue}
-                                                    onInput={e => updateSnippet("placeholders", index(), "defaultValue", e.target.value)} />
+                                                    onInput={e => updatePlaceholderDefaultValue(index(), e.target.value)} />
                                             </div>
 
                                             <div>
@@ -218,7 +218,7 @@ function Form() {
                                                     id={tooltipInputId}
                                                     type="text"
                                                     value={placeholder.tooltip}
-                                                    onInput={e => updateSnippet("placeholders", index(), "tooltip", e.target.value)} />
+                                                    onInput={e => updatePlaceholderTooltip(index(), e.target.value)} />
                                             </div>
                                         </div>
                                     </li>
@@ -417,6 +417,14 @@ function updateSnippetCode(code: string) {
             }));
         }
     });
+}
+
+function updatePlaceholderDefaultValue(placeholderIndex: number, value: string) {
+    updateSnippet(produce(s => { s.placeholders[placeholderIndex].defaultValue = value; }));
+}
+
+function updatePlaceholderTooltip(placeholderIndex: number, value: string) {
+    updateSnippet(produce(s => { s.placeholders[placeholderIndex].tooltip = value; }));
 }
 
 function addNamespace() {
