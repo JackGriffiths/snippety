@@ -7,7 +7,7 @@ export function parseSnippetFromXml(xml: string): Snippet {
     const codeSnippets = doc.getElementsByTagName("CodeSnippet");
 
     if (codeSnippets.length === 0) {
-        throw Error("File does not contain a code snippet.")
+        throw Error("File does not contain a code snippet.");
     }
 
     if (codeSnippets.length > 1) {
@@ -95,7 +95,7 @@ function parseDeclarations(declarations: Element) {
             defaultValue: getSingleStringValue(literal, "Default") ?? "",
             tooltip: getSingleStringValue(literal, "ToolTip") ?? "",
             isEditable: Boolean(getSingleStringValue(literal, "Editable") ?? "true"),
-        })
+        });
     }
 
     return placeholders;

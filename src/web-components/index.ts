@@ -1,5 +1,5 @@
 import { HighlightedCodeBlock } from "./highlighted-code-block";
-import type { ComponentProps } from "solid-js"
+import type { ComponentProps } from "solid-js";
 
 export function registerWebComponents() {
     registerIfRequired(HighlightedCodeBlock.tagName, HighlightedCodeBlock);
@@ -14,6 +14,7 @@ function registerIfRequired(tagName: string, classConstructor: CustomElementCons
 }
 
 declare module "solid-js" {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace JSX {
         interface IntrinsicElements {
             [HighlightedCodeBlock.tagName]: ComponentProps<"div"> & {

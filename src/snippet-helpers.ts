@@ -39,11 +39,11 @@ export function generateCodePreview(snippet: Snippet) {
     const replacePlaceholder = (name: string, replacement: string) => code.replaceAll(`$${name}$`, replacement);
 
     // Remove the reserved placeholders from the code.
-    for (let name of reservedPlaceholders) {
+    for (const name of reservedPlaceholders) {
         code = replacePlaceholder(name, "");
     }
 
-    for (let placeholder of snippet.placeholders) {
+    for (const placeholder of snippet.placeholders) {
         code = replacePlaceholder(placeholder.name, getPlaceholderPreview(placeholder));
     }
 

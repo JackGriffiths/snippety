@@ -11,9 +11,9 @@ import {
 import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
 import { registerWebComponents } from "./web-components";
-import { batch, createEffect, createMemo, createUniqueId } from "solid-js";
+import { batch, createEffect, createMemo, createUniqueId, For, Index, Show } from "solid-js";
 import { createStore, produce } from "solid-js/store";
-import { For, Index, render, Show } from "solid-js/web";
+import { render } from "solid-js/web";
 
 registerWebComponents();
 initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
@@ -195,7 +195,7 @@ function Form() {
                                     <li>
                                         <p>{`$${placeholder.name}$`}</p>
 
-                                        <div class="flex-horizontal" style="gap: 1rem;">
+                                        <div class="flex-horizontal" style={{"gap": "1rem"}}>
                                             <div>
                                                 <label for={defaultValueInputId}>
                                                     Default Value
@@ -317,7 +317,7 @@ function Form() {
                                     type="radio"
                                     name="kind"
                                     checked={snippet.kind === value}
-                                    onChange={e => updateSnippet("kind", value)} />
+                                    onChange={() => updateSnippet("kind", value)} />
 
                                 <label for={radioInputId}>
                                     {description}
@@ -416,7 +416,7 @@ function updateSnippetCode(code: string) {
                 s.placeholders.sort((a, b) => a.name.localeCompare(b.name));
             }));
         }
-    })
+    });
 }
 
 function addNamespace() {

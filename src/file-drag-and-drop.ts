@@ -1,3 +1,5 @@
+import type { FileSystemHandle } from "browser-fs-access";
+
 export function initFileDragAndDrop(
     dropTargetElement: HTMLElement,
     dropEffect: "copy" | "none" | "link" | "move",
@@ -35,17 +37,29 @@ async function getFirstDroppedFile(dropEventArgs: DragEvent, acceptedMimeType: s
 
             // We prefer to get the handle to the file if the browser allows it so we
             // can allow the user to overwrite the file with any changes they make.
+            // The "getAsFileSystemHandle" function isn't well supported so isn't defined
+            // on the DataTransferItem type by either TypeScript or "browser-fs-access".
+            // Therefore a custom interface was added to include the function.
+            const extendedItem = item as DataTransferItemExtended;
 
-            if (typeof (item as any)["getAsFileSystemHandle"] === "function") {
-                const handle = await (item as any)["getAsFileSystemHandle"]() as FileSystemFileHandle;
+            if (extendedItem.getAsFileSystemHandle !== undefined) {
+                const handle = await extendedItem.getAsFileSystemHandle();
+                if (handle === null || handle.kind == "directory") {
+                    return null;
+                }
+
+                const fileHandle = handle as unknown as FileSystemFileHandle;
 
                 return {
                     name: handle.name,
-                    blob: await handle.getFile(),
-                    handle: handle,
+                    blob: await fileHandle.getFile(),
+                    handle: fileHandle,
                 };
             } else {
-                const file = item.getAsFile()!;
+                const file = item.getAsFile();
+                if (file === null) {
+                    return null;
+                }
 
                 return {
                     name: file.name,
@@ -57,4 +71,8 @@ async function getFirstDroppedFile(dropEventArgs: DragEvent, acceptedMimeType: s
     }
 
     return null;
+}
+
+interface DataTransferItemExtended extends DataTransferItem {
+    getAsFileSystemHandle?: () => Promise<FileSystemHandle | null>;
 }

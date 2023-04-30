@@ -6,7 +6,7 @@ export function writeSnippetToXml(model: Snippet): string {
 
     return xmlFormat(xml, {
         collapseContent: true,
-    })
+    });
 }
 
 function writeXml(model: Snippet): string {
@@ -104,7 +104,7 @@ function appendProcessingInstruction(doc: XMLDocument) {
 }
 
 function appendChildElement(parent: Node, schema: string, name: string) {
-    const doc = parent instanceof Document ? parent : parent.ownerDocument!;
+    const doc = parent.ownerDocument ?? (parent as Document);
     const child = doc.createElementNS(schema, name);
     parent.appendChild(child);
     return child;

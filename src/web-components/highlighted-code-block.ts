@@ -5,7 +5,7 @@ import csharp from "highlight.js/lib/languages/csharp";
 export class HighlightedCodeBlock extends HTMLElement {
     #codeElement: HTMLElement;
     #lightColorSchemeMatcher: MediaQueryList;
-    #colorSchemeChangeEventListener: ((e: MediaQueryListEvent) => any) | null = null;
+    #colorSchemeChangeEventListener: ((e: MediaQueryListEvent) => void) | null = null;
 
     static {
         // This disables automatic highlighting of code blocks.
@@ -24,8 +24,7 @@ export class HighlightedCodeBlock extends HTMLElement {
         const preEl = document.createElement("pre");
         const codeEl = preEl.appendChild(document.createElement("code"));
 
-        this.attachShadow({ mode: "open" });
-        this.shadowRoot!.append(preEl);
+        this.attachShadow({ mode: "open" }).append(preEl);
 
         this.#codeElement = codeEl;
         this.#lightColorSchemeMatcher = window.matchMedia("(prefers-color-scheme: light)");
@@ -37,7 +36,7 @@ export class HighlightedCodeBlock extends HTMLElement {
 
     async connectedCallback() {
         await this.#detectAndApplyTheme();
-        this.#colorSchemeChangeEventListener = async (e) => await this.#detectAndApplyTheme();
+        this.#colorSchemeChangeEventListener = async () => await this.#detectAndApplyTheme();
         this.#lightColorSchemeMatcher.addEventListener("change", this.#colorSchemeChangeEventListener);
     }
 
@@ -75,10 +74,14 @@ export class HighlightedCodeBlock extends HTMLElement {
     }
 
     async #setStyleSheet(theme: Theme) {
+        if (this.shadowRoot === null) {
+            return;
+        }
+
         const styles = await this.#loadStylesForTheme(theme);
         const stylesheet = new CSSStyleSheet();
         stylesheet.replaceSync(styles);
-        this.shadowRoot!.adoptedStyleSheets = [stylesheet];
+        this.shadowRoot.adoptedStyleSheets = [stylesheet];
     }
 
     async #loadStylesForTheme(theme: Theme) {
