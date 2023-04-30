@@ -6,6 +6,7 @@ export class HighlightedCodeBlock extends HTMLElement {
     #codeElement: HTMLElement;
     #lightColorSchemeMatcher: MediaQueryList;
     #colorSchemeChangeEventListener: ((e: MediaQueryListEvent) => void) | null = null;
+    #themeStyleSheet: CSSStyleSheet;
 
     static {
         // This disables automatic highlighting of code blocks.
@@ -28,6 +29,7 @@ export class HighlightedCodeBlock extends HTMLElement {
 
         this.#codeElement = codeEl;
         this.#lightColorSchemeMatcher = window.matchMedia("(prefers-color-scheme: light)");
+        this.#themeStyleSheet = new CSSStyleSheet();
     }
 
     static get observedAttributes() {
@@ -35,9 +37,25 @@ export class HighlightedCodeBlock extends HTMLElement {
     }
 
     async connectedCallback() {
+        await this.#addStyleSheets();
         await this.#detectAndApplyTheme();
         this.#colorSchemeChangeEventListener = async () => await this.#detectAndApplyTheme();
         this.#lightColorSchemeMatcher.addEventListener("change", this.#colorSchemeChangeEventListener);
+    }
+
+    async #addStyleSheets() {
+        if (this.shadowRoot === null) {
+            return;
+        }
+
+        this.shadowRoot.adoptedStyleSheets = [await this.#createComponentStyleSheet(), this.#themeStyleSheet];
+    }
+
+    async #createComponentStyleSheet() {
+        const css = (await import("./highlighted-code-block.css?inline")).default;
+        const stylesheet = new CSSStyleSheet();
+        stylesheet.replaceSync(css);
+        return stylesheet;
     }
 
     attributeChangedCallback(name: string) {
@@ -70,18 +88,9 @@ export class HighlightedCodeBlock extends HTMLElement {
 
     async #detectAndApplyTheme() {
         const theme = this.#lightColorSchemeMatcher.matches ? Theme.Light : Theme.Dark;
-        await this.#setStyleSheet(theme);
-    }
-
-    async #setStyleSheet(theme: Theme) {
-        if (this.shadowRoot === null) {
-            return;
-        }
-
-        const styles = await this.#loadStylesForTheme(theme);
-        const stylesheet = new CSSStyleSheet();
-        stylesheet.replaceSync(styles);
-        this.shadowRoot.adoptedStyleSheets = [stylesheet];
+        const css = await this.#loadStylesForTheme(theme);
+        const layer = `@layer hljs {${css}}`;
+        this.#themeStyleSheet.replaceSync(layer);
     }
 
     async #loadStylesForTheme(theme: Theme) {

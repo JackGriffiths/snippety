@@ -1,0 +1,11 @@
+/* The hljs layer is loaded dynamically by JavaScript */
+@layer reset, base, hljs;
+
+@import url("../style-layers/_reset.css") layer(reset);
+
+@layer base {
+    pre,
+    code {
+        font-family: var(--ff-monospace);
+    }
+}
