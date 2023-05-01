@@ -1,4 +1,12 @@
-import { getLanguageById, Placeholder, SnippetKind, Snippet, SnippetType } from "./snippet-model";
+import {
+    getLanguageById,
+    getSnippetKindByValue,
+    getSnippetTypeByValue,
+    Placeholder,
+    Snippet,
+    SnippetKind,
+    SnippetType,
+} from "./snippet-model";
 import { createDefaultSnippet } from "./snippet-model";
 
 export function parseSnippetFromXml(xml: string): Snippet {
@@ -42,15 +50,9 @@ function parseCodeSnippetElement(codeSnippetElement: Element): Snippet {
     if (snippet !== null) {
         const code = getSingleElement(snippet, "Code");
         if (code !== null) {
-            model.language = getLanguageById(code.getAttribute("Language"));
+            model.language = getLanguageById(code.getAttribute("Language")) ?? "";
             model.code = code.textContent ?? "";
-
-            const kind = code.getAttribute("Kind");
-            if (kind !== null && Object.values(SnippetKind).includes(kind as SnippetKind)) {
-                model.kind = kind as SnippetKind;
-            } else {
-                model.kind = SnippetKind.Any;
-            }
+            model.kind = getSnippetKindByValue(code.getAttribute("Kind")) ?? SnippetKind.Any;
         }
 
         const declarations = getSingleElement(snippet, "Declarations");
@@ -70,11 +72,10 @@ function parseCodeSnippetElement(codeSnippetElement: Element): Snippet {
 function parseTypes(header: Element) {
     const types: SnippetType[] = [];
 
-    for (const type of header.getElementsByTagName("SnippetType")) {
-        const name = type.textContent;
-
-        if (Object.values(SnippetType).includes(name as SnippetType)) {
-            types.push(name as SnippetType);
+    for (const element of header.getElementsByTagName("SnippetType")) {
+        const type = getSnippetTypeByValue(element.textContent);
+        if (type !== null) {
+            types.push(type);
         }
     }
 
