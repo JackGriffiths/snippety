@@ -1,4 +1,4 @@
-import { Placeholder, Snippet } from "./snippet-model";
+import { Language, Placeholder, Snippet } from "./snippet-model";
 
 const reservedPlaceholders: ReadonlySet<string> = new Set(["selected", "end"]);
 
@@ -22,19 +22,15 @@ export function parsePlaceholdersFromCode(code: string): Set<string> {
 export function generateCodePreview(snippet: Snippet) {
     let preview = "";
 
-    // TODO: handle VB style of imports.
-    const importStatements = snippet.namespaces
-        .filter(i => i !== "")
-        .map(i => i.endsWith(";") ? i : `${i};`)
-        .map(i => `using ${i}`)
-        .join("\n");
+    if (snippet.language !== "") {
+        const importStatements = formatImports(snippet.namespaces, snippet.language);
 
-    if (importStatements !== "") {
-        preview += `${importStatements}\n\n`;
+        if (importStatements !== "") {
+            preview += `${importStatements}\n\n`;
+        }
     }
 
     let code = snippet.code;
-
     const getPlaceholderPreview = (placeholder: Placeholder) => placeholder.defaultValue || placeholder.name;
     const replacePlaceholder = (name: string, replacement: string) => code.replaceAll(`$${name}$`, replacement);
 
@@ -50,4 +46,25 @@ export function generateCodePreview(snippet: Snippet) {
     preview += code;
 
     return preview;
+}
+
+function formatImports(namespaces: string[], language: Language) {
+    const nonEmptyNamespaces = namespaces.filter(i => i !== "");
+
+    if (nonEmptyNamespaces.length === 0) {
+        return "";
+    }
+
+    const importFormatter =
+        language === Language.CSharp ? (namespace: string) => `using ${namespace};` :
+        language === Language.VisualBasic ? (namespace: string) => `Imports ${namespace}` :
+        null;
+
+    if (importFormatter === null) {
+        throw Error("Language does not support imports/namespaces.");
+    }
+
+    return nonEmptyNamespaces
+        .map(importFormatter)
+        .join("\n");
 }
