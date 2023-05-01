@@ -49,6 +49,7 @@ export class HighlightedCodeBlock extends HTMLElement {
 
         const preEl = document.createElement("pre");
         const codeEl = preEl.appendChild(document.createElement("code"));
+        codeEl.classList.add("hljs");
 
         this.attachShadow({ mode: "open" }).append(preEl);
 

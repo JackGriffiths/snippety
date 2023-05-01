@@ -1,5 +1,5 @@
 /* The hljs layer is loaded dynamically by JavaScript */
-@layer reset, base, hljs;
+@layer reset, base, hljs, overrides;
 
 @import url("../style-layers/_reset.css") layer(reset);
 
@@ -7,5 +7,11 @@
     pre,
     code {
         font-family: var(--ff-monospace);
+    }
+}
+
+@layer overrides {
+    code:empty {
+        display: none;
     }
 }
