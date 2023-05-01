@@ -5,13 +5,68 @@ export interface Snippet {
     description: string;
     author: string;
     helpUrl: string;
-    language: string;
+    language: Language | "";
     code: string;
     placeholders: Placeholder[];
     namespaces: string[];
     types: SnippetType[];
     kind: SnippetKind;
 }
+
+export enum Language {
+    Cpp = "CPP",
+    CSharp = "CSharp",
+    Css = "CSS",
+    Html = "HTML",
+    JavaScript = "JavaScript",
+    Sql = "SQL",
+    TypeScript = "TypeScript",
+    VisualBasic = "VB",
+    Xaml = "XAML",
+    Xml = "XML",
+}
+type LanguageKey = keyof typeof Language;
+
+export function getLanguageById(id: string | null): Language | "" {
+    if (id === null || id === "") {
+        return "";
+    }
+
+    // We use this so we can do case insensitive searching.
+    const upperId = id.toUpperCase();
+
+    const matchingKey = Object
+        .keys(Language)
+        .find(i => Language[i as LanguageKey].toUpperCase() === upperId) as LanguageKey | undefined;
+
+    if (matchingKey !== undefined) {
+        return Language[matchingKey];
+    }
+
+    // Some languages have alternative aliases. These should be defined in upper case.
+    if (["C++", "C"].includes(upperId)) {
+        return Language.Cpp;
+    }
+
+    if (upperId === "SQL_SSDT") {
+        return Language.Sql;
+    }
+
+    return "";
+}
+
+export const languageDescriptions: ReadonlyMap<Language, string> = new Map([
+    [Language.CSharp, "C#"],
+    [Language.Cpp, "C++"],
+    [Language.Css, "CSS"],
+    [Language.Html, "HTML"],
+    [Language.JavaScript, "JavaScript"],
+    [Language.Sql, "SQL"],
+    [Language.TypeScript, "TypeScript"],
+    [Language.VisualBasic, "Visual Basic"],
+    [Language.Xaml, "XAML"],
+    [Language.Xml, "XML"],
+]);
 
 export interface Placeholder {
     name: string;

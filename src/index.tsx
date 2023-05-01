@@ -3,6 +3,8 @@ import * as fileManager from "./file-manager";
 import { generateCodePreview, parsePlaceholdersFromCode } from "./snippet-helpers";
 import {
     createDefaultSnippet,
+    Language,
+    languageDescriptions,
     Snippet,
     snippetKindDescriptions,
     SnippetType,
@@ -143,11 +145,12 @@ function Form() {
                         id="language"
                         required
                         value={snippet.language}
-                        onInput={e => updateSnippet("language", e.target.value)}>
+                        onInput={e => updateLanguage(e.target.value as Language | "")}>
 
                         <option value="">Choose a language...</option>
-                        <option value="csharp">C#</option>
-                        <option value="css">CSS</option>
+                        <For each={Array.from(languageDescriptions)}>{([value, description]) =>
+                            <option value={value}>{description}</option>
+                        }</For>
                     </select>
                 </div>
 
@@ -389,6 +392,10 @@ async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemF
     updateSnippet(parsedSnippet);
 
     fileManager.setCurrentFile(file.name, file.handle);
+}
+
+function updateLanguage(language: Language | "") {
+    updateSnippet("language", language);
 }
 
 function updateSnippetCode(code: string) {

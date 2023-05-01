@@ -1,4 +1,4 @@
-import { Placeholder, SnippetKind, Snippet, SnippetType } from "./snippet-model";
+import { getLanguageById, Placeholder, SnippetKind, Snippet, SnippetType } from "./snippet-model";
 import { createDefaultSnippet } from "./snippet-model";
 
 export function parseSnippetFromXml(xml: string): Snippet {
@@ -42,7 +42,7 @@ function parseCodeSnippetElement(codeSnippetElement: Element): Snippet {
     if (snippet !== null) {
         const code = getSingleElement(snippet, "Code");
         if (code !== null) {
-            model.language = code.getAttribute("Language") ?? "";
+            model.language = getLanguageById(code.getAttribute("Language"));
             model.code = code.textContent ?? "";
 
             const kind = code.getAttribute("Kind");

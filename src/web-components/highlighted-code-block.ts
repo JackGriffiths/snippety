@@ -1,6 +1,14 @@
+import { Language } from "../snippet-model";
+import type { LanguageFn } from "highlight.js";
 import hljs from "highlight.js/lib/core";
+import cpp from "highlight.js/lib/languages/cpp";
 import css from "highlight.js/lib/languages/css";
 import csharp from "highlight.js/lib/languages/csharp";
+import javascript from "highlight.js/lib/languages/javascript";
+import sql from "highlight.js/lib/languages/sql";
+import typescript from "highlight.js/lib/languages/typescript";
+import vbnet from "highlight.js/lib/languages/vbnet";
+import xml from "highlight.js/lib/languages/xml";
 
 export class HighlightedCodeBlock extends HTMLElement {
     #codeElement: HTMLElement;
@@ -13,8 +21,25 @@ export class HighlightedCodeBlock extends HTMLElement {
         // Instead we manually invoke highlighting and update the DOM element.
         hljs.configure({ languages: []});
 
-        hljs.registerLanguage("css", css);
-        hljs.registerLanguage("csharp", csharp);
+        // Rather than allowing the library to load and register every single language
+        // it supports, we only include the subset that we use.
+        const languagesToRegister: [Language, LanguageFn][] = [
+            [Language.Cpp, cpp],
+            [Language.CSharp, csharp],
+            [Language.Css, css],
+            [Language.Html, xml], // The library doesn't separate HTML and XML.
+            [Language.JavaScript, javascript],
+            [Language.Sql, sql],
+            [Language.TypeScript, typescript],
+            [Language.VisualBasic, vbnet],
+            [Language.Xaml, xml], // XAML is essentially XML.
+            [Language.Xml, xml],
+        ];
+
+        for (const [name, initFunction] of languagesToRegister) {
+            // highlight.js expects names to be in lower case.
+            hljs.registerLanguage(name.toLowerCase(), initFunction);
+        }
     }
 
     static readonly tagName = "highlighted-code-block";
