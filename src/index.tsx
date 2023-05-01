@@ -20,8 +20,9 @@ import { render } from "solid-js/web";
 registerWebComponents();
 initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
 
-const [snippet, updateSnippet] = createStore<Snippet>(createDefaultSnippet());
 const pageTitle = () => fileManager.currentFileName() ?? "New Snippet";
+const [snippet, updateSnippet] = createStore<Snippet>(createDefaultSnippet());
+const canHaveNamespaces = () => snippet.language === Language.CSharp || snippet.language === Language.VisualBasic;
 
 function App() {
     createEffect(() => document.title = `${pageTitle()} - Snippety`);
@@ -244,35 +245,37 @@ function Form() {
                         onInput={e => updateSnippet("helpUrl", e.target.value)} />
                 </div>
 
-                <div>
-                    <label>
-                        Imports
-                    </label>
+                <Show when={canHaveNamespaces()}>
+                    <div>
+                        <label>
+                            Imports
+                        </label>
 
-                    <p class="help-text">
-                        The namespaces that need to be imported for this snippet to compile.
-                    </p>
+                        <p class="help-text">
+                            The namespaces that need to be imported for this snippet to compile.
+                        </p>
 
-                    <div id="imports">
-                        <Index each={snippet.namespaces}>{(namespace, index) =>
-                            <div class="import">
-                                <input
-                                    type="text"
-                                    placeholder="e.g. System.Linq"
-                                    value={namespace()}
-                                    onInput={e => updateNamespace(index, e.target.value)} />
+                        <div id="imports">
+                            <Index each={snippet.namespaces}>{(namespace, index) =>
+                                <div class="import">
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. System.Linq"
+                                        value={namespace()}
+                                        onInput={e => updateNamespace(index, e.target.value)} />
 
-                                <button type="button" onClick={() => removeNamespace(index)}>
-                                    Remove
-                                </button>
-                            </div>
-                        }</Index>
+                                    <button type="button" onClick={() => removeNamespace(index)}>
+                                        Remove
+                                    </button>
+                                </div>
+                            }</Index>
+                        </div>
+
+                        <button type="button" onClick={addNamespace}>
+                            Add
+                        </button>
                     </div>
-
-                    <button type="button" onClick={addNamespace}>
-                        Add
-                    </button>
-                </div>
+                </Show>
 
                 <div>
                     <label>Type</label>
@@ -395,7 +398,13 @@ async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemF
 }
 
 function updateLanguage(language: Language | "") {
-    updateSnippet("language", language);
+    batch(() => {
+        updateSnippet("language", language);
+
+        if (!canHaveNamespaces() && snippet.namespaces.length > 0) {
+            updateSnippet("namespaces", []);
+        }
+    });
 }
 
 function updateSnippetCode(code: string) {
