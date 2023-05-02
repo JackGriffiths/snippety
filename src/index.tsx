@@ -40,7 +40,7 @@ function App() {
 
 function Toolbar() {
     return (
-        <div id="toolbar">
+        <div class="button-toolbar">
             <button onClick={newSnippet}>
                 New
             </button>
@@ -49,6 +49,14 @@ function Toolbar() {
                 Open
             </button>
 
+            <SaveButtons />
+        </div>
+    );
+}
+
+function SaveButtons() {
+    return (
+        <>
             <button type="submit" form="main-form" data-submit-type="save">
                 Save
             </button>
@@ -58,7 +66,7 @@ function Toolbar() {
                     Save As
                 </button>
             </Show>
-        </div>
+        </>
     );
 }
 
@@ -339,6 +347,10 @@ function Form() {
                         autocomplete="off"
                         value={snippet.helpUrl}
                         onInput={e => updateSnippet("helpUrl", e.target.value)} />
+                </div>
+
+                <div class="button-toolbar">
+                    <SaveButtons />
                 </div>
             </form>
         </div>

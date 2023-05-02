@@ -15,11 +15,17 @@
         margin-inline: auto;
     }
 
+    .button-toolbar {
+        display: flex;
+        gap: 0.5rem;
+    }
+
     #form-and-preview {
+        margin-block-start: 2rem;
         display: grid;
         grid-template-rows: auto;
         grid-template-columns: minmax(0, 1fr);
-        gap: 2rem;
+        gap: 2.5rem;
     }
 
     @media (width >= 900px) {
@@ -31,12 +37,6 @@
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             gap: 3rem;
         }
-    }
-
-    #toolbar {
-        display: flex;
-        gap: 0.5rem;
-        margin-block-end: 2rem;
     }
 
     #page-title {
