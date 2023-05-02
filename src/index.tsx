@@ -199,7 +199,7 @@ function Form() {
                                     <li>
                                         <p>{`$${placeholder.name}$`}</p>
 
-                                        <div class="flex-horizontal" style={{"gap": "1rem"}}>
+                                        <div class="placeholder-inputs">
                                             <div>
                                                 <label for={defaultValueInputId}>
                                                     Default Value

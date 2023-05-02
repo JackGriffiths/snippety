@@ -7,7 +7,8 @@
 
 @layer page {
     body {
-        padding: 1rem;
+        padding-block: 1.5rem;
+        padding-inline: 1.5rem;
     }
 
     #page-container {
@@ -83,6 +84,12 @@
 
     #placeholders li > p {
         margin-block-end: 0.5rem;
+    }
+
+    .placeholder-inputs {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
     }
 
     #imports {
