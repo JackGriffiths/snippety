@@ -28,7 +28,7 @@ function App() {
     createEffect(() => document.title = `${pageTitle()} - Snippety`);
 
     return (
-        <div class="container">
+        <div id="page-container">
             <Toolbar />
             <div id="form-and-preview">
                 <Form />
@@ -89,27 +89,15 @@ function Form() {
                 </div>
 
                 <div>
-                    <label for="author">
-                        Author
-                    </label>
-
-                    <input
-                        id="author"
-                        type="text"
-                        autocomplete="name"
-                        value={snippet.author}
-                        onInput={e => updateSnippet("author", e.target.value)} />
-                </div>
-
-                <div>
                     <label for="description">
                         Description
                     </label>
 
                     <textarea
                         id="description"
-                        rows="5"
+                        rows="3"
                         autocomplete="off"
+                        placeholder="e.g. Code snippet for..."
                         value={snippet.description}
                         onInput={e => updateSnippet("description", e.target.value)} />
 
@@ -162,21 +150,25 @@ function Form() {
 
                     <textarea
                         id="code"
-                        rows="5"
+                        rows="7"
                         autocomplete="off"
                         required
                         value={snippet.code}
                         onInput={e => updateSnippetCode(e.target.value)} />
 
                     <p class="help-text">
-                        The code block that should be inserted. Use placeholders like <code>$propertyName$</code> to
-                        define parts of the code which will likely be customised after the code is inserted.
+                        Use placeholders like <code>$name$</code> to define parts of the code which will be replaced.
+                        There are two reserved placeholders that you can use in your snippets.
                     </p>
 
                     <p class="help-text">
-                        There are two reserved placeholders that you can use in your snippets. <code>$selected$</code> represents
-                        text selected in the document that is to be inserted into the snippet when it is invoked. <code>$end$</code> marks
-                        the location to place the cursor after the code snippet is inserted.
+                        <code>$end$</code> marks the location to place the cursor after the code snippet is inserted. It is
+                        recommended that this placeholder is included in all snippets.
+                    </p>
+
+                    <p class="help-text">
+                        <code>$selected$</code> represents text selected in the document that is to be inserted into the snippet
+                        when it is invoked. This is only relevant for "Surrounds With" snippets.
                     </p>
                 </div>
 
@@ -187,7 +179,7 @@ function Form() {
 
                     <Show
                         when={snippet.placeholders.length > 0}
-                        fallback={<p class="help-text">No placeholders added to the code snippet.</p>}>
+                        fallback={<p class="help-text">No custom placeholders.</p>}>
 
                         <ol id="placeholders">
                             <For each={snippet.placeholders}>{(placeholder, index) => {
@@ -232,19 +224,6 @@ function Form() {
                     </Show>
                 </div>
 
-                <div>
-                    <label for="helpUrl">
-                        Help URL
-                    </label>
-
-                    <input
-                        id="helpUrl"
-                        type="url"
-                        autocomplete="off"
-                        value={snippet.helpUrl}
-                        onInput={e => updateSnippet("helpUrl", e.target.value)} />
-                </div>
-
                 <Show when={canHaveNamespaces()}>
                     <div>
                         <label>
@@ -278,9 +257,12 @@ function Form() {
                 </Show>
 
                 <div>
-                    <label>Type</label>
+                    <label>
+                        Type
+                    </label>
+
                     <p class="help-text">
-                        The type of snippet. If no types are selected, the snippet can be inserted anywhere in the code.
+                        Specifies the type of snippet. If no types are selected, the snippet can be inserted anywhere in the code.
                     </p>
 
                     <For each={Array.from(snippetTypeDescriptions)}>{([value, description]) => {
@@ -309,7 +291,7 @@ function Form() {
                         Kind
                     </label>
 
-                    <p>
+                    <p class="help-text">
                         Specifies the kind of code that the snippet contains.
                     </p>
 
@@ -331,6 +313,32 @@ function Form() {
                             </div>
                         );
                     }}</For>
+                </div>
+
+                <div>
+                    <label for="author">
+                        Author
+                    </label>
+
+                    <input
+                        id="author"
+                        type="text"
+                        autocomplete="name"
+                        value={snippet.author}
+                        onInput={e => updateSnippet("author", e.target.value)} />
+                </div>
+
+                <div>
+                    <label for="helpUrl">
+                        Help URL
+                    </label>
+
+                    <input
+                        id="helpUrl"
+                        type="url"
+                        autocomplete="off"
+                        value={snippet.helpUrl}
+                        onInput={e => updateSnippet("helpUrl", e.target.value)} />
                 </div>
             </form>
         </div>

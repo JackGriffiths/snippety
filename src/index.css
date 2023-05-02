@@ -7,24 +7,29 @@
 
 @layer page {
     body {
-        padding: 3rem;
+        padding: 1rem;
     }
 
-    #container {
-        max-width: 1300px;
+    #page-container {
+        max-width: 1600px;
         margin-inline: auto;
     }
 
     #form-and-preview {
         display: grid;
         grid-template-rows: auto;
+        grid-template-columns: minmax(0, 1fr);
         gap: 2rem;
     }
 
     @media (width >= 900px) {
+        body {
+            padding: 3rem;
+        }
+
         #form-and-preview {
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-            gap: 5rem;
+            gap: 3rem;
         }
     }
 
@@ -53,10 +58,15 @@
         margin-block-start: 0.75rem;
     }
 
-    /* This is to stretch the text areas horizontally. */
-    div:has(> textarea) {
-        display: flex;
-        flex-direction: column;
+    #shortcut {
+        width: 20ch;
+    }
+
+    #code {
+        width: 100ch;
+        white-space: nowrap;
+        overflow-x: auto;
+        font-family: var(--ff-monospace);
     }
 
     #placeholders {

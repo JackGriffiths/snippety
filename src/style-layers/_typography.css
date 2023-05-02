@@ -3,6 +3,7 @@
     --ff-monospace: "Consolas", monospace;
     --fw-normal: 400;
     --fw-bold: 700;
+    --readable-text-max-width: 70ch;
 }
 
 @media (prefers-color-scheme: light) {
@@ -45,7 +46,7 @@ body {
 p {
     --paragraph-spacing: 1rem;
     --paragraph-line-height: 1.5;
-    --paragraph-max-width: 60ch;
+    --paragraph-max-width: var(--readable-text-max-width);
 
     line-height: var(--paragraph-line-height);
     max-width: var(--paragraph-max-width);
