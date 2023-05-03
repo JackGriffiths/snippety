@@ -16,12 +16,17 @@ import { registerWebComponents } from "./web-components";
 import { batch, createEffect, createMemo, createUniqueId, For, Index, Show } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { render } from "solid-js/web";
+import { createStorageSignal } from "@solid-primitives/storage";
 
 registerWebComponents();
 initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
 
 const pageTitle = () => fileManager.currentFileName() ?? "New Snippet";
-const [snippet, updateSnippet] = createStore<Snippet>(createDefaultSnippet());
+
+const [defaultAuthor, setDefaultAuthor] = createStorageSignal("default-author", "");
+const [defaultHelpUrl, setDefaultHelpUrl] = createStorageSignal("default-help-url", "");
+
+const [snippet, updateSnippet] = createStore<Snippet>(createNewSnippet());
 const canHaveNamespaces = () => snippet.language === Language.CSharp || snippet.language === Language.VisualBasic;
 
 function App() {
@@ -328,12 +333,21 @@ function Form() {
                         Author
                     </label>
 
-                    <input
-                        id="author"
-                        type="text"
-                        autocomplete="name"
-                        value={snippet.author}
-                        onInput={e => updateSnippet("author", e.target.value)} />
+                    <div class="flex-horizontal">
+                        <input
+                            id="author"
+                            type="text"
+                            autocomplete="name"
+                            value={snippet.author}
+                            onInput={e => updateSnippet("author", e.target.value)} />
+
+                        <Show when={snippet.author !== defaultAuthor()}>
+                            <button type="button" class="flex-no-shrink" onClick={() => setDefaultAuthor(snippet.author)}>
+                                Set As Default
+                            </button>
+                        </Show>
+                    </div>
+
                 </div>
 
                 <div>
@@ -341,12 +355,20 @@ function Form() {
                         Help URL
                     </label>
 
-                    <input
-                        id="helpUrl"
-                        type="url"
-                        autocomplete="off"
-                        value={snippet.helpUrl}
-                        onInput={e => updateSnippet("helpUrl", e.target.value)} />
+                    <div class="flex-horizontal">
+                        <input
+                            id="helpUrl"
+                            type="url"
+                            autocomplete="off"
+                            value={snippet.helpUrl}
+                            onInput={e => updateSnippet("helpUrl", e.target.value)} />
+
+                        <Show when={snippet.helpUrl !== defaultHelpUrl()}>
+                            <button type="button" class="flex-no-shrink" onClick={() => setDefaultHelpUrl(snippet.helpUrl)}>
+                                Set As Default
+                            </button>
+                        </Show>
+                    </div>
                 </div>
 
                 <div class="button-toolbar">
@@ -372,8 +394,15 @@ function Preview() {
 }
 
 function newSnippet() {
-    updateSnippet(createDefaultSnippet());
+    updateSnippet(createNewSnippet());
     fileManager.clearCurrentFile();
+}
+
+function createNewSnippet() {
+    const newSnippet = createDefaultSnippet();
+    newSnippet.author = defaultAuthor() ?? "";
+    newSnippet.helpUrl = defaultHelpUrl() ?? "";
+    return newSnippet;
 }
 
 async function openSnippet() {
