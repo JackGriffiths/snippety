@@ -12,6 +12,7 @@ import {
 } from "./snippet-model";
 import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
+import { createDirty, makeLeavePrompt } from "./unsaved-changes";
 import { registerWebComponents } from "./web-components";
 import { batch, createEffect, createMemo, createUniqueId, For, Index, Show } from "solid-js";
 import { createStore, produce } from "solid-js/store";
@@ -29,8 +30,11 @@ const [defaultHelpUrl, setDefaultHelpUrl] = createStorageSignal("default-help-ur
 const [snippet, updateSnippet] = createStore<Snippet>(createNewSnippet());
 const canHaveNamespaces = () => snippet.language === Language.CSharp || snippet.language === Language.VisualBasic;
 
+const [dirty, markClean] = createDirty(snippet);
+makeLeavePrompt(() => dirty(), "You have made changes which are not saved. Are you sure you want to leave?");
+
 function App() {
-    createEffect(() => document.title = `${pageTitle()} - Snippety`);
+    createEffect(() => document.title = `${dirty() ? "*" : ""}${pageTitle()} - Snippety`);
 
     return (
         <div id="page-container">
@@ -394,8 +398,11 @@ function Preview() {
 }
 
 function newSnippet() {
-    updateSnippet(createNewSnippet());
-    fileManager.clearCurrentFile();
+    batch(() => {
+        updateSnippet(createNewSnippet());
+        markClean();
+        fileManager.clearCurrentFile();
+    });
 }
 
 function createNewSnippet() {
@@ -414,9 +421,12 @@ async function openSnippet() {
     // TODO: validate that it's a valid snippet file.
     const xml = await file.text();
     const parsedSnippet = parseSnippetFromXml(xml);
-    updateSnippet(parsedSnippet);
 
-    fileManager.setCurrentFile(file.name, file.handle ?? null);
+    batch(() => {
+        updateSnippet(parsedSnippet);
+        markClean();
+        fileManager.setCurrentFile(file.name, file.handle ?? null);
+    });
 }
 
 async function saveSnippet(e: SubmitEvent) {
@@ -433,7 +443,10 @@ async function saveSnippet(e: SubmitEvent) {
         await fileManager.trySave(xml, defaultFileNameWithExt);
 
     if (file !== null) {
-        fileManager.setCurrentFile(file.name, file.handle);
+        batch(() => {
+            markClean();
+            fileManager.setCurrentFile(file.name, file.handle);
+        });
     }
 }
 
@@ -441,9 +454,12 @@ async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemF
     // TODO: validate that it's a valid snippet file.
     const xml = await file.blob.text();
     const parsedSnippet = parseSnippetFromXml(xml);
-    updateSnippet(parsedSnippet);
 
-    fileManager.setCurrentFile(file.name, file.handle);
+    batch(() => {
+        updateSnippet(parsedSnippet);
+        markClean();
+        fileManager.setCurrentFile(file.name, file.handle);
+    });
 }
 
 function updateLanguage(language: Language | "") {
