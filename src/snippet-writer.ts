@@ -61,9 +61,13 @@ function writeXml(model: Snippet): string {
         for (const placeholder of model.placeholders) {
             const literal = appendChildElement(declarations, schema, "Literal");
 
-            literal.setAttribute("IsEditable", String(placeholder.isEditable));
+            literal.setAttribute("Editable", String(placeholder.isEditable));
             appendChildStringElement(literal, schema, "ID", placeholder.name);
             appendChildStringElement(literal, schema, "Default", placeholder.defaultValue);
+
+            if (isNotNullOrWhiteSpace(placeholder.function)) {
+                appendChildStringElement(literal, schema, "Function", placeholder.function);
+            }
 
             if (isNotNullOrWhiteSpace(placeholder.tooltip)) {
                 appendChildStringElement(literal, schema, "ToolTip", placeholder.tooltip);

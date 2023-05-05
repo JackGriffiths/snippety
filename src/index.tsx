@@ -514,6 +514,7 @@ function updateSnippetCode(code: string) {
             const placeholdersToAdd = newPlaceholderNames.map(i => ({
                 name: i,
                 defaultValue: "",
+                function: "",
                 tooltip: "",
                 isEditable: true,
             }));

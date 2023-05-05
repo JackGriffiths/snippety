@@ -91,11 +91,16 @@ function parseDeclarations(declarations: Element) {
             continue;
         }
 
+        // If the attribute is ommitted then the default value is true.
+        // Hence, we check that the value is NOT false.
+        const isEditable = Boolean(literal.getAttribute("Editable")?.toLowerCase() !== "false");
+
         placeholders.push({
             name: name,
             defaultValue: getSingleStringValue(literal, "Default") ?? "",
+            function: getSingleStringValue(literal, "Function") ?? "",
             tooltip: getSingleStringValue(literal, "ToolTip") ?? "",
-            isEditable: Boolean(getSingleStringValue(literal, "Editable") ?? "true"),
+            isEditable: isEditable,
         });
     }
 

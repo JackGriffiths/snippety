@@ -71,6 +71,7 @@ export function getLanguageById(id: string | null): Language | null {
 export interface Placeholder {
     name: string;
     defaultValue: string;
+    function: string;
     tooltip: string;
     isEditable: boolean;
 }
