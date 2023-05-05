@@ -289,25 +289,31 @@ function Form() {
                         Specifies the type of snippet. If no types are selected, the snippet can be inserted anywhere in the code.
                     </p>
 
-                    <For each={Array.from(snippetTypeDescriptions)}>{([value, description]) => {
-                        const checkboxInputId = createUniqueId();
+                    <fieldset>
+                        <legend class="screen-reader-only">
+                            Choose types
+                        </legend>
 
-                        return (
-                            <Show when={value !== SnippetType.Refactoring || snippet.types.includes(SnippetType.Refactoring)}>
-                                <div>
-                                    <input
-                                        id={checkboxInputId}
-                                        type="checkbox"
-                                        checked={snippet.types.includes(value)}
-                                        onChange={e => toggleType(value, e.target.checked)} />
+                        <For each={Array.from(snippetTypeDescriptions)}>{([value, description]) => {
+                            const checkboxInputId = createUniqueId();
 
-                                    <label for={checkboxInputId}>
-                                        {description}
-                                    </label>
-                                </div>
-                            </Show>
-                        );
-                    }}</For>
+                            return (
+                                <Show when={value !== SnippetType.Refactoring || snippet.types.includes(SnippetType.Refactoring)}>
+                                    <div>
+                                        <input
+                                            id={checkboxInputId}
+                                            type="checkbox"
+                                            checked={snippet.types.includes(value)}
+                                            onChange={e => toggleType(value, e.target.checked)} />
+
+                                        <label for={checkboxInputId}>
+                                            {description}
+                                        </label>
+                                    </div>
+                                </Show>
+                            );
+                        }}</For>
+                    </fieldset>
                 </div>
 
                 <div>
@@ -319,24 +325,30 @@ function Form() {
                         Specifies the kind of code that the snippet contains.
                     </p>
 
-                    <For each={Array.from(snippetKindDescriptions)}>{([value, description]) => {
-                        const radioInputId = createUniqueId();
+                    <fieldset>
+                        <legend class="screen-reader-only">
+                            Choose a kind
+                        </legend>
 
-                        return (
-                            <div>
-                                <input
-                                    id={radioInputId}
-                                    type="radio"
-                                    name="kind"
-                                    checked={snippet.kind === value}
-                                    onChange={() => updateSnippet("kind", value)} />
+                        <For each={Array.from(snippetKindDescriptions)}>{([value, description]) => {
+                            const radioInputId = createUniqueId();
 
-                                <label for={radioInputId}>
-                                    {description}
-                                </label>
-                            </div>
-                        );
-                    }}</For>
+                            return (
+                                <div>
+                                    <input
+                                        id={radioInputId}
+                                        type="radio"
+                                        name="kind"
+                                        checked={snippet.kind === value}
+                                        onChange={() => updateSnippet("kind", value)} />
+
+                                    <label for={radioInputId}>
+                                        {description}
+                                    </label>
+                                </div>
+                            );
+                        }}</For>
+                    </fieldset>
                 </div>
 
                 <div>

@@ -59,6 +59,10 @@
         margin-block-start: 0.75rem;
     }
 
+    .help-text + fieldset {
+        margin-block-start: 0.75rem;
+    }
+
     #shortcut {
         width: 20ch;
     }
