@@ -32,7 +32,7 @@ button {
 input:not([type='checkbox']):not([type='radio']),
 textarea {
     display: block;
-    max-width: 100%;
+    max-inline-size: 100%;
     border-width: 1px;
     border-radius: 2px;
     border-style: solid;
@@ -44,11 +44,11 @@ textarea {
 }
 
 input:not([type='checkbox']):not([type='radio']) {
-    width: 40ch;
+    inline-size: 40ch;
 }
 
 textarea {
-    width: var(--readable-text-max-width);
+    inline-size: var(--readable-text-max-inline-size);
 }
 
 input:not([type='checkbox']):not([type='radio']):hover,

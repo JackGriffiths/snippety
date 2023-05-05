@@ -12,7 +12,7 @@
     }
 
     #page-container {
-        max-width: 1600px;
+        max-inline-size: 1600px;
         margin-inline: auto;
     }
 
@@ -64,11 +64,11 @@
     }
 
     #shortcut {
-        width: 20ch;
+        inline-size: 20ch;
     }
 
     #code {
-        width: 100ch;
+        inline-size: 100ch;
         white-space: nowrap;
         overflow-x: auto;
         font-family: var(--ff-monospace);
@@ -110,7 +110,7 @@
 
     #preview {
         position: sticky;
-        top: 3rem;
+        inset-block-start: 3rem;
         align-self: flex-start;
     }
 }
