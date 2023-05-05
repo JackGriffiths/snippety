@@ -21,7 +21,7 @@ import { render } from "solid-js/web";
 import { createStorageSignal } from "@solid-primitives/storage";
 
 registerWebComponents();
-initFileDragAndDrop(document.body, "link", "application/xml", handleFile);
+initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
 
 const pageTitle = () => fileManager.currentFileName() ?? "New Snippet";
 
@@ -32,7 +32,7 @@ const [snippet, updateSnippet] = createStore<Snippet>(createNewSnippet());
 const canHaveNamespaces = () => snippet.language === Language.CSharp || snippet.language === Language.VisualBasic;
 
 const [dirty, markClean] = createDirty(snippet);
-makeLeavePrompt(() => dirty(), "You have made changes which are not saved. Are you sure you want to leave?");
+makeLeavePrompt(() => dirty(), "Are you sure you want to leave? There are unsaved changes that will be lost.");
 
 function App() {
     createEffect(() => document.title = `${dirty() ? "*" : ""}${pageTitle()} - Snippety`);
@@ -399,6 +399,10 @@ function Preview() {
 }
 
 function newSnippet() {
+    if (dirty() && !confirm("Are you sure you want to create a new snippet? There are unsaved changes that will be lost.")) {
+        return;
+    }
+
     batch(() => {
         updateSnippet(createNewSnippet());
         markClean();
@@ -414,12 +418,24 @@ function createNewSnippet() {
 }
 
 async function openSnippet() {
+    if (dirty() && !confirm("Are you sure you want to open a file? There are unsaved changes that will be lost.")) {
+        return;
+    }
+
     const file = await fileManager.tryOpen();
     if (file === null) {
         return;
     }
 
-    handleFile(file);
+    await handleFile(file);
+}
+
+async function fileDropped(file: FileWithHandle) {
+    if (dirty() && !confirm("Are you sure you want to open this file? There are unsaved changes that will be lost.")) {
+        return;
+    }
+
+    await handleFile(file);
 }
 
 async function handleFile(file: FileWithHandle) {
