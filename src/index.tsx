@@ -81,6 +81,8 @@ function SaveButtons() {
 }
 
 function Form() {
+    const shortcutPattern = () => snippet.language === Language.Css ? "@[A-Za-z0-9_]*" : "[A-Za-z0-9_]*";
+
     return (
         <div id="inputs">
             <h1 id="page-title">
@@ -133,13 +135,17 @@ function Form() {
                         id="shortcut"
                         type="text"
                         autocomplete="off"
-                        pattern="[A-Za-z0-9_]*"
+                        pattern={shortcutPattern()}
                         value={snippet.shortcut}
                         onInput={e => updateSnippet("shortcut", e.target.value)} />
 
                     <p class="help-text">
-                        Must only contain alphanumeric characters and underscores. Snippets without a shortcut
-                        can be inserted using the context menu.
+                        Must only contain alphanumeric characters or underscores. The exception is that CSS
+                        snippets must start with the @ character.
+                    </p>
+
+                    <p class="help-text">
+                        Snippets without a shortcut can still be inserted using the context menu in Visual Studio.
                     </p>
                 </div>
 
