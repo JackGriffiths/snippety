@@ -14,13 +14,14 @@ import { parseSnippetFromXml } from "./snippet-parser";
 import { writeSnippetToXml } from "./snippet-writer";
 import { createDirty, makeLeavePrompt } from "./unsaved-changes";
 import { registerWebComponents } from "./web-components";
+import type { FileWithHandle } from "browser-fs-access";
 import { batch, createEffect, createMemo, createUniqueId, For, Index, Show } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { render } from "solid-js/web";
 import { createStorageSignal } from "@solid-primitives/storage";
 
 registerWebComponents();
-initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
+initFileDragAndDrop(document.body, "link", "application/xml", handleFile);
 
 const pageTitle = () => fileManager.currentFileName() ?? "New Snippet";
 
@@ -418,6 +419,10 @@ async function openSnippet() {
         return;
     }
 
+    handleFile(file);
+}
+
+async function handleFile(file: FileWithHandle) {
     // TODO: validate that it's a valid snippet file.
     const xml = await file.text();
     const parsedSnippet = parseSnippetFromXml(xml);
@@ -448,18 +453,6 @@ async function saveSnippet(e: SubmitEvent) {
             fileManager.setCurrentFile(file.name, file.handle);
         });
     }
-}
-
-async function fileDropped(file: { name: string, blob: Blob, handle: FileSystemFileHandle | null }) {
-    // TODO: validate that it's a valid snippet file.
-    const xml = await file.blob.text();
-    const parsedSnippet = parseSnippetFromXml(xml);
-
-    batch(() => {
-        updateSnippet(parsedSnippet);
-        markClean();
-        fileManager.setCurrentFile(file.name, file.handle);
-    });
 }
 
 function updateLanguage(language: Language | "") {

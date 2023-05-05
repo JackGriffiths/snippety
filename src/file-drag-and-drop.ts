@@ -1,10 +1,10 @@
-import type { FileSystemHandle } from "browser-fs-access";
+import type { FileSystemHandle, FileWithHandle } from "browser-fs-access";
 
 export function initFileDragAndDrop(
     dropTargetElement: HTMLElement,
     dropEffect: "copy" | "none" | "link" | "move",
     acceptedMimeType: string,
-    fileDropped: (file: { name: string, blob: Blob, handle: FileSystemFileHandle | null }) => void) {
+    fileDropped: (file: FileWithHandle) => void) {
 
     dropTargetElement.addEventListener("dragover", e => {
         if (e.dataTransfer === null) {
@@ -23,7 +23,7 @@ export function initFileDragAndDrop(
     });
 }
 
-async function getFirstDroppedFile(dropEventArgs: DragEvent, acceptedMimeType: string): Promise<{ name: string, blob: Blob, handle: FileSystemFileHandle | null } | null> {
+async function getFirstDroppedFile(dropEventArgs: DragEvent, acceptedMimeType: string): Promise<FileWithHandle | null> {
     if (dropEventArgs.dataTransfer === null) {
         return null;
     }
@@ -44,28 +44,22 @@ async function getFirstDroppedFile(dropEventArgs: DragEvent, acceptedMimeType: s
 
             if (extendedItem.getAsFileSystemHandle !== undefined) {
                 const handle = await extendedItem.getAsFileSystemHandle();
-                if (handle === null || handle.kind == "directory") {
+                if (handle === null || handle.kind === "directory") {
                     return null;
                 }
 
+                // We know the handle is for a file so we can cast it.
                 const fileHandle = handle as unknown as FileSystemFileHandle;
+                const file = await fileHandle.getFile();
 
-                return {
-                    name: handle.name,
-                    blob: await fileHandle.getFile(),
-                    handle: fileHandle,
-                };
+                // Like the browser-fs-access libary does, we append the handle on to the object
+                // to create an object that satisfies the FileWithHandle interface.
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                (file as any)["handle"] = fileHandle;
+
+                return file;
             } else {
-                const file = item.getAsFile();
-                if (file === null) {
-                    return null;
-                }
-
-                return {
-                    name: file.name,
-                    blob: file,
-                    handle: null
-                };
+                return item.getAsFile();
             }
         }
     }

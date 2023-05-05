@@ -47,7 +47,11 @@ export async function trySaveAs(text: string, defaultFileName: string) {
     return await trySaveText(text, currentFileName() ?? defaultFileName, null);
 }
 
-async function trySaveText(text: string, defaultFileName: string, existingHandle: FileSystemFileHandle | null) {
+async function trySaveText(
+    text: string,
+    defaultFileName: string,
+    existingHandle: FileSystemFileHandle | null): Promise<{ name: string, handle: FileSystemFileHandle | null} | null> {
+
     const data = new Blob([text], {
         type: "application/xml"
     });
