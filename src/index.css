@@ -55,7 +55,7 @@
         font-weight: var(--fw-bold);
     }
 
-    :is(label, input, textarea, select) + .help-text {
+    :is(label, input, textarea, select, .input-group) + .help-text {
         margin-block-start: 0.75rem;
     }
 

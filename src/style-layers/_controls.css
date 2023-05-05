@@ -115,7 +115,7 @@ label {
     margin-inline-start: 0.4rem;
 }
 
-label:has(+ :is(input, textarea, select)) {
+label:has(+ :is(input, textarea, select, .input-group)) {
     margin-block-end: 0.25rem;
 }
 

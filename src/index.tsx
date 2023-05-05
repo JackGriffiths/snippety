@@ -356,7 +356,7 @@ function Form() {
                         Author
                     </label>
 
-                    <div class="flex-horizontal">
+                    <div class="input-group flex-horizontal">
                         <input
                             id="author"
                             type="text"
@@ -378,7 +378,7 @@ function Form() {
                         Help URL
                     </label>
 
-                    <div class="flex-horizontal">
+                    <div class="input-group flex-horizontal">
                         <input
                             id="helpUrl"
                             type="url"
