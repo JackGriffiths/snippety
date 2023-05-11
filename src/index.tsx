@@ -91,7 +91,7 @@ function Form() {
 
             <form id="main-form" action="" onSubmit={saveSnippet}>
                 <div>
-                    <label for="title">
+                    <label for="title" class="required">
                         Title
                     </label>
 
@@ -150,7 +150,7 @@ function Form() {
                 </div>
 
                 <div>
-                    <label for="language">
+                    <label for="language" class="required">
                         Language
                     </label>
 
@@ -168,7 +168,7 @@ function Form() {
                 </div>
 
                 <div>
-                    <label for="code">
+                    <label for="code" class="required">
                         Code
                     </label>
 
@@ -217,7 +217,7 @@ function Form() {
 
                                         <div class="placeholder-inputs">
                                             <div>
-                                                <label for={defaultValueInputId}>
+                                                <label for={defaultValueInputId} class="required">
                                                     Default Value
                                                 </label>
 

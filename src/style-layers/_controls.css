@@ -108,19 +108,20 @@ select {
 
 label {
     display: inline-block;
+}
 
-    /* Add margin below label if followed by inputs */
-    &:has(+ :is(input, textarea, select, .input-group)) {
-        margin-block-end: 0.4rem;
-    }
+/* Add a UI hint to the user that this is a required input */
+/* Once the :has() selector is widely supported, the "required" class won't be necessary */
+label.required::after {
+    content: "*";
+    display: inline;
+    margin-inline-start: 0.25em;
+    color: var(--validation-color);
+}
 
-    /* Add a UI hint to the user that this is a required input */
-    &:has(+ :is(input[required], textarea[required], select[required]))::after {
-        content: "*";
-        display: inline;
-        margin-inline-start: 0.25em;
-        color: var(--validation-color);
-    }
+/* Add margin above inputs when following a label */
+label + :is(input, textarea, select, .input-group) {
+    margin-block-start: 0.4rem;
 }
 
 /* Add spacing between checkboxes/radios and their labels */
