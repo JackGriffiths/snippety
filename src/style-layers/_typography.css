@@ -6,56 +6,48 @@
     --readable-text-max-inline-size: 70ch;
 }
 
-@media (prefers-color-scheme: light) {
-    body {
+body {
+    @media (prefers-color-scheme: light) {
         --body-background-color: hsl(0, 0%, 98%);
         --body-text-color: hsl(0, 0%, 10%);
     }
-}
 
-@media (prefers-color-scheme: dark) {
-    body {
+    @media (prefers-color-scheme: dark) {
         --body-background-color: hsl(0, 0%, 12%);
         --body-text-color: hsl(0, 0%, 86%);
     }
-}
 
-body {
     background: var(--body-background-color);
     color: var(--body-text-color);
     font-family: var(--ff-normal);
     font-weight: var(--fw-normal);
 }
 
-@media (prefers-color-scheme: light) {
-    p {
+p {
+    --paragraph-line-height: 1.5;
+    --paragraph-spacing: 1em;
+
+    line-height: var(--paragraph-line-height);
+    max-inline-size: var(--readable-text-max-inline-size);
+
+    & + p {
+        margin-block-start: var(--paragraph-spacing);
+    }
+}
+
+p code {
+    @media (prefers-color-scheme: light) {
         --inline-code-border-color: hsl(0, 0%, 50%);
         --inline-code-background-color: var(--body-background-color);
         --inline-code-text-color: currentColor;
     }
-}
 
-@media (prefers-color-scheme: dark) {
-    p {
+    @media (prefers-color-scheme: dark) {
         --inline-code-border-color: hsl(0, 0%, 65%);
         --inline-code-background-color: var(--body-background-color);
         --inline-code-text-color: currentColor;
     }
-}
 
-p {
-    --paragraph-spacing: 1em;
-    --paragraph-line-height: 1.5;
-
-    line-height: var(--paragraph-line-height);
-    max-inline-size: var(--readable-text-max-inline-size);
-}
-
-p + p {
-    margin-block-start: var(--paragraph-spacing);
-}
-
-p code {
     border-radius: 0px;
     border-width: 1px;
     border-style: solid;

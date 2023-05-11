@@ -2,19 +2,15 @@
     --accent-color-light: hsl(261, 36%, 50%);
     --accent-color-mid: hsl(261, 36%, 45%);
     --accent-color-dark: hsl(261, 36%, 40%);
-}
 
-@media (prefers-color-scheme: light) {
-    :root {
+    @media (prefers-color-scheme: light) {
         --grey-color-light: hsl(0, 0%, 82%);
         --grey-color-dark: hsl(0, 0%, 79%);
         --outline-color: hsl(0, 0%, 50%);
         --validation-color: hsl(0, 100%, 50%);
     }
-}
 
-@media (prefers-color-scheme: dark) {
-    :root {
+    @media (prefers-color-scheme: dark) {
         --grey-color-light: hsl(0, 0%, 25%);
         --grey-color-dark: hsl(0, 0%, 20%);
         --outline-color: hsl(0, 0%, 70%);
@@ -22,32 +18,26 @@
     }
 }
 
-@media (prefers-color-scheme: light) {
-    input:not([type='checkbox']):not([type='radio']),
-    textarea {
-        --input-default-border-color: var(--outline-color);
-        --input-default-background-color: var(--body-background-color);
-        --input-default-text-color: var(--body-text-color);
-        --input-hover-border-color: var(--input-default-border-color);
-        --input-hover-background-color: var(--input-default-background-color);
-        --input-hover-text-color: var(--input-default-text-color);
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    input:not([type='checkbox']):not([type='radio']),
-    textarea {
-        --input-default-border-color: var(--outline-color);
-        --input-default-background-color: var(--body-background-color);
-        --input-default-text-color: var(--body-text-color);
-        --input-hover-border-color: var(--input-default-border-color);
-        --input-hover-background-color: var(--input-default-background-color);
-        --input-hover-text-color: var(--input-default-text-color);
-    }
-}
-
 input:not([type='checkbox']):not([type='radio']),
 textarea {
+    @media (prefers-color-scheme: light) {
+        --input-default-border-color: var(--outline-color);
+        --input-default-background-color: var(--body-background-color);
+        --input-default-text-color: var(--body-text-color);
+        --input-hover-border-color: var(--input-default-border-color);
+        --input-hover-background-color: var(--input-default-background-color);
+        --input-hover-text-color: var(--input-default-text-color);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        --input-default-border-color: var(--outline-color);
+        --input-default-background-color: var(--body-background-color);
+        --input-default-text-color: var(--body-text-color);
+        --input-hover-border-color: var(--input-default-border-color);
+        --input-hover-background-color: var(--input-default-background-color);
+        --input-hover-text-color: var(--input-default-text-color);
+    }
+
     display: block;
     max-inline-size: 100%;
     border-width: 1px;
@@ -58,6 +48,12 @@ textarea {
     color: var(--input-default-text-color);
     padding-block: 0.4rem;
     padding-inline: 0.5rem;
+
+    &:hover {
+        border-color: var(--input-hover-border-color);
+        background: var(--input-hover-background-color);
+        color: var(--input-hover-text-color);
+    }
 }
 
 input:not([type='checkbox']):not([type='radio']) {
@@ -69,41 +65,30 @@ textarea {
     resize: vertical;
 }
 
-input:not([type='checkbox']):not([type='radio']):hover,
-textarea:hover {
-    border-color: var(--input-hover-border-color);
-    background: var(--input-hover-background-color);
-    color: var(--input-hover-text-color);
-}
-
 input[type="checkbox"],
 input[type="radio"] {
     accent-color: var(--accent-color-mid);
 }
 
-@media (prefers-color-scheme: light) {
-    select {
-        --select-default-border-color: var(--outline-color);
-        --select-default-background-color: var(--body-background-color);
-        --select-default-text-color: var(--body-text-color);
-        --select-hover-border-color: var(--select-default-border-color);
-        --select-hover-background-color: var(--select-default-background-color);
-        --select-hover-text-color: var(--select-default-text-color);
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    select {
-        --select-default-border-color: var(--outline-color);
-        --select-default-background-color: var(--body-background-color);
-        --select-default-text-color: var(--body-text-color);
-        --select-hover-border-color: var(--select-default-border-color);
-        --select-hover-background-color: var(--select-default-background-color);
-        --select-hover-text-color: var(--select-default-text-color);
-    }
-}
-
 select {
+    @media (prefers-color-scheme: light) {
+        --select-default-border-color: var(--outline-color);
+        --select-default-background-color: var(--body-background-color);
+        --select-default-text-color: var(--body-text-color);
+        --select-hover-border-color: var(--select-default-border-color);
+        --select-hover-background-color: var(--select-default-background-color);
+        --select-hover-text-color: var(--select-default-text-color);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        --select-default-border-color: var(--outline-color);
+        --select-default-background-color: var(--body-background-color);
+        --select-default-text-color: var(--body-text-color);
+        --select-hover-border-color: var(--select-default-border-color);
+        --select-hover-background-color: var(--select-default-background-color);
+        --select-hover-text-color: var(--select-default-text-color);
+    }
+
     display: block;
     border-width: 1px;
     border-radius: 2px;
@@ -113,35 +98,38 @@ select {
     color: var(--select-default-text-color);
     padding-block: 0.4rem;
     padding-inline: 0.2rem;
-}
 
-select:hover {
-    border-color: var(--select-hover-border-color);
-    background: var(--select-hover-background-color);
-    color: var(--select-hover-text-color);
+    &:hover {
+        border-color: var(--select-hover-border-color);
+        background: var(--select-hover-background-color);
+        color: var(--select-hover-text-color);
+    }
 }
 
 label {
     display: inline-block;
+
+    /* Add margin below label if followed by inputs */
+    &:has(+ :is(input, textarea, select, .input-group)) {
+        margin-block-end: 0.4rem;
+    }
+
+    /* Add a UI hint to the user that this is a required input */
+    &:has(+ :is(input[required], textarea[required], select[required]))::after {
+        content: "*";
+        display: inline;
+        margin-inline-start: 0.25em;
+        color: var(--validation-color);
+    }
 }
 
+/* Add spacing between checkboxes/radios and their labels */
 :is(input[type="radio"], input[type="checkbox"]) + label {
     margin-inline-start: 0.4rem;
 }
 
-label:has(+ :is(input, textarea, select, .input-group)) {
-    margin-block-end: 0.4rem;
-}
-
-label:has(+ :is(input[required], textarea[required], select[required]))::after {
-    content: "*";
-    display: inline;
-    margin-inline-start: 0.25em;
-    color: var(--validation-color);
-}
-
-@media (prefers-color-scheme: light) {
-    button {
+button {
+    @media (prefers-color-scheme: light) {
         --btn-default-border-color: var(--grey-color-light);
         --btn-default-background-color: var(--grey-color-light);
         --btn-default-text-color: hsl(0, 0%, 10%);
@@ -150,18 +138,7 @@ label:has(+ :is(input[required], textarea[required], select[required]))::after {
         --btn-hover-text-color: var(--btn-default-text-color);
     }
 
-    button.accent {
-        --btn-default-border-color: var(--accent-color-dark);
-        --btn-default-background-color: var(--accent-color-dark);
-        --btn-default-text-color: hsl(0, 0%, 95%);
-        --btn-hover-border-color: var(--accent-color-mid);
-        --btn-hover-background-color: var(--accent-color-mid);
-        --btn-hover-text-color: var(--btn-default-text-color);
-    }
-}
-
-@media (prefers-color-scheme: dark) {
-    button {
+    @media (prefers-color-scheme: dark) {
         --btn-default-border-color: var(--grey-color-dark);
         --btn-default-background-color: var(--grey-color-dark);
         --btn-default-text-color: hsl(0, 0%, 95%);
@@ -170,17 +147,6 @@ label:has(+ :is(input[required], textarea[required], select[required]))::after {
         --btn-hover-text-color: var(--btn-default-text-color);
     }
 
-    button.accent {
-        --btn-default-border-color: var(--accent-color-mid);
-        --btn-default-background-color: var(--accent-color-mid);
-        --btn-default-text-color: hsl(0, 0%, 95%);
-        --btn-hover-border-color: var(--accent-color-dark);
-        --btn-hover-background-color: var(--accent-color-dark);
-        --btn-hover-text-color: var(--btn-default-text-color);
-    }
-}
-
-button {
     min-inline-size: 5em;
     border-width: 1px;
     border-radius: 2px;
@@ -192,12 +158,32 @@ button {
     padding-inline: 0.7em;
     letter-spacing: 0.01em;
     flex-shrink: 0;
+
+    &:hover {
+        border-color: var(--btn-hover-border-color);
+        background: var(--btn-hover-background-color);
+        color: var(--btn-hover-text-color);
+    }
 }
 
-button:hover {
-    border-color: var(--btn-hover-border-color);
-    background: var(--btn-hover-background-color);
-    color: var(--btn-hover-text-color);
+button.accent {
+    @media (prefers-color-scheme: light) {
+        --btn-default-border-color: var(--accent-color-dark);
+        --btn-default-background-color: var(--accent-color-dark);
+        --btn-default-text-color: hsl(0, 0%, 95%);
+        --btn-hover-border-color: var(--accent-color-mid);
+        --btn-hover-background-color: var(--accent-color-mid);
+        --btn-hover-text-color: var(--btn-default-text-color);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        --btn-default-border-color: var(--accent-color-mid);
+        --btn-default-background-color: var(--accent-color-mid);
+        --btn-default-text-color: hsl(0, 0%, 95%);
+        --btn-hover-border-color: var(--accent-color-dark);
+        --btn-hover-background-color: var(--accent-color-dark);
+        --btn-hover-text-color: var(--btn-default-text-color);
+    }
 }
 
 fieldset {
