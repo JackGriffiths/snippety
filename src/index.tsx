@@ -1,4 +1,4 @@
-import { initFileDragAndDrop } from "./file-drag-and-drop";
+import { makeFileDragAndDropHandler } from "./file-drag-and-drop";
 import * as fileManager from "./file-manager";
 import { generateCodePreview, parsePlaceholdersFromCode } from "./snippet-helpers";
 import {
@@ -21,7 +21,6 @@ import { render } from "solid-js/web";
 import { createStorageSignal } from "@solid-primitives/storage";
 
 registerWebComponents();
-initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
 
 const pageTitle = () => `${dirty() ? "*" : ""}${fileManager.currentFileName() ?? "New Snippet"}`;
 
@@ -32,10 +31,11 @@ const [snippet, updateSnippet] = createStore<Snippet>(createNewSnippet());
 const canHaveNamespaces = () => snippet.language === Language.CSharp || snippet.language === Language.VisualBasic;
 
 const [dirty, markClean] = createDirty(snippet);
-makeLeavePrompt(() => dirty(), "Are you sure you want to leave? There are unsaved changes that will be lost.");
 
 function App() {
     createEffect(() => document.title = `${pageTitle()} - Snippety`);
+    makeFileDragAndDropHandler(document.body, "link", "application/xml", fileDropped);
+    makeLeavePrompt(() => dirty(), "Are you sure you want to leave? There are unsaved changes that will be lost.");
 
     return (
         <div id="page-container">
