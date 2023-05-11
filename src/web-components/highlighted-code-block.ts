@@ -1,4 +1,4 @@
-import { Language } from "../snippet-model";
+import { Language } from "../snippets/snippet-model";
 import type { LanguageFn } from "highlight.js";
 import hljs from "highlight.js/lib/core";
 import cpp from "highlight.js/lib/languages/cpp";

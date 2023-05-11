@@ -1,6 +1,5 @@
-import { makeFileDragAndDropHandler } from "./file-drag-and-drop";
-import * as fileManager from "./file-manager";
-import { generateCodePreview, parsePlaceholdersFromCode } from "./snippet-helpers";
+import * as fileManager from "./snippets/snippet-file-manager";
+import { generateCodePreview, parsePlaceholdersFromCode } from "./snippets/snippet-helpers";
 import {
     createDefaultSnippet,
     Language,
@@ -9,10 +8,11 @@ import {
     snippetKindDescriptions,
     SnippetType,
     snippetTypeDescriptions
-} from "./snippet-model";
-import { parseSnippetFromXml } from "./snippet-parser";
-import { writeSnippetToXml } from "./snippet-writer";
-import { createDirty, makeLeavePrompt } from "./unsaved-changes";
+} from "./snippets/snippet-model";
+import { parseSnippetFromXml } from "./snippets/snippet-parser";
+import { writeSnippetToXml } from "./snippets/snippet-writer";
+import { makeFileDragAndDropHandler } from "./utilities/file-drag-and-drop";
+import { createDirty, makeLeavePrompt } from "./utilities/unsaved-changes";
 import { registerWebComponents } from "./web-components";
 import type { FileWithHandle } from "browser-fs-access";
 import { batch, createEffect, createMemo, createUniqueId, For, Index, Show } from "solid-js";
