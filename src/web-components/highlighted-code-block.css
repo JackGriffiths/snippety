@@ -14,4 +14,10 @@
     code:empty {
         display: none;
     }
+
+    @media (prefers-color-scheme: light) {
+        code {
+            border: 1px solid hsl(261, 36%, 50%);
+        }
+    }
 }

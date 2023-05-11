@@ -23,7 +23,7 @@ import { createStorageSignal } from "@solid-primitives/storage";
 registerWebComponents();
 initFileDragAndDrop(document.body, "link", "application/xml", fileDropped);
 
-const pageTitle = () => fileManager.currentFileName() ?? "New Snippet";
+const pageTitle = () => `${dirty() ? "*" : ""}${fileManager.currentFileName() ?? "New Snippet"}`;
 
 const [defaultAuthor, setDefaultAuthor] = createStorageSignal("default-author", "");
 const [defaultHelpUrl, setDefaultHelpUrl] = createStorageSignal("default-help-url", "");
@@ -35,7 +35,7 @@ const [dirty, markClean] = createDirty(snippet);
 makeLeavePrompt(() => dirty(), "Are you sure you want to leave? There are unsaved changes that will be lost.");
 
 function App() {
-    createEffect(() => document.title = `${dirty() ? "*" : ""}${pageTitle()} - Snippety`);
+    createEffect(() => document.title = `${pageTitle()} - Snippety`);
 
     return (
         <div id="page-container">
@@ -51,15 +51,15 @@ function App() {
 function Toolbar() {
     return (
         <div class="button-toolbar">
-            <button onClick={newSnippet}>
+            <SaveButtons />
+
+            <button type="button" onClick={newSnippet}>
                 New
             </button>
 
-            <button onClick={openSnippet}>
-                Open
+            <button type="button" onClick={openSnippet}>
+                Open File...
             </button>
-
-            <SaveButtons />
         </div>
     );
 }
@@ -67,13 +67,13 @@ function Toolbar() {
 function SaveButtons() {
     return (
         <>
-            <button type="submit" form="main-form" data-submit-type="save">
+            <button type="submit" class="accent" form="main-form" data-submit-type="save">
                 Save
             </button>
 
             <Show when={fileManager.isSaveAsEnabled}>
                 <button type="submit" form="main-form" data-submit-type="save-as">
-                    Save As
+                    Save As...
                 </button>
             </Show>
         </>
@@ -356,7 +356,7 @@ function Form() {
                         Author
                     </label>
 
-                    <div class="input-group flex-horizontal">
+                    <div class="input-group flex-horizontal" style={{"gap": "1rem"}}>
                         <input
                             id="author"
                             type="text"
@@ -366,7 +366,7 @@ function Form() {
 
                         <Show when={snippet.author !== defaultAuthor()}>
                             <button type="button" class="flex-no-shrink" onClick={() => setDefaultAuthor(snippet.author)}>
-                                Set As Default
+                                Save As Default
                             </button>
                         </Show>
                     </div>
@@ -378,7 +378,7 @@ function Form() {
                         Help URL
                     </label>
 
-                    <div class="input-group flex-horizontal">
+                    <div class="input-group flex-horizontal" style={{"gap": "1rem"}}>
                         <input
                             id="helpUrl"
                             type="url"
@@ -388,7 +388,7 @@ function Form() {
 
                         <Show when={snippet.helpUrl !== defaultHelpUrl()}>
                             <button type="button" class="flex-no-shrink" onClick={() => setDefaultHelpUrl(snippet.helpUrl)}>
-                                Set As Default
+                                Save As Default
                             </button>
                         </Show>
                     </div>

@@ -8,15 +8,15 @@
 
 @media (prefers-color-scheme: light) {
     body {
-        --body-background-color: #e7e7e7;
-        --body-text-color: black;
+        --body-background-color: hsl(0, 0%, 98%);
+        --body-text-color: hsl(0, 0%, 10%);
     }
 }
 
 @media (prefers-color-scheme: dark) {
     body {
-        --body-background-color: #242323;
-        --body-text-color: white;
+        --body-background-color: hsl(0, 0%, 12%);
+        --body-text-color: hsl(0, 0%, 86%);
     }
 }
 
@@ -29,22 +29,22 @@ body {
 
 @media (prefers-color-scheme: light) {
     p {
-        --inline-code-border-color: lightgrey;
-        --inline-code-background-color: white;
+        --inline-code-border-color: hsl(0, 0%, 50%);
+        --inline-code-background-color: var(--body-background-color);
         --inline-code-text-color: currentColor;
     }
 }
 
 @media (prefers-color-scheme: dark) {
     p {
-        --inline-code-border-color: darkgrey;
-        --inline-code-background-color: #242323;
+        --inline-code-border-color: hsl(0, 0%, 65%);
+        --inline-code-background-color: var(--body-background-color);
         --inline-code-text-color: currentColor;
     }
 }
 
 p {
-    --paragraph-spacing: 1rem;
+    --paragraph-spacing: 1em;
     --paragraph-line-height: 1.5;
 
     line-height: var(--paragraph-line-height);
@@ -62,7 +62,7 @@ p code {
     border-color: var(--inline-code-border-color);
     background: var(--inline-code-background-color);
     color: var(--inline-code-text-color);
-    padding-block: 1px;
+    padding-block: 0.05em;
     padding-inline: 0.1em;
 }
 

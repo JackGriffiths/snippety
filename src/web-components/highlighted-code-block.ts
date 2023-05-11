@@ -122,9 +122,9 @@ export class HighlightedCodeBlock extends HTMLElement {
     async #loadStylesForTheme(theme: Theme) {
         switch (theme) {
             case Theme.Light:
-                return (await import("highlight.js/styles/a11y-light.css?inline")).default;
+                return (await import("highlight.js/styles/vs.css?inline")).default;
             case Theme.Dark:
-                return (await import("highlight.js/styles/a11y-dark.css?inline")).default;
+                return (await import("highlight.js/styles/base16/dracula.css?inline")).default;
             default:
                 throw Error(`Unhandled theme: ${theme}`);
         }
