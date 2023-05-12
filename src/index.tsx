@@ -12,7 +12,7 @@ import {
 import { parseSnippetFromXml } from "./snippets/snippet-parser";
 import { writeSnippetToXml } from "./snippets/snippet-writer";
 import { makeFileDragAndDropHandler } from "./utilities/file-drag-and-drop";
-import { createDirty, makeLeavePrompt } from "./utilities/unsaved-changes";
+import { createDirtyFlag, makeLeavePrompt } from "./utilities/unsaved-changes";
 import { registerWebComponents } from "./web-components";
 import type { FileWithHandle } from "browser-fs-access";
 import { batch, createEffect, createMemo, createUniqueId, For, Index, Show } from "solid-js";
@@ -30,12 +30,12 @@ function App() {
 
     const [snippet, updateSnippet] = createStore<Snippet>(createNewSnippet());
     const canHaveNamespaces = () => snippet.language === Language.CSharp || snippet.language === Language.VisualBasic;
-    const [dirty, markClean] = createDirty(snippet);
+    const [isDirty, markClean] = createDirtyFlag(snippet);
 
-    const pageTitle = () => `${dirty() ? "*" : ""}${fileName() ?? "New Snippet"}`;
+    const pageTitle = () => `${isDirty() ? "*" : ""}${fileName() ?? "New Snippet"}`;
     createEffect(() => document.title = `${pageTitle()} - Snippety`);
     makeFileDragAndDropHandler(document.body, "link", "application/xml", fileDropped);
-    makeLeavePrompt(() => dirty(), "Are you sure you want to leave? There are unsaved changes that will be lost.");
+    makeLeavePrompt(() => isDirty(), "Are you sure you want to leave? There are unsaved changes that will be lost.");
 
     function Page() {
         return (
@@ -418,7 +418,7 @@ function App() {
     }
 
     function newSnippet() {
-        if (dirty() && !confirm("Are you sure you want to create a new snippet? There are unsaved changes that will be lost.")) {
+        if (isDirty() && !confirm("Are you sure you want to create a new snippet? There are unsaved changes that will be lost.")) {
             return;
         }
 
@@ -437,7 +437,7 @@ function App() {
     }
 
     async function openSnippet() {
-        if (dirty() && !confirm("Are you sure you want to open a file? There are unsaved changes that will be lost.")) {
+        if (isDirty() && !confirm("Are you sure you want to open a file? There are unsaved changes that will be lost.")) {
             return;
         }
 
@@ -453,7 +453,7 @@ function App() {
     }
 
     async function fileDropped(file: FileWithHandle) {
-        if (dirty() && !confirm("Are you sure you want to open this file? There are unsaved changes that will be lost.")) {
+        if (isDirty() && !confirm("Are you sure you want to open this file? There are unsaved changes that will be lost.")) {
             return;
         }
 

@@ -1,12 +1,12 @@
 import { Accessor, createEffect, createMemo, createSignal, onCleanup } from "solid-js";
 
-export function createDirty<T extends object>(item: T): [dirty: Accessor<boolean>, markClean: VoidFunction] {
+export function createDirtyFlag<T extends object>(item: T): [isDirty: Accessor<boolean>, markClean: VoidFunction] {
     const serialize = () => JSON.stringify(item);
     const [cleanState, setCleanState] = createSignal(serialize());
-    const dirty = createMemo(() => serialize() !== cleanState());
+    const isDirty = createMemo(() => serialize() !== cleanState());
     const markClean = () => { setCleanState(serialize()); };
 
-    return [dirty, markClean];
+    return [isDirty, markClean];
 }
 
 export function makeLeavePrompt(when: () => boolean, message: string): VoidFunction {
