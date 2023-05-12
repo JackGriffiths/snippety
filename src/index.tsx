@@ -1,4 +1,4 @@
-import * as fileManager from "./snippets/snippet-file-manager";
+import { createFileManager, isSaveAsEnabled } from "./snippets/snippet-file-manager";
 import { generateCodePreview, parsePlaceholdersFromCode } from "./snippets/snippet-helpers";
 import {
     createDefaultSnippet,
@@ -23,21 +23,21 @@ import { createStorageSignal } from "@solid-primitives/storage";
 registerWebComponents();
 
 function App() {
-    const pageTitle = () => `${dirty() ? "*" : ""}${fileManager.currentFileName() ?? "New Snippet"}`;
+    const [fileName, { tryOpen, tryPick, trySave, trySaveAs, closeFile }] = createFileManager(parseSnippetFromXml, writeSnippetToXml);
 
     const [defaultAuthor, setDefaultAuthor] = createStorageSignal("default-author", "");
     const [defaultHelpUrl, setDefaultHelpUrl] = createStorageSignal("default-help-url", "");
 
     const [snippet, updateSnippet] = createStore<Snippet>(createNewSnippet());
     const canHaveNamespaces = () => snippet.language === Language.CSharp || snippet.language === Language.VisualBasic;
-
     const [dirty, markClean] = createDirty(snippet);
 
-    function Page() {
-        createEffect(() => document.title = `${pageTitle()} - Snippety`);
-        makeFileDragAndDropHandler(document.body, "link", "application/xml", fileDropped);
-        makeLeavePrompt(() => dirty(), "Are you sure you want to leave? There are unsaved changes that will be lost.");
+    const pageTitle = () => `${dirty() ? "*" : ""}${fileName() ?? "New Snippet"}`;
+    createEffect(() => document.title = `${pageTitle()} - Snippety`);
+    makeFileDragAndDropHandler(document.body, "link", "application/xml", fileDropped);
+    makeLeavePrompt(() => dirty(), "Are you sure you want to leave? There are unsaved changes that will be lost.");
 
+    function Page() {
         return (
             <div id="page-container">
                 <Toolbar />
@@ -72,7 +72,7 @@ function App() {
                     Save
                 </button>
 
-                <Show when={fileManager.isSaveAsEnabled}>
+                <Show when={isSaveAsEnabled}>
                     <button type="submit" form="main-form" data-submit-type="save-as">
                         Save As...
                     </button>
@@ -423,9 +423,9 @@ function App() {
         }
 
         batch(() => {
+            closeFile();
             updateSnippet(createNewSnippet());
             markClean();
-            fileManager.clearCurrentFile();
         });
     }
 
@@ -441,12 +441,15 @@ function App() {
             return;
         }
 
-        const file = await fileManager.tryOpen();
-        if (file === null) {
+        const snippet = await tryPick();
+        if (snippet === null) {
             return;
         }
 
-        await handleFile(file);
+        batch(() => {
+            updateSnippet(snippet);
+            markClean();
+        });
     }
 
     async function fileDropped(file: FileWithHandle) {
@@ -454,39 +457,25 @@ function App() {
             return;
         }
 
-        await handleFile(file);
-    }
-
-    async function handleFile(file: FileWithHandle) {
-        // TODO: validate that it's a valid snippet file.
-        const xml = await file.text();
-        const parsedSnippet = parseSnippetFromXml(xml);
+        const snippet = await tryOpen(file);
+        if (snippet === null) {
+            return;
+        }
 
         batch(() => {
-            updateSnippet(parsedSnippet);
+            updateSnippet(snippet);
             markClean();
-            fileManager.setCurrentFile(file.name, file.handle ?? null);
         });
     }
 
     async function saveSnippet(e: SubmitEvent) {
         e.preventDefault();
 
-        const xml = writeSnippetToXml(snippet);
-
-        const defaultFileName = snippet.shortcut || snippet.title; // TODO: strip invalid file name chars from the title.
-        const defaultFileNameWithExt = `${defaultFileName}.snippet`;
         const useSaveAs = e.submitter?.dataset.submitType === "save-as";
+        const wasSaved = useSaveAs ? await trySaveAs(snippet) : await trySave(snippet);
 
-        const file = useSaveAs ?
-            await fileManager.trySaveAs(xml, defaultFileNameWithExt) :
-            await fileManager.trySave(xml, defaultFileNameWithExt);
-
-        if (file !== null) {
-            batch(() => {
-                markClean();
-                fileManager.setCurrentFile(file.name, file.handle);
-            });
+        if (wasSaved) {
+            markClean();
         }
     }
 

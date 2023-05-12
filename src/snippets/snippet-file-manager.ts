@@ -1,28 +1,73 @@
-import {
-    FileWithHandle,
-    fileOpen,
-    fileSave,
-    supported as isFileSystemAccessSupported
-} from "browser-fs-access";
-import { createSignal } from "solid-js";
+import type { Snippet } from "./snippet-model";
+import { FileWithHandle, fileOpen, fileSave, supported as isFileSystemAccessSupported } from "browser-fs-access";
+import { Accessor, createSignal } from "solid-js";
 
-const [currentFileName, setCurrentFileName] = createSignal<string | null>(null);
-const [currentFileHandle, setCurrentFileHandle] = createSignal<FileSystemFileHandle | null>(null);
+export { isFileSystemAccessSupported as isSaveAsEnabled };
 
-export { currentFileName };
-export { isFileSystemAccessSupported as isSaveAsEnabled};
+type FileParser = (text: string) => Snippet | null;
+type FileWriter = (snippet: Snippet) => string;
 
-export function setCurrentFile(name: string, handle: FileSystemFileHandle | null) {
-    setCurrentFileName(name);
-    setCurrentFileHandle(handle);
+type Operations = {
+    tryOpen: (file: FileWithHandle) => Promise<Snippet | null>,
+    tryPick: () => Promise<Snippet | null>,
+    trySave: (snippet: Snippet) => Promise<boolean>,
+    trySaveAs: (snippet: Snippet) => Promise<boolean>,
+    closeFile: VoidFunction,
+};
+
+export function createFileManager(parser: FileParser, writer: FileWriter): [fileName: Accessor<string | null>, fileOperations: Operations] {
+    const [fileName, setFileName] = createSignal<string | null>(null);
+    const [fileHandle, setFileHandle] = createSignal<FileSystemFileHandle | null>(null);
+
+    const tryOpen = async (file: FileWithHandle) => {
+        // TODO: handle parsing errors.
+        const snippet = parser(await file.text());
+        if (snippet === null) {
+            return null;
+        }
+        setFileName(file.name);
+        setFileHandle(file.handle ?? null);
+        return snippet;
+    };
+
+    const tryPick = async () => {
+        const file = await tryPickFile();
+        return file === null ? null : tryOpen(file);
+    };
+
+    const trySaveInternal = async (snippet: Snippet, useExistingFileHandle: boolean) => {
+        const xml = writer(snippet);
+        const existingFileHandle = useExistingFileHandle ? fileHandle() : null;
+        const defaultFileName = fileName() ?? getDefaultFileName(snippet);
+        const file = await trySaveText(xml, existingFileHandle, defaultFileName);
+        if (file !== null) {
+            setFileName(file.name);
+            setFileHandle(file.handle);
+            return true;
+        }
+        return false;
+    };
+
+    const trySave = (snippet: Snippet) => trySaveInternal(snippet, /* useExistingFileHandle */ true);
+    const trySaveAs = (snippet: Snippet) => trySaveInternal(snippet, /* useExistingFileHandle */ false);
+
+    const closeFile = () => {
+        setFileName(null);
+        setFileHandle(null);
+    };
+
+    const operations = {
+        tryOpen,
+        tryPick,
+        trySave,
+        trySaveAs,
+        closeFile
+    };
+
+    return [fileName, operations];
 }
 
-export function clearCurrentFile() {
-    setCurrentFileName(null);
-    setCurrentFileHandle(null);
-}
-
-export async function tryOpen() {
+async function tryPickFile() {
     const options = {
         mimeTypes: ["application/xml"],
         extensions: [".snippet"],
@@ -38,19 +83,10 @@ export async function tryOpen() {
     }
 }
 
-export async function trySave(text: string, defaultFileName: string) {
-    // TODO: do we need to specify untracked access?
-    return await trySaveText(text, currentFileName() ?? defaultFileName, currentFileHandle());
-}
-
-export async function trySaveAs(text: string, defaultFileName: string) {
-    return await trySaveText(text, currentFileName() ?? defaultFileName, null);
-}
-
 async function trySaveText(
     text: string,
-    defaultFileName: string,
-    existingHandle: FileSystemFileHandle | null): Promise<{ name: string, handle: FileSystemFileHandle | null} | null> {
+    existingHandle: FileSystemFileHandle | null,
+    defaultFileName: string): Promise<{ name: string, handle: FileSystemFileHandle | null } | null> {
 
     const data = new Blob([text], {
         type: "application/xml"
@@ -85,4 +121,9 @@ async function trySaveText(
         // User most likely cancelled the operation.
         return null;
     }
+}
+
+function getDefaultFileName(snippet: Snippet) {
+    const fileName = snippet.shortcut || snippet.title; // TODO: strip invalid file name chars from the title.
+    return `${fileName}.snippet`;
 }
