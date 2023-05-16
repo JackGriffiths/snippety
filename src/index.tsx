@@ -357,7 +357,7 @@ function App() {
                             Author
                         </label>
 
-                        <div class="input-group flex-horizontal" style={{"gap": "1rem"}}>
+                        <div class="input-group flex-horizontal flex-wrap" style={{"gap": "1rem"}}>
                             <input
                                 id="author"
                                 type="text"
@@ -379,7 +379,7 @@ function App() {
                             Help URL
                         </label>
 
-                        <div class="input-group flex-horizontal" style={{"gap": "1rem"}}>
+                        <div class="input-group flex-horizontal flex-wrap" style={{"gap": "1rem"}}>
                             <input
                                 id="helpUrl"
                                 type="url"
