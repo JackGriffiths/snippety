@@ -80,6 +80,7 @@
         }
 
         & li > p {
+            font-weight: var(--fw-bold);
             margin-block-end: 0.5rem;
         }
     }

@@ -210,6 +210,7 @@ function App() {
                                 <For each={snippet.placeholders}>{(placeholder, index) => {
 
                                     const defaultValueInputId = createUniqueId();
+                                    const editableInputId = createUniqueId();
                                     const tooltipInputId = createUniqueId();
 
                                     return (
@@ -228,11 +229,23 @@ function App() {
                                                         required
                                                         value={placeholder.defaultValue}
                                                         onInput={e => updatePlaceholderDefaultValue(index(), e.target.value)} />
+
+                                                    <div style={{"margin-block-start": "0.75rem"}}>
+                                                        <input
+                                                            id={editableInputId}
+                                                            type="checkbox"
+                                                            checked={placeholder.isEditable}
+                                                            onChange={e => updatePlaceholderEditable(index(), e.target.checked)} />
+
+                                                        <label for={editableInputId}>
+                                                            Editable after inserted?
+                                                        </label>
+                                                    </div>
                                                 </div>
 
                                                 <div>
                                                     <label for={tooltipInputId}>
-                                                        Tooltip
+                                                        Description
                                                     </label>
 
                                                     <input
@@ -520,6 +533,10 @@ function App() {
 
     function updatePlaceholderDefaultValue(placeholderIndex: number, value: string) {
         updateSnippet(produce(s => { s.placeholders[placeholderIndex].defaultValue = value; }));
+    }
+
+    function updatePlaceholderEditable(placeholderIndex: number, isEditable: boolean) {
+        updateSnippet(produce(s => { s.placeholders[placeholderIndex].isEditable = isEditable; }));
     }
 
     function updatePlaceholderTooltip(placeholderIndex: number, value: string) {
