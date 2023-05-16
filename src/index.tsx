@@ -545,6 +545,10 @@ function App() {
 
     function addNamespace() {
         updateSnippet(produce(s => { s.namespaces.push(""); }));
+
+        // Move focus on to the new text input.
+        const lastNamespaceEl = document.getElementById("imports")?.lastElementChild;
+        lastNamespaceEl?.querySelector("input")?.focus();
     }
 
     function updateNamespace(index: number, value: string) {
