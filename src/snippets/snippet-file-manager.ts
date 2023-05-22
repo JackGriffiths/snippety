@@ -2,7 +2,7 @@ import type { Snippet } from "./snippet-model";
 import { FileWithHandle, fileOpen, fileSave, supported as isFileSystemAccessSupported } from "browser-fs-access";
 import { Accessor, createSignal } from "solid-js";
 
-export { isFileSystemAccessSupported as isSaveAsEnabled };
+export { isFileSystemAccessSupported as hasFileSystemAccess };
 
 type FileParser = (text: string) => Snippet | null;
 type FileWriter = (snippet: Snippet) => string;

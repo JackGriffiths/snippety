@@ -1,4 +1,4 @@
-import { createFileManager, isSaveAsEnabled } from "./snippets/snippet-file-manager";
+import { createFileManager, hasFileSystemAccess } from "./snippets/snippet-file-manager";
 import { generateCodePreview, parsePlaceholdersFromCode } from "./snippets/snippet-helpers";
 import {
     createDefaultSnippet,
@@ -13,12 +13,14 @@ import { parseSnippetFromXml } from "./snippets/snippet-parser";
 import { writeSnippetToXml } from "./snippets/snippet-writer";
 import { makeFileDragAndDropHandler } from "./utilities/file-drag-and-drop";
 import { createDirtyFlag, makeLeavePrompt } from "./utilities/unsaved-changes";
+import { showScreenReaderOnlyToast, showSuccessToast } from "./notifications";
 import { registerWebComponents } from "./web-components";
 import type { FileWithHandle } from "browser-fs-access";
 import { batch, createEffect, createMemo, createUniqueId, For, Index, Show } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { render } from "solid-js/web";
 import { createStorageSignal } from "@solid-primitives/storage";
+import { Toaster } from "solid-toast";
 
 registerWebComponents();
 
@@ -40,6 +42,8 @@ function App() {
     function Page() {
         return (
             <div id="page-container">
+                <Toaster position="top-center" />
+
                 <Toolbar />
                 <div id="form-and-preview">
                     <Form />
@@ -72,7 +76,7 @@ function App() {
                     Save
                 </button>
 
-                <Show when={isSaveAsEnabled}>
+                <Show when={hasFileSystemAccess}>
                     <button type="submit" form="main-form" data-submit-type="save-as">
                         Save As...
                     </button>
@@ -472,6 +476,8 @@ function App() {
             updateSnippet(createNewSnippet());
             markClean();
         });
+
+        showScreenReaderOnlyToast("Form cleared");
     }
 
     function createNewSnippet() {
@@ -521,6 +527,12 @@ function App() {
 
         if (wasSaved) {
             markClean();
+
+            if (hasFileSystemAccess) {
+                showSuccessToast("Saved successfully");
+            } else {
+                showSuccessToast("File created successfully");
+            }
         }
     }
 
