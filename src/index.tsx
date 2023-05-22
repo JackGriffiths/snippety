@@ -402,7 +402,7 @@ function App() {
                             onInput={e => updateSnippet("author", e.target.value)} />
 
                         <Show when={snippet.author !== defaultAuthor()}>
-                            <button type="button" class="flex-no-shrink" onClick={() => setDefaultAuthor(snippet.author)}>
+                            <button type="button" class="flex-no-shrink" onClick={saveCurrentAuthorAsDefault}>
                                 Save As Default
                             </button>
                         </Show>
@@ -424,7 +424,7 @@ function App() {
                             onInput={e => updateSnippet("helpUrl", e.target.value)} />
 
                         <Show when={snippet.helpUrl !== defaultHelpUrl()}>
-                            <button type="button" class="flex-no-shrink" onClick={() => setDefaultHelpUrl(snippet.helpUrl)}>
+                            <button type="button" class="flex-no-shrink" onClick={saveCurrentHelpUrlAsDefault}>
                                 Save As Default
                             </button>
                         </Show>
@@ -614,6 +614,16 @@ function App() {
         } else if (!isSelected && snippet.types.includes(type)) {
             updateSnippet(produce(s => { s.types = s.types.filter(t => t !== type); }));
         }
+    }
+
+    function saveCurrentAuthorAsDefault() {
+        setDefaultAuthor(snippet.author);
+        showSuccessToast("Default author updated");
+    }
+
+    function saveCurrentHelpUrlAsDefault() {
+        setDefaultHelpUrl(snippet.helpUrl);
+        showSuccessToast("Default help URL updated");
     }
 
     return <Page />;
