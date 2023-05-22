@@ -113,7 +113,10 @@ label {
 /* Add a UI hint to the user that this is a required input */
 /* Once the :has() selector is widely supported, the "required" class won't be necessary */
 label.required::after {
+    /* Setting the alt text to an empty string means it won't be read by screen readers. */
+    /* Not all browsers support content alt text so the fallback version is required. */
     content: "*";
+    content: "*" / "";
     display: inline;
     margin-inline-start: 0.25em;
     color: var(--validation-color);

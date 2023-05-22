@@ -32,7 +32,7 @@ function App() {
     const canHaveNamespaces = () => snippet.language === Language.CSharp || snippet.language === Language.VisualBasic;
     const [isDirty, markClean] = createDirtyFlag(snippet);
 
-    const pageTitle = () => `${isDirty() ? "*" : ""}${fileName() ?? "New Snippet"}`;
+    const pageTitle = () => `${fileName() ?? "New Snippet"}`;
     createEffect(() => document.title = `${pageTitle()} - Snippety`);
     makeFileDragAndDropHandler(document.body, "link", "application/xml", fileDropped);
     makeLeavePrompt(() => isDirty(), "Are you sure you want to leave? There are unsaved changes that will be lost.");
@@ -51,7 +51,7 @@ function App() {
 
     function Toolbar() {
         return (
-            <div class="button-toolbar">
+            <div class="button-toolbar" role="toolbar">
                 <SaveButtons />
 
                 <button type="button" onClick={newSnippet}>
@@ -87,8 +87,17 @@ function App() {
         return (
             <div id="inputs">
                 <h1 id="page-title">
+                    <Show when={isDirty()}>
+                        <span aria-hidden="true">*</span>
+                    </Show>
                     {pageTitle()}
                 </h1>
+
+                <Show when={isDirty()}>
+                    <p class="screen-reader-only">
+                        This snippet has changes that are unsaved.
+                    </p>
+                </Show>
 
                 <form id="main-form" action="" onSubmit={saveSnippet}>
                     <div>
@@ -102,9 +111,10 @@ function App() {
                             autocomplete="off"
                             required
                             value={snippet.title}
-                            onInput={e => updateSnippet("title", e.target.value)} />
+                            onInput={e => updateSnippet("title", e.target.value)}
+                            aria-describedby="title-help-text" />
 
-                        <p class="help-text">
+                        <p id="title-help-text" class="help-text">
                             The title appears in IntelliSense when browsing code snippets.
                         </p>
                     </div>
@@ -116,13 +126,14 @@ function App() {
 
                         <textarea
                             id="description"
+                            aria-describedby="description-help-text"
                             rows="3"
                             autocomplete="off"
                             placeholder="e.g. Code snippet for..."
                             value={snippet.description}
                             onInput={e => updateSnippet("description", e.target.value)} />
 
-                        <p class="help-text">
+                        <p id="description-help-text" class="help-text">
                             The description appears in IntelliSense when browsing code snippets.
                         </p>
                     </div>
@@ -134,18 +145,19 @@ function App() {
 
                         <input
                             id="shortcut"
+                            aria-describedby="shortcut-help-text-1 shortcut-help-text-2"
                             type="text"
                             autocomplete="off"
                             pattern={shortcutPattern()}
                             value={snippet.shortcut}
                             onInput={e => updateSnippet("shortcut", e.target.value)} />
 
-                        <p class="help-text">
+                        <p id="shortcut-help-text-1" class="help-text">
                             Must only contain alphanumeric characters or underscores. The exception is that CSS
                             snippets must start with the @ character.
                         </p>
 
-                        <p class="help-text">
+                        <p id="shortcut-help-text-2" class="help-text">
                             Snippets without a shortcut can still be inserted using the context menu in Visual Studio.
                         </p>
                     </div>
@@ -175,23 +187,24 @@ function App() {
 
                         <textarea
                             id="code"
+                            aria-describedby="code-help-text-1 code-help-text-2 code-help-text-3"
                             rows="7"
                             autocomplete="off"
                             required
                             value={snippet.code}
                             onInput={e => updateSnippetCode(e.target.value)} />
 
-                        <p class="help-text">
+                        <p id="code-help-text-1" class="help-text">
                             Use placeholders like <code>$name$</code> to define parts of the code which will be replaced.
                             There are two reserved placeholders that you can use in your snippets.
                         </p>
 
-                        <p class="help-text">
+                        <p id="code-help-text-2" class="help-text">
                             <code>$end$</code> marks the location to place the cursor after the code snippet is inserted. It is
                             recommended that this placeholder is included in all snippets.
                         </p>
 
-                        <p class="help-text">
+                        <p id="code-help-text-3" class="help-text">
                             <code>$selected$</code> represents text selected in the document that is to be inserted into the snippet
                             when it is invoked. This is only relevant for "Surrounds With" snippets.
                         </p>
@@ -408,7 +421,7 @@ function App() {
                         </div>
                     </div>
 
-                    <div class="button-toolbar">
+                    <div class="button-toolbar" role="toolbar">
                         <SaveButtons />
                     </div>
                 </form>
