@@ -41,29 +41,44 @@ function App() {
 
     function Page() {
         return (
-            <div id="page-container">
+            <main>
                 <Toaster position="top-center" />
 
-                <Toolbar />
-                <div id="form-and-preview">
+                <h1>
+                    <Show when={isDirty()}>
+                        <span aria-hidden="true">*</span>
+                    </Show>
+                    {pageTitle()}
+                </h1>
+
+                <Show when={isDirty()}>
+                    <p class="screen-reader-only">
+                        This snippet has changes that are unsaved.
+                    </p>
+                </Show>
+
+                <div id="form-and-preview-wrapper">
                     <Form />
                     <Preview />
                 </div>
-            </div>
+            </main>
         );
     }
 
     function Toolbar() {
         return (
-            <div class="button-toolbar" role="toolbar">
+            <div class="button-toolbar" role="toolbar" aria-label="Primary">
                 <SaveButtons />
 
                 <button type="button" onClick={newSnippet}>
                     New
                 </button>
 
-                <button type="button" onClick={openSnippet}>
-                    Open File...
+                <button type="button" onClick={openSnippet} aria-label="Open File">
+                    Open File
+                    <span aria-hidden="true">
+                        ...
+                    </span>
                 </button>
             </div>
         );
@@ -78,7 +93,10 @@ function App() {
 
                 <Show when={hasFileSystemAccess}>
                     <button type="submit" form="main-form" data-submit-type="save-as">
-                        Save As...
+                        Save As
+                        <span aria-hidden="true">
+                            ...
+                        </span>
                     </button>
                 </Show>
             </>
@@ -89,347 +107,334 @@ function App() {
         const shortcutPattern = () => snippet.language === Language.Css ? "@[A-Za-z0-9_]*" : "[A-Za-z0-9_]*";
 
         return (
-            <div id="inputs">
-                <h1 id="page-title">
-                    <Show when={isDirty()}>
-                        <span aria-hidden="true">*</span>
-                    </Show>
-                    {pageTitle()}
-                </h1>
+            <form id="main-form" action="" onSubmit={saveSnippet}>
+                <Toolbar />
 
-                <Show when={isDirty()}>
-                    <p class="screen-reader-only">
-                        This snippet has changes that are unsaved.
+                <div>
+                    <label for="title" class="required">
+                        Title
+                    </label>
+
+                    <input
+                        id="title"
+                        type="text"
+                        autocomplete="off"
+                        required
+                        value={snippet.title}
+                        onInput={e => updateSnippet("title", e.target.value)}
+                        aria-describedby="title-help-text" />
+
+                    <p id="title-help-text" class="help-text">
+                        The title appears in IntelliSense when browsing code snippets.
                     </p>
-                </Show>
+                </div>
 
-                <form id="main-form" action="" onSubmit={saveSnippet}>
-                    <div>
-                        <label for="title" class="required">
-                            Title
-                        </label>
+                <div>
+                    <label for="description">
+                        Description
+                    </label>
 
-                        <input
-                            id="title"
-                            type="text"
-                            autocomplete="off"
-                            required
-                            value={snippet.title}
-                            onInput={e => updateSnippet("title", e.target.value)}
-                            aria-describedby="title-help-text" />
+                    <textarea
+                        id="description"
+                        aria-describedby="description-help-text"
+                        rows="3"
+                        autocomplete="off"
+                        placeholder="e.g. Code snippet for..."
+                        value={snippet.description}
+                        onInput={e => updateSnippet("description", e.target.value)} />
 
-                        <p id="title-help-text" class="help-text">
-                            The title appears in IntelliSense when browsing code snippets.
-                        </p>
-                    </div>
+                    <p id="description-help-text" class="help-text">
+                        The description appears in IntelliSense when browsing code snippets.
+                    </p>
+                </div>
 
-                    <div>
-                        <label for="description">
-                            Description
-                        </label>
+                <div>
+                    <label for="shortcut">
+                        Shortcut
+                    </label>
 
-                        <textarea
-                            id="description"
-                            aria-describedby="description-help-text"
-                            rows="3"
-                            autocomplete="off"
-                            placeholder="e.g. Code snippet for..."
-                            value={snippet.description}
-                            onInput={e => updateSnippet("description", e.target.value)} />
+                    <input
+                        id="shortcut"
+                        aria-describedby="shortcut-help-text-1 shortcut-help-text-2"
+                        type="text"
+                        autocomplete="off"
+                        pattern={shortcutPattern()}
+                        value={snippet.shortcut}
+                        onInput={e => updateSnippet("shortcut", e.target.value)} />
 
-                        <p id="description-help-text" class="help-text">
-                            The description appears in IntelliSense when browsing code snippets.
-                        </p>
-                    </div>
+                    <p id="shortcut-help-text-1" class="help-text">
+                        Must only contain alphanumeric characters or underscores. The exception is that CSS
+                        snippets must start with the @ character.
+                    </p>
 
-                    <div>
-                        <label for="shortcut">
-                            Shortcut
-                        </label>
+                    <p id="shortcut-help-text-2" class="help-text">
+                        Snippets without a shortcut can still be inserted using the context menu in Visual Studio.
+                    </p>
+                </div>
 
-                        <input
-                            id="shortcut"
-                            aria-describedby="shortcut-help-text-1 shortcut-help-text-2"
-                            type="text"
-                            autocomplete="off"
-                            pattern={shortcutPattern()}
-                            value={snippet.shortcut}
-                            onInput={e => updateSnippet("shortcut", e.target.value)} />
+                <div>
+                    <label for="language" class="required">
+                        Language
+                    </label>
 
-                        <p id="shortcut-help-text-1" class="help-text">
-                            Must only contain alphanumeric characters or underscores. The exception is that CSS
-                            snippets must start with the @ character.
-                        </p>
+                    <select
+                        id="language"
+                        required
+                        value={snippet.language}
+                        onInput={e => updateLanguage(e.target.value as Language | "")}>
 
-                        <p id="shortcut-help-text-2" class="help-text">
-                            Snippets without a shortcut can still be inserted using the context menu in Visual Studio.
-                        </p>
-                    </div>
+                        <option value="">Choose a language...</option>
+                        <For each={Array.from(languageDescriptions)}>{([value, description]) =>
+                            <option value={value}>{description}</option>
+                        }</For>
+                    </select>
+                </div>
 
-                    <div>
-                        <label for="language" class="required">
-                            Language
-                        </label>
+                <div>
+                    <label for="code" class="required">
+                        Code
+                    </label>
 
-                        <select
-                            id="language"
-                            required
-                            value={snippet.language}
-                            onInput={e => updateLanguage(e.target.value as Language | "")}>
+                    <textarea
+                        id="code"
+                        aria-describedby="code-help-text-1 code-help-text-2 code-help-text-3"
+                        rows="7"
+                        autocomplete="off"
+                        required
+                        value={snippet.code}
+                        onInput={e => updateSnippetCode(e.target.value)} />
 
-                            <option value="">Choose a language...</option>
-                            <For each={Array.from(languageDescriptions)}>{([value, description]) =>
-                                <option value={value}>{description}</option>
-                            }</For>
-                        </select>
-                    </div>
+                    <p id="code-help-text-1" class="help-text">
+                        Use placeholders like <code>$name$</code> to define parts of the code which will be replaced.
+                        There are two reserved placeholders that you can use in your snippets.
+                    </p>
 
-                    <div>
-                        <label for="code" class="required">
-                            Code
-                        </label>
+                    <p id="code-help-text-2" class="help-text">
+                        <code>$end$</code> marks the location to place the cursor after the code snippet is inserted. It is
+                        recommended that this placeholder is included in all snippets.
+                    </p>
 
-                        <textarea
-                            id="code"
-                            aria-describedby="code-help-text-1 code-help-text-2 code-help-text-3"
-                            rows="7"
-                            autocomplete="off"
-                            required
-                            value={snippet.code}
-                            onInput={e => updateSnippetCode(e.target.value)} />
+                    <p id="code-help-text-3" class="help-text">
+                        <code>$selected$</code> represents text selected in the document that is to be inserted into the snippet
+                        when it is invoked. This is only relevant for "Surrounds With" snippets.
+                    </p>
+                </div>
 
-                        <p id="code-help-text-1" class="help-text">
-                            Use placeholders like <code>$name$</code> to define parts of the code which will be replaced.
-                            There are two reserved placeholders that you can use in your snippets.
-                        </p>
+                <div>
+                    <label>
+                        Placeholders
+                    </label>
 
-                        <p id="code-help-text-2" class="help-text">
-                            <code>$end$</code> marks the location to place the cursor after the code snippet is inserted. It is
-                            recommended that this placeholder is included in all snippets.
-                        </p>
+                    <Show
+                        when={snippet.placeholders.length > 0}
+                        fallback={<p class="help-text">No custom placeholders.</p>}>
 
-                        <p id="code-help-text-3" class="help-text">
-                            <code>$selected$</code> represents text selected in the document that is to be inserted into the snippet
-                            when it is invoked. This is only relevant for "Surrounds With" snippets.
-                        </p>
-                    </div>
+                        <ol id="placeholders">
+                            <For each={snippet.placeholders}>{(placeholder, index) => {
 
-                    <div>
-                        <label>
-                            Placeholders
-                        </label>
+                                const defaultValueInputId = createUniqueId();
+                                const editableInputId = createUniqueId();
+                                const tooltipInputId = createUniqueId();
 
-                        <Show
-                            when={snippet.placeholders.length > 0}
-                            fallback={<p class="help-text">No custom placeholders.</p>}>
+                                return (
+                                    <li>
+                                        <p>{`$${placeholder.name}$`}</p>
 
-                            <ol id="placeholders">
-                                <For each={snippet.placeholders}>{(placeholder, index) => {
+                                        <div class="placeholder-inputs">
+                                            <div>
+                                                <label for={defaultValueInputId} class="required">
+                                                    Default Value
+                                                </label>
 
-                                    const defaultValueInputId = createUniqueId();
-                                    const editableInputId = createUniqueId();
-                                    const tooltipInputId = createUniqueId();
+                                                <input
+                                                    id={defaultValueInputId}
+                                                    type="text"
+                                                    required
+                                                    value={placeholder.defaultValue}
+                                                    onInput={e => updatePlaceholderDefaultValue(index(), e.target.value)} />
 
-                                    return (
-                                        <li>
-                                            <p>{`$${placeholder.name}$`}</p>
-
-                                            <div class="placeholder-inputs">
-                                                <div>
-                                                    <label for={defaultValueInputId} class="required">
-                                                        Default Value
-                                                    </label>
-
+                                                <div style={{"margin-block-start": "0.75rem"}}>
                                                     <input
-                                                        id={defaultValueInputId}
-                                                        type="text"
-                                                        required
-                                                        value={placeholder.defaultValue}
-                                                        onInput={e => updatePlaceholderDefaultValue(index(), e.target.value)} />
+                                                        id={editableInputId}
+                                                        type="checkbox"
+                                                        checked={placeholder.isEditable}
+                                                        onChange={e => updatePlaceholderEditable(index(), e.target.checked)} />
 
-                                                    <div style={{"margin-block-start": "0.75rem"}}>
-                                                        <input
-                                                            id={editableInputId}
-                                                            type="checkbox"
-                                                            checked={placeholder.isEditable}
-                                                            onChange={e => updatePlaceholderEditable(index(), e.target.checked)} />
-
-                                                        <label for={editableInputId}>
-                                                            Editable after inserted?
-                                                        </label>
-                                                    </div>
-                                                </div>
-
-                                                <div>
-                                                    <label for={tooltipInputId}>
-                                                        Description
+                                                    <label for={editableInputId}>
+                                                        Editable after inserted?
                                                     </label>
-
-                                                    <input
-                                                        id={tooltipInputId}
-                                                        type="text"
-                                                        value={placeholder.tooltip}
-                                                        onInput={e => updatePlaceholderTooltip(index(), e.target.value)} />
                                                 </div>
                                             </div>
-                                        </li>
-                                    );
-                                }}</For>
-                            </ol>
-                        </Show>
-                    </div>
 
-                    <Show when={canHaveNamespaces()}>
-                        <div>
-                            <label>
-                                Imports
-                            </label>
+                                            <div>
+                                                <label for={tooltipInputId}>
+                                                    Description
+                                                </label>
 
-                            <p class="help-text">
-                                The namespaces that need to be imported for this snippet to compile.
-                            </p>
-
-                            <div id="imports">
-                                <Index each={snippet.namespaces}>{(namespace, index) =>
-                                    <div class="import">
-                                        <input
-                                            type="text"
-                                            placeholder="e.g. System.Linq"
-                                            value={namespace()}
-                                            onInput={e => updateNamespace(index, e.target.value)} />
-
-                                        <button type="button" onClick={() => removeNamespace(index)}>
-                                            Remove
-                                        </button>
-                                    </div>
-                                }</Index>
-                            </div>
-
-                            <button type="button" onClick={addNamespace}>
-                                Add
-                            </button>
-                        </div>
-                    </Show>
-
-                    <div>
-                        <label>
-                            Type
-                        </label>
-
-                        <p class="help-text">
-                            Specifies the type of snippet. If no types are selected, the snippet can be inserted anywhere in the code.
-                        </p>
-
-                        <fieldset>
-                            <legend class="screen-reader-only">
-                                Choose types
-                            </legend>
-
-                            <For each={Array.from(snippetTypeDescriptions)}>{([value, description]) => {
-                                const checkboxInputId = createUniqueId();
-
-                                return (
-                                    <Show when={value !== SnippetType.Refactoring || snippet.types.includes(SnippetType.Refactoring)}>
-                                        <div>
-                                            <input
-                                                id={checkboxInputId}
-                                                type="checkbox"
-                                                checked={snippet.types.includes(value)}
-                                                onChange={e => toggleType(value, e.target.checked)} />
-
-                                            <label for={checkboxInputId}>
-                                                {description}
-                                            </label>
+                                                <input
+                                                    id={tooltipInputId}
+                                                    type="text"
+                                                    value={placeholder.tooltip}
+                                                    onInput={e => updatePlaceholderTooltip(index(), e.target.value)} />
+                                            </div>
                                         </div>
-                                    </Show>
+                                    </li>
                                 );
                             }}</For>
-                        </fieldset>
-                    </div>
+                        </ol>
+                    </Show>
+                </div>
 
+                <Show when={canHaveNamespaces()}>
                     <div>
                         <label>
-                            Kind
+                            Imports
                         </label>
 
                         <p class="help-text">
-                            Specifies the kind of code that the snippet contains.
+                            The namespaces that need to be imported for this snippet to compile.
                         </p>
 
-                        <fieldset>
-                            <legend class="screen-reader-only">
-                                Choose a kind
-                            </legend>
+                        <div id="imports">
+                            <Index each={snippet.namespaces}>{(namespace, index) =>
+                                <div class="import">
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. System.Linq"
+                                        value={namespace()}
+                                        onInput={e => updateNamespace(index, e.target.value)} />
 
-                            <For each={Array.from(snippetKindDescriptions)}>{([value, description]) => {
-                                const radioInputId = createUniqueId();
+                                    <button type="button" onClick={() => removeNamespace(index)}>
+                                        Remove
+                                    </button>
+                                </div>
+                            }</Index>
+                        </div>
 
-                                return (
+                        <button type="button" onClick={addNamespace}>
+                            Add
+                        </button>
+                    </div>
+                </Show>
+
+                <div>
+                    <label>
+                        Type
+                    </label>
+
+                    <p class="help-text">
+                        Specifies the type of snippet. If no types are selected, the snippet can be inserted anywhere in the code.
+                    </p>
+
+                    <fieldset>
+                        <legend class="screen-reader-only">
+                            Choose types.
+                        </legend>
+
+                        <For each={Array.from(snippetTypeDescriptions)}>{([value, description]) => {
+                            const checkboxInputId = createUniqueId();
+
+                            return (
+                                <Show when={value !== SnippetType.Refactoring || snippet.types.includes(SnippetType.Refactoring)}>
                                     <div>
                                         <input
-                                            id={radioInputId}
-                                            type="radio"
-                                            name="kind"
-                                            checked={snippet.kind === value}
-                                            onChange={() => updateSnippet("kind", value)} />
+                                            id={checkboxInputId}
+                                            type="checkbox"
+                                            checked={snippet.types.includes(value)}
+                                            onChange={e => toggleType(value, e.target.checked)} />
 
-                                        <label for={radioInputId}>
+                                        <label for={checkboxInputId}>
                                             {description}
                                         </label>
                                     </div>
-                                );
-                            }}</For>
-                        </fieldset>
+                                </Show>
+                            );
+                        }}</For>
+                    </fieldset>
+                </div>
+
+                <div>
+                    <label>
+                        Kind
+                    </label>
+
+                    <p class="help-text">
+                        Specifies the kind of code that the snippet contains.
+                    </p>
+
+                    <fieldset>
+                        <legend class="screen-reader-only">
+                            Choose a kind.
+                        </legend>
+
+                        <For each={Array.from(snippetKindDescriptions)}>{([value, description]) => {
+                            const radioInputId = createUniqueId();
+
+                            return (
+                                <div>
+                                    <input
+                                        id={radioInputId}
+                                        type="radio"
+                                        name="kind"
+                                        checked={snippet.kind === value}
+                                        onChange={() => updateSnippet("kind", value)} />
+
+                                    <label for={radioInputId}>
+                                        {description}
+                                    </label>
+                                </div>
+                            );
+                        }}</For>
+                    </fieldset>
+                </div>
+
+                <div>
+                    <label for="author">
+                        Author
+                    </label>
+
+                    <div class="input-group flex-horizontal flex-wrap" style={{"gap": "1rem"}}>
+                        <input
+                            id="author"
+                            type="text"
+                            autocomplete="name"
+                            value={snippet.author}
+                            onInput={e => updateSnippet("author", e.target.value)} />
+
+                        <Show when={snippet.author !== defaultAuthor()}>
+                            <button type="button" class="flex-no-shrink" onClick={() => setDefaultAuthor(snippet.author)}>
+                                Save As Default
+                            </button>
+                        </Show>
                     </div>
 
-                    <div>
-                        <label for="author">
-                            Author
-                        </label>
+                </div>
 
-                        <div class="input-group flex-horizontal flex-wrap" style={{"gap": "1rem"}}>
-                            <input
-                                id="author"
-                                type="text"
-                                autocomplete="name"
-                                value={snippet.author}
-                                onInput={e => updateSnippet("author", e.target.value)} />
+                <div>
+                    <label for="helpUrl">
+                        Help URL
+                    </label>
 
-                            <Show when={snippet.author !== defaultAuthor()}>
-                                <button type="button" class="flex-no-shrink" onClick={() => setDefaultAuthor(snippet.author)}>
-                                    Save As Default
-                                </button>
-                            </Show>
-                        </div>
+                    <div class="input-group flex-horizontal flex-wrap" style={{"gap": "1rem"}}>
+                        <input
+                            id="helpUrl"
+                            type="url"
+                            autocomplete="off"
+                            value={snippet.helpUrl}
+                            onInput={e => updateSnippet("helpUrl", e.target.value)} />
 
+                        <Show when={snippet.helpUrl !== defaultHelpUrl()}>
+                            <button type="button" class="flex-no-shrink" onClick={() => setDefaultHelpUrl(snippet.helpUrl)}>
+                                Save As Default
+                            </button>
+                        </Show>
                     </div>
+                </div>
 
-                    <div>
-                        <label for="helpUrl">
-                            Help URL
-                        </label>
-
-                        <div class="input-group flex-horizontal flex-wrap" style={{"gap": "1rem"}}>
-                            <input
-                                id="helpUrl"
-                                type="url"
-                                autocomplete="off"
-                                value={snippet.helpUrl}
-                                onInput={e => updateSnippet("helpUrl", e.target.value)} />
-
-                            <Show when={snippet.helpUrl !== defaultHelpUrl()}>
-                                <button type="button" class="flex-no-shrink" onClick={() => setDefaultHelpUrl(snippet.helpUrl)}>
-                                    Save As Default
-                                </button>
-                            </Show>
-                        </div>
-                    </div>
-
-                    <div class="button-toolbar" role="toolbar">
-                        <SaveButtons />
-                    </div>
-                </form>
-            </div>
+                <div class="button-toolbar" role="toolbar" aria-label="Secondary">
+                    <SaveButtons />
+                </div>
+            </form>
         );
     }
 
@@ -455,7 +460,7 @@ function App() {
                                 <span style={{"font-family": "var(--ff-monospace)"}}>
                                     <span>${placeholder.name}$</span>
                                     <span aria-hidden="true"> &#x02192; </span>
-                                    <span class="screen-reader-only"> becomes </span>
+                                    <span class="screen-reader-only"> has a default value of </span>
                                     {placeholder.defaultValue}
                                 </span>
                             </li>
