@@ -1,4 +1,4 @@
-import { Language, Placeholder, Snippet } from "./snippet-model";
+import { Language, Snippet } from "./snippet-model";
 
 const reservedPlaceholders: ReadonlySet<string> = new Set(["selected", "end"]);
 
@@ -31,7 +31,7 @@ export function generateCodePreview(snippet: Snippet) {
     }
 
     let code = snippet.code;
-    const getPlaceholderPreview = (placeholder: Placeholder) => placeholder.defaultValue || placeholder.name;
+
     const replacePlaceholder = (name: string, replacement: string) => code.replaceAll(`$${name}$`, replacement);
 
     // Remove the reserved placeholders from the code.
@@ -40,7 +40,7 @@ export function generateCodePreview(snippet: Snippet) {
     }
 
     for (const placeholder of snippet.placeholders) {
-        code = replacePlaceholder(placeholder.name, getPlaceholderPreview(placeholder));
+        code = replacePlaceholder(placeholder.name, placeholder.defaultValue);
     }
 
     preview += code;

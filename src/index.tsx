@@ -426,6 +426,25 @@ function App() {
                 </h2>
 
                 <highlighted-code-block attr:language={snippet.language} attr:code={codePreview()} />
+
+                <Show when={snippet.placeholders.length > 0}>
+                    <h3 class="screen-reader-only">
+                        Placeholders and their default values
+                    </h3>
+
+                    <ol id="placeholder-previews">
+                        <For each={snippet.placeholders}>{(placeholder) =>
+                            <li>
+                                <span style={{"font-family": "var(--ff-monospace)"}}>
+                                    <span>${placeholder.name}$</span>
+                                    <span aria-hidden="true"> &#x02192; </span>
+                                    <span class="screen-reader-only"> becomes </span>
+                                    {placeholder.defaultValue}
+                                </span>
+                            </li>
+                        }</For>
+                    </ol>
+                </Show>
             </div>
         );
     }
