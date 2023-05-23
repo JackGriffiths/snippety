@@ -1,3 +1,7 @@
+.ff-monospace {
+    font-family: var(--ff-monospace);
+}
+
 .fw-bold {
     font-weight: var(--fw-bold);
 }

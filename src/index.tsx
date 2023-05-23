@@ -220,8 +220,8 @@ function App() {
                     </p>
                 </div>
 
-                <div>
-                    <label>
+                <section aria-labelledby="placeholders-section-label">
+                    <label id="placeholders-section-label">
                         Placeholders
                     </label>
 
@@ -232,62 +232,67 @@ function App() {
                         <ol id="placeholders">
                             <For each={snippet.placeholders}>{(placeholder, index) => {
 
+                                const labelId = createUniqueId();
                                 const defaultValueInputId = createUniqueId();
                                 const editableInputId = createUniqueId();
                                 const tooltipInputId = createUniqueId();
 
                                 return (
                                     <li>
-                                        <p>{`$${placeholder.name}$`}</p>
+                                        <section aria-labelledby={labelId}>
+                                            <p id={labelId}>
+                                                {`$${placeholder.name}$`}
+                                            </p>
 
-                                        <div class="placeholder-inputs">
-                                            <div>
-                                                <label for={defaultValueInputId} class="required">
-                                                    Default Value
-                                                </label>
-
-                                                <input
-                                                    id={defaultValueInputId}
-                                                    type="text"
-                                                    required
-                                                    value={placeholder.defaultValue}
-                                                    onInput={e => updatePlaceholderDefaultValue(index(), e.target.value)} />
-
-                                                <div style={{"margin-block-start": "0.75rem"}}>
-                                                    <input
-                                                        id={editableInputId}
-                                                        type="checkbox"
-                                                        checked={placeholder.isEditable}
-                                                        onChange={e => updatePlaceholderEditable(index(), e.target.checked)} />
-
-                                                    <label for={editableInputId}>
-                                                        Editable after inserted?
+                                            <div class="placeholder-inputs">
+                                                <div>
+                                                    <label for={defaultValueInputId} class="required">
+                                                        Default Value
                                                     </label>
+
+                                                    <input
+                                                        id={defaultValueInputId}
+                                                        type="text"
+                                                        required
+                                                        value={placeholder.defaultValue}
+                                                        onInput={e => updatePlaceholderDefaultValue(index(), e.target.value)} />
+
+                                                    <div style={{"margin-block-start": "0.75rem"}}>
+                                                        <input
+                                                            id={editableInputId}
+                                                            type="checkbox"
+                                                            checked={placeholder.isEditable}
+                                                            onChange={e => updatePlaceholderEditable(index(), e.target.checked)} />
+
+                                                        <label for={editableInputId}>
+                                                            Editable after inserted?
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label for={tooltipInputId}>
+                                                        Description
+                                                    </label>
+
+                                                    <input
+                                                        id={tooltipInputId}
+                                                        type="text"
+                                                        value={placeholder.tooltip}
+                                                        onInput={e => updatePlaceholderTooltip(index(), e.target.value)} />
                                                 </div>
                                             </div>
-
-                                            <div>
-                                                <label for={tooltipInputId}>
-                                                    Description
-                                                </label>
-
-                                                <input
-                                                    id={tooltipInputId}
-                                                    type="text"
-                                                    value={placeholder.tooltip}
-                                                    onInput={e => updatePlaceholderTooltip(index(), e.target.value)} />
-                                            </div>
-                                        </div>
+                                        </section>
                                     </li>
                                 );
                             }}</For>
                         </ol>
                     </Show>
-                </div>
+                </section>
 
                 <Show when={canHaveNamespaces()}>
-                    <div>
-                        <label>
+                    <section aria-labelledby="imports-section-label">
+                        <label id="imports-section-label">
                             Imports
                         </label>
 
@@ -295,30 +300,31 @@ function App() {
                             The namespaces that need to be imported for this snippet to compile.
                         </p>
 
-                        <div id="imports">
+                        <ol id="imports">
                             <Index each={snippet.namespaces}>{(namespace, index) =>
-                                <div class="import">
-                                    <input
-                                        type="text"
-                                        placeholder="e.g. System.Linq"
-                                        value={namespace()}
-                                        onInput={e => updateNamespace(index, e.target.value)} />
+                                <li>
+                                    <div class="import">
+                                        <input
+                                            type="text"
+                                            value={namespace()}
+                                            onInput={e => updateNamespace(index, e.target.value)} />
 
-                                    <button type="button" onClick={() => removeNamespace(index)}>
-                                        Remove
-                                    </button>
-                                </div>
+                                        <button type="button" onClick={() => removeNamespace(index)}>
+                                            Remove
+                                        </button>
+                                    </div>
+                                </li>
                             }</Index>
-                        </div>
+                        </ol>
 
                         <button type="button" onClick={addNamespace}>
                             Add
                         </button>
-                    </div>
+                    </section>
                 </Show>
 
-                <div>
-                    <label>
+                <section aria-labelledby="type-section-label">
+                    <label id="type-section-label">
                         Type
                     </label>
 
@@ -328,7 +334,7 @@ function App() {
 
                     <fieldset>
                         <legend class="screen-reader-only">
-                            Choose types.
+                            What type of snippet is this?
                         </legend>
 
                         <For each={Array.from(snippetTypeDescriptions)}>{([value, description]) => {
@@ -351,10 +357,10 @@ function App() {
                             );
                         }}</For>
                     </fieldset>
-                </div>
+                </section>
 
-                <div>
-                    <label>
+                <section aria-labelledby="kind-section-label">
+                    <label id="kind-section-label">
                         Kind
                     </label>
 
@@ -364,7 +370,7 @@ function App() {
 
                     <fieldset>
                         <legend class="screen-reader-only">
-                            Choose a kind.
+                            What kind of code does this snippet contain?
                         </legend>
 
                         <For each={Array.from(snippetKindDescriptions)}>{([value, description]) => {
@@ -386,7 +392,7 @@ function App() {
                             );
                         }}</For>
                     </fieldset>
-                </div>
+                </section>
 
                 <div>
                     <label for="author">
@@ -442,8 +448,8 @@ function App() {
         const codePreview = createMemo(() => generateCodePreview(snippet));
 
         return (
-            <div id="preview">
-                <h2 class="screen-reader-only">
+            <section id="preview" aria-labeledby="preview-heading">
+                <h2 id="preview-heading" class="screen-reader-only">
                     Preview
                 </h2>
 
@@ -457,17 +463,19 @@ function App() {
                     <ol id="placeholder-previews">
                         <For each={snippet.placeholders}>{(placeholder) =>
                             <li>
-                                <span style={{"font-family": "var(--ff-monospace)"}}>
-                                    <span>${placeholder.name}$</span>
-                                    <span aria-hidden="true"> &#x02192; </span>
-                                    <span class="screen-reader-only"> has a default value of </span>
-                                    {placeholder.defaultValue}
+                                <span class="ff-monospace">
+                                    <span aria-hidden="true">
+                                        ${placeholder.name}$ &#x02192; {placeholder.defaultValue}
+                                    </span>
+                                    <span class="screen-reader-only">
+                                        ${placeholder.name}$ has a default value of {placeholder.defaultValue}
+                                    </span>
                                 </span>
                             </li>
                         }</For>
                     </ol>
                 </Show>
-            </div>
+            </section>
         );
     }
 

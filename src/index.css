@@ -75,11 +75,11 @@
         gap: 1.5rem;
 
         & label {
-            /* Remove the default bold styling */
+            /* Remove the default bold styling from all labels */
             font-weight: inherit;
         }
 
-        & li > p {
+        & li > section > p {
             margin-block-end: 0.5rem;
         }
     }
