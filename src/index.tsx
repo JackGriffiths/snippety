@@ -505,15 +505,20 @@ function App() {
             return;
         }
 
-        const snippet = await tryPick();
-        if (snippet === null) {
-            return;
-        }
+        const result = await tryPick();
 
-        batch(() => {
-            updateSnippet(snippet);
-            markClean();
-        });
+        if (result.isOk) {
+            if (result.value !== null) {
+                const snippet = result.value;
+
+                batch(() => {
+                    updateSnippet(snippet);
+                    markClean();
+                });
+            }
+        } else if (result.error !== "") {
+            alert(result.error);
+        }
     }
 
     async function fileDropped(file: FileWithHandle) {
@@ -521,15 +526,16 @@ function App() {
             return;
         }
 
-        const snippet = await tryOpen(file);
-        if (snippet === null) {
-            return;
-        }
+        const result = await tryOpen(file);
 
-        batch(() => {
-            updateSnippet(snippet);
-            markClean();
-        });
+        if (result.isOk) {
+            batch(() => {
+                updateSnippet(result.value);
+                markClean();
+            });
+        } else if (result.error !== "") {
+            alert(result.error);
+        }
     }
 
     async function saveSnippet(e: SubmitEvent) {

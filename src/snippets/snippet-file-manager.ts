@@ -1,15 +1,16 @@
 import type { Snippet } from "./snippet-model";
+import Result, * as res from "../utilities/result";
 import { FileWithHandle, fileOpen, fileSave, supported as isFileSystemAccessSupported } from "browser-fs-access";
 import { Accessor, createSignal } from "solid-js";
 
 export { isFileSystemAccessSupported as hasFileSystemAccess };
 
-type FileParser = (text: string) => Snippet | null;
+type FileParser = (text: string) => Result<Snippet>;
 type FileWriter = (snippet: Snippet) => string;
 
 type Operations = {
-    tryOpen: (file: FileWithHandle) => Promise<Snippet | null>,
-    tryPick: () => Promise<Snippet | null>,
+    tryOpen: (file: FileWithHandle) => Promise<Result<Snippet>>,
+    tryPick: () => Promise<Result<Snippet | null>>,
     trySave: (snippet: Snippet) => Promise<boolean>,
     trySaveAs: (snippet: Snippet) => Promise<boolean>,
     closeFile: VoidFunction,
@@ -20,19 +21,32 @@ export function createFileManager(parser: FileParser, writer: FileWriter): [file
     const [fileHandle, setFileHandle] = createSignal<FileSystemFileHandle | null>(null);
 
     const tryOpen = async (file: FileWithHandle) => {
-        // TODO: handle parsing errors.
-        const snippet = parser(await file.text());
-        if (snippet === null) {
-            return null;
+        const result = parser(await file.text());
+
+        if (result.isOk) {
+            setFileName(file.name);
+            setFileHandle(file.handle ?? null);
         }
-        setFileName(file.name);
-        setFileHandle(file.handle ?? null);
-        return snippet;
+
+        return result;
     };
 
     const tryPick = async () => {
         const file = await tryPickFile();
-        return file === null ? null : tryOpen(file);
+
+        if (file === null) {
+            // Assume that the user just pressed cancel.
+            // TODO: are we sure there wasn't an error returned when picking the file?
+            return res.ok<Snippet | null>(null);
+        }
+
+        const openResult = await tryOpen(file);
+
+        if (!openResult.isOk) {
+            return res.error<Snippet | null>(openResult.error);
+        }
+
+        return res.ok<Snippet | null>(openResult.value);
     };
 
     const trySaveInternal = async (snippet: Snippet, useExistingFileHandle: boolean) => {
@@ -40,12 +54,14 @@ export function createFileManager(parser: FileParser, writer: FileWriter): [file
         const existingFileHandle = useExistingFileHandle ? fileHandle() : null;
         const defaultFileName = fileName() ?? getDefaultFileName(snippet);
         const file = await trySaveText(xml, existingFileHandle, defaultFileName);
-        if (file !== null) {
-            setFileName(file.name);
-            setFileHandle(file.handle);
-            return true;
+
+        if (file === null) {
+            return false;
         }
-        return false;
+
+        setFileName(file.name);
+        setFileHandle(file.handle);
+        return true;
     };
 
     const trySave = (snippet: Snippet) => trySaveInternal(snippet, /* useExistingFileHandle */ true);
@@ -69,7 +85,7 @@ export function createFileManager(parser: FileParser, writer: FileWriter): [file
 
 async function tryPickFile() {
     const options = {
-        mimeTypes: ["application/xml"],
+        description: "Visual Studio snippet",
         extensions: [".snippet"],
         multiple: false,
         excludeAcceptAllOption: true
@@ -94,6 +110,7 @@ async function trySaveText(
 
     const options = {
         fileName: defaultFileName,
+        description: "Visual Studio snippet",
         extensions: [".snippet"],
         excludeAcceptAllOption: true,
     };

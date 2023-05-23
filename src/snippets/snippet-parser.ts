@@ -8,24 +8,24 @@ import {
     SnippetType,
 } from "./snippet-model";
 import { createDefaultSnippet } from "./snippet-model";
+import Result, * as res from "../utilities/result";
 
-export function parseSnippetFromXml(xml: string): Snippet {
-    // TODO: what if it's not unparsable XML?
+export function parseSnippetFromXml(xml: string): Result<Snippet> {
     const doc = new DOMParser().parseFromString(xml, "application/xml");
-    const codeSnippets = doc.getElementsByTagName("CodeSnippet");
+    const snippets = doc.getElementsByTagName("CodeSnippet");
 
-    if (codeSnippets.length === 0) {
-        throw Error("File does not contain a code snippet.");
+    if (snippets.length === 0) {
+        return res.error<Snippet>("File does not contain a code snippet.");
     }
 
-    if (codeSnippets.length > 1) {
-        throw Error("Files with multiple snippets are not supported.");
+    if (snippets.length > 1) {
+        return res.error<Snippet>("Files with multiple snippets are not supported.");
     }
 
-    return parseCodeSnippetElement(codeSnippets[0]);
+    return res.ok(parseSnippetFromElement(snippets[0]));
 }
 
-function parseCodeSnippetElement(codeSnippetElement: Element): Snippet {
+function parseSnippetFromElement(codeSnippetElement: Element): Snippet {
     const model = createDefaultSnippet();
 
     model.format = codeSnippetElement.getAttribute("Format") ?? "";
