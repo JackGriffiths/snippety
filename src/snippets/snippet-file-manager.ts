@@ -11,8 +11,8 @@ type FileWriter = (snippet: Snippet) => string;
 type Operations = {
     tryOpen: (file: FileWithHandle) => Promise<Result<Snippet>>,
     tryPick: () => Promise<Result<Snippet | null>>,
-    trySave: (snippet: Snippet) => Promise<boolean>,
-    trySaveAs: (snippet: Snippet) => Promise<boolean>,
+    trySave: (snippet: Snippet) => Promise<Result<boolean>>,
+    trySaveAs: (snippet: Snippet) => Promise<Result<boolean>>,
     closeFile: VoidFunction,
 };
 
@@ -53,15 +53,23 @@ export function createFileManager(parser: FileParser, writer: FileWriter): [file
         const xml = writer(snippet);
         const existingFileHandle = useExistingFileHandle ? fileHandle() : null;
         const defaultFileName = fileName() ?? getDefaultFileName(snippet);
-        const file = await trySaveText(xml, existingFileHandle, defaultFileName);
+        const saveResult = await trySaveText(xml, existingFileHandle, defaultFileName);
+
+        if (!saveResult.isOk) {
+            return res.error<boolean>(saveResult.error);
+        }
+
+        const file = saveResult.value;
 
         if (file === null) {
-            return false;
+            // The snippet wasn't saved, but this wasn't caused by an error.
+            // Just report back false to indicate that the snippet wasn't saved.
+            return res.ok(false);
         }
 
         setFileName(file.name);
         setFileHandle(file.handle);
-        return true;
+        return res.ok(true);
     };
 
     const trySave = (snippet: Snippet) => trySaveInternal(snippet, /* useExistingFileHandle */ true);
@@ -94,7 +102,10 @@ async function tryPickFile() {
     try {
         return await fileOpen(options) as FileWithHandle;
     } catch (error) {
-        // User most likely cancelled the operation.
+        // User most likely cancelled the operation, which we can just ignore.
+        // If the file was locked then the browser would not have even allowed
+        // the user to select the file.
+        console.error(error);
         return null;
     }
 }
@@ -102,7 +113,7 @@ async function tryPickFile() {
 async function trySaveText(
     text: string,
     existingHandle: FileSystemFileHandle | null,
-    defaultFileName: string): Promise<{ name: string, handle: FileSystemFileHandle | null } | null> {
+    defaultFileName: string): Promise<Result<{ name: string, handle: FileSystemFileHandle | null } | null>> {
 
     const data = new Blob([text], {
         type: "application/xml"
@@ -124,23 +135,47 @@ async function trySaveText(
         );
 
         if (handle !== null) {
-            return {
+            return res.ok({
                 name: handle.name,
                 handle: handle,
-            };
+            });
         } else {
-            return {
+            return res.ok({
                 name: defaultFileName,
                 handle: null,
-            };
+            });
         }
-    } catch {
-        // User most likely cancelled the operation.
-        return null;
+    } catch (error) {
+        console.error(error);
+
+        if (error instanceof DOMException) {
+            // There appear to be three possible ways in which the save could fail.
+            // None of these are easy to detect in a robust way.
+
+            if (error.name === "AbortError") {
+                if (error.message === "The user aborted a request.") {
+                    // 1) User cancels by pressing the cancel button on the dialog.
+                    return res.ok(null);
+                } else {
+                    // 2) User tried to save to a file that is locked.
+                    return res.error("File not saved. This could be because the file is locked by another process.");
+                }
+            }
+
+            if (error.name === "NotAllowedError") {
+                // 3) User denied permission for the application to save the file in place.
+                return res.ok(null);
+            }
+        }
+
+        // Fallback error.
+        return res.error("File not saved. Something went wrong.");
     }
 }
 
 function getDefaultFileName(snippet: Snippet) {
-    const fileName = snippet.shortcut || snippet.title; // TODO: strip invalid file name chars from the title.
+    // It doesn't matter if this will contain characters that are invalid for file names.
+    // When the save window is shown, the invalid characters will automatically be substituted.
+    const fileName = snippet.shortcut || snippet.title;
     return `${fileName}.snippet`;
 }

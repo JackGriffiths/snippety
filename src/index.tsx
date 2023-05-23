@@ -542,16 +542,22 @@ function App() {
         e.preventDefault();
 
         const useSaveAs = e.submitter?.dataset.submitType === "save-as";
-        const wasSaved = useSaveAs ? await trySaveAs(snippet) : await trySave(snippet);
+        const saveResult = useSaveAs ? await trySaveAs(snippet) : await trySave(snippet);
 
-        if (wasSaved) {
-            markClean();
+        if (saveResult.isOk) {
+            const wasSaved = saveResult.value;
 
-            if (hasFileSystemAccess) {
-                showSuccessToast("Saved successfully");
-            } else {
-                showSuccessToast("File created successfully");
+            if (wasSaved) {
+                markClean();
+
+                if (hasFileSystemAccess) {
+                    showSuccessToast("Saved successfully");
+                } else {
+                    showSuccessToast("File created successfully");
+                }
             }
+        } else {
+            alert(saveResult.error);
         }
     }
 
