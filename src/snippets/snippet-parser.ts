@@ -28,51 +28,51 @@ export function parseSnippetFromXml(xml: string): Result<Snippet> {
 function parseSnippetFromElement(codeSnippetElement: Element): Snippet {
     const model = createDefaultSnippet();
 
-    model.format = codeSnippetElement.getAttribute("Format") ?? "";
+    model.format = codeSnippetElement.getAttribute("Format") ?? "1.0.0";
 
-    const header = getSingleElement(codeSnippetElement, "Header");
+    const headerElement = getSingleElement(codeSnippetElement, "Header");
 
-    if (header !== null) {
-        model.title = getSingleStringValue(header, "Title") ?? "";
-        model.shortcut = getSingleStringValue(header, "Shortcut") ?? "";
-        model.description = getSingleStringValue(header, "Description") ?? "";
-        model.author = getSingleStringValue(header, "Author") ?? "";
-        model.helpUrl = getSingleStringValue(header, "HelpUrl") ?? "";
+    if (headerElement !== null) {
+        model.title = getSingleStringValue(headerElement, "Title") ?? "";
+        model.shortcut = getSingleStringValue(headerElement, "Shortcut") ?? "";
+        model.description = getSingleStringValue(headerElement, "Description") ?? "";
+        model.author = getSingleStringValue(headerElement, "Author") ?? "";
+        model.helpUrl = getSingleStringValue(headerElement, "HelpUrl") ?? "";
 
-        const types = getSingleElement(header, "SnippetTypes");
+        const types = getSingleElement(headerElement, "SnippetTypes");
         if (types !== null) {
             model.types = parseTypes(types);
         }
     }
 
-    const snippet = getSingleElement(codeSnippetElement, "Snippet");
+    const snippetElement = getSingleElement(codeSnippetElement, "Snippet");
 
-    if (snippet !== null) {
-        const code = getSingleElement(snippet, "Code");
-        if (code !== null) {
-            model.language = getLanguageById(code.getAttribute("Language")) ?? "";
-            model.code = code.textContent ?? "";
-            model.kind = getSnippetKindByValue(code.getAttribute("Kind")) ?? SnippetKind.Any;
+    if (snippetElement !== null) {
+        const codeElement = getSingleElement(snippetElement, "Code");
+        if (codeElement !== null) {
+            model.language = getLanguageById(codeElement.getAttribute("Language")) ?? "";
+            model.code = codeElement.textContent ?? "";
+            model.kind = getSnippetKindByValue(codeElement.getAttribute("Kind")) ?? SnippetKind.Any;
         }
 
-        const declarations = getSingleElement(snippet, "Declarations");
-        if (declarations !== null) {
-            model.placeholders = parseDeclarations(declarations);
+        const declarationsElement = getSingleElement(snippetElement, "Declarations");
+        if (declarationsElement !== null) {
+            model.placeholders = parseDeclarations(declarationsElement);
         }
 
-        const imports = getSingleElement(snippet, "Imports");
-        if (imports !== null) {
-            model.namespaces = parseImports(imports);
+        const importsElement = getSingleElement(snippetElement, "Imports");
+        if (importsElement !== null) {
+            model.namespaces = parseImports(importsElement);
         }
     }
 
     return model;
 }
 
-function parseTypes(header: Element) {
+function parseTypes(headerElement: Element) {
     const types: SnippetType[] = [];
 
-    for (const element of header.getElementsByTagName("SnippetType")) {
+    for (const element of headerElement.getElementsByTagName("SnippetType")) {
         const type = getSnippetTypeByValue(element.textContent);
         if (type !== null) {
             types.push(type);
@@ -82,24 +82,24 @@ function parseTypes(header: Element) {
     return types;
 }
 
-function parseDeclarations(declarations: Element) {
+function parseDeclarations(declarationsElement: Element) {
     const placeholders: Placeholder[] = [];
 
-    for (const literal of declarations.getElementsByTagName("Literal")) {
-        const name = getSingleStringValue(literal, "ID");
+    for (const element of declarationsElement.getElementsByTagName("Literal")) {
+        const name = getSingleStringValue(element, "ID");
         if (name === null) {
             continue;
         }
 
         // If the attribute is ommitted then the default value is true.
         // Hence, we check that the value is NOT false.
-        const isEditable = Boolean(literal.getAttribute("Editable")?.toLowerCase() !== "false");
+        const isEditable = Boolean(element.getAttribute("Editable")?.toLowerCase() !== "false");
 
         placeholders.push({
             name: name,
-            defaultValue: getSingleStringValue(literal, "Default") ?? "",
-            function: getSingleStringValue(literal, "Function") ?? "",
-            tooltip: getSingleStringValue(literal, "ToolTip") ?? "",
+            defaultValue: getSingleStringValue(element, "Default") ?? "",
+            function: getSingleStringValue(element, "Function") ?? "",
+            tooltip: getSingleStringValue(element, "ToolTip") ?? "",
             isEditable: isEditable,
         });
     }
@@ -107,17 +107,17 @@ function parseDeclarations(declarations: Element) {
     return placeholders;
 }
 
-function parseImports(imports: Element) {
-    const namesapces: string[] = [];
+function parseImports(importsElement: Element) {
+    const namespaces: string[] = [];
 
-    for (const _import of imports.getElementsByTagName("Import")) {
-        const namespace = getSingleStringValue(_import, "Namespace");
+    for (const element of importsElement.getElementsByTagName("Import")) {
+        const namespace = getSingleStringValue(element, "Namespace");
         if (namespace !== null) {
-            namesapces.push(namespace);
+            namespaces.push(namespace);
         }
     }
 
-    return namesapces;
+    return namespaces;
 }
 
 function getSingleElement(parent: Element, tagName: string): Element | null {
