@@ -1,16 +1,16 @@
 import { createFileManager, hasFileSystemAccess } from "./snippets/snippet-file-manager";
-import { createPlaceholderRegex, generateCodePreview, parsePlaceholdersFromCode } from "./snippets/snippet-helpers";
+import { generateCodePreview } from "./snippets/snippet-helpers";
 import {
     createDefaultSnippet,
     defaultDelimiter,
     Language,
     languageDescriptions,
-    Snippet,
     snippetKindDescriptions,
     SnippetType,
     snippetTypeDescriptions
 } from "./snippets/snippet-model";
 import { parseSnippetFromXml } from "./snippets/snippet-parser";
+import createSnippetStore from "./snippets/snippet-store";
 import { writeSnippetToXml } from "./snippets/snippet-writer";
 import { makeFileDragAndDropHandler } from "./utilities/file-drag-and-drop";
 import { createDirtyFlag, makeLeavePrompt } from "./utilities/unsaved-changes";
@@ -18,7 +18,6 @@ import { showScreenReaderOnlyToast, showSuccessToast } from "./notifications";
 import { registerWebComponents } from "./web-components";
 import type { FileWithHandle } from "browser-fs-access";
 import { batch, createEffect, createMemo, createUniqueId, For, Index, Show } from "solid-js";
-import { createStore, produce } from "solid-js/store";
 import { render } from "solid-js/web";
 import { createStorageSignal } from "@solid-primitives/storage";
 import { Toaster } from "solid-toast";
@@ -26,16 +25,19 @@ import { Toaster } from "solid-toast";
 registerWebComponents();
 
 function App() {
-    const [fileName, { tryOpen, tryPick, trySave, trySaveAs, closeFile }] = createFileManager(parseSnippetFromXml, writeSnippetToXml);
+    // Configure the file manager
+    const [fileName, fileOperations] = createFileManager(parseSnippetFromXml, writeSnippetToXml);
+    const { tryOpen, tryPick, trySave, trySaveAs, closeFile } = fileOperations;
 
+    // Use user-specific settings
     const [defaultAuthor, setDefaultAuthor] = createStorageSignal("default-author", "");
     const [defaultHelpUrl, setDefaultHelpUrl] = createStorageSignal("default-help-url", "");
 
-    const [snippet, updateSnippet] = createStore<Snippet>(createNewSnippet());
-    const placeholderRegex = createMemo(() => createPlaceholderRegex(snippet.delimiter || defaultDelimiter));
-    const canHaveNamespaces = () => snippet.language === Language.CSharp || snippet.language === Language.VisualBasic;
+    // Set up the model
+    const { snippet, canHaveNamespaces, snippetOps } = createSnippetStore(createNewSnippet);
     const [isDirty, markClean] = createDirtyFlag(snippet);
 
+    // Configure some page-wide logic
     const pageTitle = () => `${fileName() ?? "New Snippet"}`;
     createEffect(() => document.title = `${pageTitle()} - Snippety`);
     makeFileDragAndDropHandler(document.body, "link", "application/xml", fileDropped);
@@ -123,7 +125,7 @@ function App() {
                         autocomplete="off"
                         required
                         value={snippet.title}
-                        onInput={e => updateSnippet("title", e.target.value)}
+                        onInput={e => snippetOps.updateTitle(e.target.value)}
                         aria-describedby="title-help-text" />
 
                     <p id="title-help-text" class="help-text">
@@ -143,7 +145,7 @@ function App() {
                         autocomplete="off"
                         placeholder="e.g. Code snippet for..."
                         value={snippet.description}
-                        onInput={e => updateSnippet("description", e.target.value)} />
+                        onInput={e => snippetOps.updateDescription(e.target.value)} />
 
                     <p id="description-help-text" class="help-text">
                         The description appears in IntelliSense when browsing code snippets.
@@ -162,7 +164,7 @@ function App() {
                         autocomplete="off"
                         pattern={shortcutPattern()}
                         value={snippet.shortcut}
-                        onInput={e => updateSnippet("shortcut", e.target.value)} />
+                        onInput={e => snippetOps.updateShortcut(e.target.value)} />
 
                     <p id="shortcut-help-text-1" class="help-text">
                         Must only contain alphanumeric characters or underscores. The exception is that CSS
@@ -183,11 +185,16 @@ function App() {
                         id="language"
                         required
                         value={snippet.language}
-                        onInput={e => updateLanguage(e.target.value as Language | "")}>
+                        onInput={e => snippetOps.updateLanguage(e.target.value as Language | "")}>
 
-                        <option value="">Choose a language...</option>
+                        <option value="">
+                            Choose a language...
+                        </option>
+
                         <For each={Array.from(languageDescriptions)}>{([value, description]) =>
-                            <option value={value}>{description}</option>
+                            <option value={value}>
+                                {description}
+                            </option>
                         }</For>
                     </select>
                 </div>
@@ -204,7 +211,7 @@ function App() {
                         autocomplete="off"
                         required
                         value={snippet.code}
-                        onInput={e => updateSnippetCode(e.target.value)} />
+                        onInput={e => snippetOps.updateCode(e.target.value)} />
 
                     <p id="code-help-text-1" class="help-text">
                         Use placeholders like <code>{wrapWithDelimiter("name")}</code> to define parts of the code which will be replaced.
@@ -257,14 +264,14 @@ function App() {
                                                         type="text"
                                                         required
                                                         value={placeholder.defaultValue}
-                                                        onInput={e => updatePlaceholderDefaultValue(index(), e.target.value)} />
+                                                        onInput={e => snippetOps.placeholders.updateDefaultValue(index(), e.target.value)} />
 
                                                     <div style={{"margin-block-start": "0.75rem"}}>
                                                         <input
                                                             id={editableInputId}
                                                             type="checkbox"
                                                             checked={placeholder.isEditable}
-                                                            onChange={e => updatePlaceholderEditable(index(), e.target.checked)} />
+                                                            onChange={e => snippetOps.placeholders.updateEditable(index(), e.target.checked)} />
 
                                                         <label for={editableInputId}>
                                                             Editable after inserted?
@@ -281,7 +288,7 @@ function App() {
                                                         id={tooltipInputId}
                                                         type="text"
                                                         value={placeholder.tooltip}
-                                                        onInput={e => updatePlaceholderTooltip(index(), e.target.value)} />
+                                                        onInput={e => snippetOps.placeholders.updateTooltip(index(), e.target.value)} />
                                                 </div>
                                             </div>
                                         </section>
@@ -303,7 +310,7 @@ function App() {
                         autocomplete="off"
                         maxLength="1"
                         value={snippet.delimiter}
-                        onInput={e => updateSnippetDelimiter(e.target.value)}
+                        onInput={e => snippetOps.updateDelimiter(e.target.value)}
                         aria-describedby="delimiter-help-text" />
 
                     <p id="delimiter-help-text" class="help-text">
@@ -328,9 +335,9 @@ function App() {
                                         <input
                                             type="text"
                                             value={namespace()}
-                                            onInput={e => updateNamespace(index, e.target.value)} />
+                                            onInput={e => snippetOps.namespaces.update(index, e.target.value)} />
 
-                                        <button type="button" onClick={() => removeNamespace(index)}>
+                                        <button type="button" onClick={() => snippetOps.namespaces.remove(index)}>
                                             Remove
                                         </button>
                                     </div>
@@ -338,7 +345,7 @@ function App() {
                             }</Index>
                         </ol>
 
-                        <button type="button" onClick={addNamespace}>
+                        <button type="button" onClick={addAndFocusNamespace}>
                             Add
                         </button>
                     </section>
@@ -368,7 +375,7 @@ function App() {
                                             id={checkboxInputId}
                                             type="checkbox"
                                             checked={snippet.types.includes(value)}
-                                            onChange={e => toggleType(value, e.target.checked)} />
+                                            onChange={e => addOrRemoveType(value, e.target.checked)} />
 
                                         <label for={checkboxInputId}>
                                             {description}
@@ -404,7 +411,7 @@ function App() {
                                         type="radio"
                                         name="kind"
                                         checked={snippet.kind === value}
-                                        onChange={() => updateSnippet("kind", value)} />
+                                        onChange={() => snippetOps.updateKind(value)} />
 
                                     <label for={radioInputId}>
                                         {description}
@@ -426,7 +433,7 @@ function App() {
                             type="text"
                             autocomplete="name"
                             value={snippet.author}
-                            onInput={e => updateSnippet("author", e.target.value)} />
+                            onInput={e => snippetOps.updateAuthor(e.target.value)} />
 
                         <Show when={snippet.author !== defaultAuthor()}>
                             <button type="button" class="flex-no-shrink" onClick={saveCurrentAuthorAsDefault}>
@@ -448,7 +455,7 @@ function App() {
                             type="url"
                             autocomplete="off"
                             value={snippet.helpUrl}
-                            onInput={e => updateSnippet("helpUrl", e.target.value)} />
+                            onInput={e => snippetOps.updateHelpUrl(e.target.value)} />
 
                         <Show when={snippet.helpUrl !== defaultHelpUrl()}>
                             <button type="button" class="flex-no-shrink" onClick={saveCurrentHelpUrlAsDefault}>
@@ -484,13 +491,11 @@ function App() {
                     <ol id="placeholder-previews">
                         <For each={snippet.placeholders}>{(placeholder) =>
                             <li>
-                                <span class="ff-monospace">
-                                    <span aria-hidden="true">
-                                        {wrapWithDelimiter(placeholder.name)} &#x02192; {placeholder.defaultValue}
-                                    </span>
-                                    <span class="screen-reader-only">
-                                        {wrapWithDelimiter(placeholder.name)} has a default value of {placeholder.defaultValue}
-                                    </span>
+                                <span aria-hidden="true" class="ff-monospace">
+                                    {wrapWithDelimiter(placeholder.name)} &#x02192; {placeholder.defaultValue}
+                                </span>
+                                <span class="screen-reader-only">
+                                    {wrapWithDelimiter(placeholder.name)} has a default value of {placeholder.defaultValue}
                                 </span>
                             </li>
                         }</For>
@@ -507,7 +512,7 @@ function App() {
 
         batch(() => {
             closeFile();
-            updateSnippet(createNewSnippet());
+            snippetOps.new();
             markClean();
         });
 
@@ -533,7 +538,7 @@ function App() {
                 const snippet = result.value;
 
                 batch(() => {
-                    updateSnippet(snippet);
+                    snippetOps.replace(snippet);
                     markClean();
                 });
             }
@@ -551,7 +556,7 @@ function App() {
 
         if (result.isOk) {
             batch(() => {
-                updateSnippet(result.value);
+                snippetOps.replace(result.value);
                 markClean();
             });
         } else if (result.error !== "") {
@@ -563,10 +568,10 @@ function App() {
         e.preventDefault();
 
         const useSaveAs = e.submitter?.dataset.submitType === "save-as";
-        const saveResult = useSaveAs ? await trySaveAs(snippet) : await trySave(snippet);
+        const result = useSaveAs ? await trySaveAs(snippet) : await trySave(snippet);
 
-        if (saveResult.isOk) {
-            const wasSaved = saveResult.value;
+        if (result.isOk) {
+            const wasSaved = result.value;
 
             if (wasSaved) {
                 markClean();
@@ -577,39 +582,9 @@ function App() {
                     showSuccessToast("File created successfully");
                 }
             }
-        } else {
-            alert(saveResult.error);
+        } else if (result.error !== "") {
+            alert(result.error);
         }
-    }
-
-    function updateLanguage(language: Language | "") {
-        batch(() => {
-            updateSnippet("language", language);
-
-            if (!canHaveNamespaces() && snippet.namespaces.length > 0) {
-                updateSnippet("namespaces", []);
-            }
-        });
-    }
-
-    function updateSnippetCode(code: string) {
-        batch(() => {
-            updateSnippet("code", code);
-
-            // This needs to be done AFTER the code is set.
-            const placeholderChangeSet = getPlaceholderChangeSet();
-            updatePlaceholders(placeholderChangeSet);
-        });
-    }
-
-    function updateSnippetDelimiter(delimiter: string) {
-        batch(() => {
-            updateSnippet("delimiter", delimiter);
-
-            // This needs to be done AFTER the delimiter is set.
-            const placeholderChangeSet = getPlaceholderChangeSet();
-            updatePlaceholders(placeholderChangeSet);
-        });
     }
 
     function wrapWithDelimiter(name: string) {
@@ -617,74 +592,20 @@ function App() {
         return delimiter + name + delimiter;
     }
 
-    function getPlaceholderChangeSet(): [added: Set<string>, removed: Set<string>] {
-        const previous = snippet.placeholders.map(i => i.name);
-        const current = parsePlaceholdersFromCode(snippet.code, placeholderRegex());
-
-        const added = Array.from(current).filter(i => !previous.includes(i));
-        const removed = Array.from(previous).filter(i => !current.has(i));
-
-        return [new Set(added), new Set(removed)];
-    }
-
-    function updatePlaceholders(changeSet: [added: Set<string>, removed: Set<string>]) {
-        const [added, removed] = changeSet;
-
-        if (added.size === 0 && removed.size === 0) {
-            // No change, nothing to do.
-            return;
+    function addOrRemoveType(type: SnippetType, isSelected: boolean) {
+        if (isSelected) {
+            snippetOps.types.add(type);
+        } else {
+            snippetOps.types.remove(type);
         }
-
-        const toRetain = snippet.placeholders.filter(i => !removed.has(i.name));
-        const toAdd = Array.from(added).map(i => ({
-            name: i,
-            defaultValue: "",
-            function: "",
-            tooltip: "",
-            isEditable: true,
-        }));
-
-        updateSnippet(produce(s => {
-            s.placeholders = toRetain;
-            s.placeholders.push(...toAdd);
-            s.placeholders.sort((a, b) => a.name.localeCompare(b.name));
-        }));
     }
 
-    function updatePlaceholderDefaultValue(placeholderIndex: number, value: string) {
-        updateSnippet(produce(s => { s.placeholders[placeholderIndex].defaultValue = value; }));
-    }
-
-    function updatePlaceholderEditable(placeholderIndex: number, isEditable: boolean) {
-        updateSnippet(produce(s => { s.placeholders[placeholderIndex].isEditable = isEditable; }));
-    }
-
-    function updatePlaceholderTooltip(placeholderIndex: number, value: string) {
-        updateSnippet(produce(s => { s.placeholders[placeholderIndex].tooltip = value; }));
-    }
-
-    function addNamespace() {
-        updateSnippet(produce(s => { s.namespaces.push(""); }));
+    function addAndFocusNamespace() {
+        snippetOps.namespaces.add();
 
         // Move focus on to the new text input.
         const lastNamespaceEl = document.getElementById("imports")?.lastElementChild;
         lastNamespaceEl?.querySelector("input")?.focus();
-    }
-
-    function updateNamespace(index: number, value: string) {
-        updateSnippet(produce(s => { s.namespaces[index] = value; }));
-    }
-
-    function removeNamespace(index: number) {
-        updateSnippet(produce(s => { s.namespaces.splice(index, 1); }));
-    }
-
-    function toggleType(type: SnippetType, isSelected: boolean) {
-        if (isSelected && !snippet.types.includes(type)) {
-            updateSnippet(produce(s => { s.types.push(type); }));
-        } else if (!isSelected && snippet.types.includes(type)) {
-            updateSnippet(produce(s => { s.types = s.types.filter(t => t !== type); }));
-        }
     }
 
     function saveCurrentAuthorAsDefault() {
