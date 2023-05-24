@@ -95,6 +95,10 @@
         }
     }
 
+    #delimiter {
+        inline-size: 20ch;
+    }
+
     #imports {
         margin-block: 1rem;
         display: flex;

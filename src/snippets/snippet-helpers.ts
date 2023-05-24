@@ -1,9 +1,15 @@
-import { Language, Snippet } from "./snippet-model";
+import { regexEscape } from "../utilities/regex";
+import { defaultDelimiter, Language, Snippet } from "./snippet-model";
 
 const reservedPlaceholders: ReadonlySet<string> = new Set(["selected", "end"]);
 
-export function parsePlaceholdersFromCode(code: string): Set<string> {
-    const placeholderRegex = /\$(\w+)\$/g;
+export function createPlaceholderRegex(delimiter: string) {
+    const escapedDelimiter = regexEscape(delimiter);
+    const pattern = escapedDelimiter + "(\\w+)" + escapedDelimiter;
+    return new RegExp(pattern, "g");
+}
+
+export function parsePlaceholdersFromCode(code: string, placeholderRegex: RegExp): Set<string> {
     const foundPlaceholders = new Set<string>([]);
 
     for (const match of code.matchAll(placeholderRegex)) {
@@ -31,8 +37,8 @@ export function generateCodePreview(snippet: Snippet) {
     }
 
     let code = snippet.code;
-
-    const replacePlaceholder = (name: string, replacement: string) => code.replaceAll(`$${name}$`, replacement);
+    const delimiter = snippet.delimiter || defaultDelimiter;
+    const replacePlaceholder = (name: string, replacement: string) => code.replaceAll(`${delimiter}${name}${delimiter}`, replacement);
 
     // Remove the reserved placeholders from the code.
     for (const name of reservedPlaceholders) {

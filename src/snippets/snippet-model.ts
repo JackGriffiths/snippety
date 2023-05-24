@@ -8,10 +8,13 @@ export interface Snippet {
     language: Language | "";
     code: string;
     placeholders: Placeholder[];
+    delimiter: string;
     namespaces: string[];
     types: SnippetType[];
     kind: SnippetKind;
 }
+
+export const defaultDelimiter = "$";
 
 export enum Language {
     Cpp = "CPP",
@@ -147,6 +150,7 @@ export function createDefaultSnippet(): Snippet {
         language: "",
         code: "",
         placeholders: [],
+        delimiter: "",
         namespaces: [],
         types: [],
         kind: SnippetKind.Any,

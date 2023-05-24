@@ -83,6 +83,10 @@ function appendSnippet(codeSnippetElement: Node, model: Snippet) {
         if (isNotNullOrWhiteSpace(model.kind)) {
             codeElement.setAttribute("Kind", model.kind);
         }
+
+        if (isNotNullOrWhiteSpace(model.delimiter)) {
+            codeElement.setAttribute("Delimiter", model.delimiter);
+        }
     }
 
     const validNamespaces = model.namespaces.filter(i => i !== "");

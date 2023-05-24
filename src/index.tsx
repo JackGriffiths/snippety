@@ -1,7 +1,8 @@
 import { createFileManager, hasFileSystemAccess } from "./snippets/snippet-file-manager";
-import { generateCodePreview, parsePlaceholdersFromCode } from "./snippets/snippet-helpers";
+import { createPlaceholderRegex, generateCodePreview, parsePlaceholdersFromCode } from "./snippets/snippet-helpers";
 import {
     createDefaultSnippet,
+    defaultDelimiter,
     Language,
     languageDescriptions,
     Snippet,
@@ -31,6 +32,7 @@ function App() {
     const [defaultHelpUrl, setDefaultHelpUrl] = createStorageSignal("default-help-url", "");
 
     const [snippet, updateSnippet] = createStore<Snippet>(createNewSnippet());
+    const placeholderRegex = createMemo(() => createPlaceholderRegex(snippet.delimiter || defaultDelimiter));
     const canHaveNamespaces = () => snippet.language === Language.CSharp || snippet.language === Language.VisualBasic;
     const [isDirty, markClean] = createDirtyFlag(snippet);
 
@@ -205,17 +207,17 @@ function App() {
                         onInput={e => updateSnippetCode(e.target.value)} />
 
                     <p id="code-help-text-1" class="help-text">
-                        Use placeholders like <code>$name$</code> to define parts of the code which will be replaced.
+                        Use placeholders like <code>{wrapWithDelimiter("name")}</code> to define parts of the code which will be replaced.
                         There are two reserved placeholders that you can use in your snippets.
                     </p>
 
                     <p id="code-help-text-2" class="help-text">
-                        <code>$end$</code> marks the location to place the cursor after the code snippet is inserted. It is
+                        <code>{wrapWithDelimiter("end")}</code> marks the location to place the cursor after the code snippet is inserted. It is
                         recommended that this placeholder is included in all snippets.
                     </p>
 
                     <p id="code-help-text-3" class="help-text">
-                        <code>$selected$</code> represents text selected in the document that is to be inserted into the snippet
+                        <code>{wrapWithDelimiter("selected")}</code> represents text selected in the document that is to be inserted into the snippet
                         when it is invoked. This is only relevant for "Surrounds With" snippets.
                     </p>
                 </div>
@@ -241,7 +243,7 @@ function App() {
                                     <li>
                                         <section aria-labelledby={labelId}>
                                             <p id={labelId}>
-                                                {`$${placeholder.name}$`}
+                                                {wrapWithDelimiter(placeholder.name)}
                                             </p>
 
                                             <div class="placeholder-inputs">
@@ -289,6 +291,25 @@ function App() {
                         </ol>
                     </Show>
                 </section>
+
+                <div>
+                    <label for="delimiter">
+                        Delimiter Character
+                    </label>
+
+                    <input
+                        id="delimiter"
+                        type="text"
+                        autocomplete="off"
+                        maxLength="1"
+                        value={snippet.delimiter}
+                        onInput={e => updateSnippetDelimiter(e.target.value)}
+                        aria-describedby="delimiter-help-text" />
+
+                    <p id="delimiter-help-text" class="help-text">
+                        The default delimiter is the {defaultDelimiter} character.
+                    </p>
+                </div>
 
                 <Show when={canHaveNamespaces()}>
                     <section aria-labelledby="imports-section-label">
@@ -465,10 +486,10 @@ function App() {
                             <li>
                                 <span class="ff-monospace">
                                     <span aria-hidden="true">
-                                        ${placeholder.name}$ &#x02192; {placeholder.defaultValue}
+                                        {wrapWithDelimiter(placeholder.name)} &#x02192; {placeholder.defaultValue}
                                     </span>
                                     <span class="screen-reader-only">
-                                        ${placeholder.name}$ has a default value of {placeholder.defaultValue}
+                                        {wrapWithDelimiter(placeholder.name)} has a default value of {placeholder.defaultValue}
                                     </span>
                                 </span>
                             </li>
@@ -572,32 +593,62 @@ function App() {
     }
 
     function updateSnippetCode(code: string) {
-        const previousPlaceholderNames = snippet.placeholders.map(i => i.name);
-        const currentPlaceholdersNames = parsePlaceholdersFromCode(code);
-
-        const removedPlaceholderNames = Array.from(previousPlaceholderNames).filter(i => !currentPlaceholdersNames.has(i));
-        const newPlaceholderNames = Array.from(currentPlaceholdersNames).filter(i => !previousPlaceholderNames.includes(i));
-
         batch(() => {
             updateSnippet("code", code);
 
-            if (removedPlaceholderNames.length > 0 || newPlaceholderNames.length > 0) {
-                const placeholdersToRetain = snippet.placeholders.filter(i => !removedPlaceholderNames.includes(i.name));
-                const placeholdersToAdd = newPlaceholderNames.map(i => ({
-                    name: i,
-                    defaultValue: "",
-                    function: "",
-                    tooltip: "",
-                    isEditable: true,
-                }));
-
-                updateSnippet(produce(s => {
-                    s.placeholders = placeholdersToRetain;
-                    s.placeholders.push(...placeholdersToAdd);
-                    s.placeholders.sort((a, b) => a.name.localeCompare(b.name));
-                }));
-            }
+            // This needs to be done AFTER the code is set.
+            const placeholderChangeSet = getPlaceholderChangeSet();
+            updatePlaceholders(placeholderChangeSet);
         });
+    }
+
+    function updateSnippetDelimiter(delimiter: string) {
+        batch(() => {
+            updateSnippet("delimiter", delimiter);
+
+            // This needs to be done AFTER the delimiter is set.
+            const placeholderChangeSet = getPlaceholderChangeSet();
+            updatePlaceholders(placeholderChangeSet);
+        });
+    }
+
+    function wrapWithDelimiter(name: string) {
+        const delimiter = snippet.delimiter || defaultDelimiter;
+        return delimiter + name + delimiter;
+    }
+
+    function getPlaceholderChangeSet(): [added: Set<string>, removed: Set<string>] {
+        const previous = snippet.placeholders.map(i => i.name);
+        const current = parsePlaceholdersFromCode(snippet.code, placeholderRegex());
+
+        const added = Array.from(current).filter(i => !previous.includes(i));
+        const removed = Array.from(previous).filter(i => !current.has(i));
+
+        return [new Set(added), new Set(removed)];
+    }
+
+    function updatePlaceholders(changeSet: [added: Set<string>, removed: Set<string>]) {
+        const [added, removed] = changeSet;
+
+        if (added.size === 0 && removed.size === 0) {
+            // No change, nothing to do.
+            return;
+        }
+
+        const toRetain = snippet.placeholders.filter(i => !removed.has(i.name));
+        const toAdd = Array.from(added).map(i => ({
+            name: i,
+            defaultValue: "",
+            function: "",
+            tooltip: "",
+            isEditable: true,
+        }));
+
+        updateSnippet(produce(s => {
+            s.placeholders = toRetain;
+            s.placeholders.push(...toAdd);
+            s.placeholders.sort((a, b) => a.name.localeCompare(b.name));
+        }));
     }
 
     function updatePlaceholderDefaultValue(placeholderIndex: number, value: string) {

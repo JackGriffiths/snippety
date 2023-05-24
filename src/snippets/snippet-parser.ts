@@ -53,6 +53,7 @@ function parseSnippetFromElement(codeSnippetElement: Element): Snippet {
             model.language = getLanguageById(codeElement.getAttribute("Language")) ?? "";
             model.code = codeElement.textContent ?? "";
             model.kind = getSnippetKindByValue(codeElement.getAttribute("Kind")) ?? SnippetKind.Any;
+            model.delimiter = codeElement.getAttribute("Delimiter") ?? "";
         }
 
         const declarationsElement = getSingleElement(snippetElement, "Declarations");
