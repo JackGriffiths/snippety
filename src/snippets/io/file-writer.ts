@@ -1,4 +1,4 @@
-import type { Placeholder, Snippet } from "./snippet-model";
+import type { Placeholder, Snippet } from "../snippet-model";
 import xmlFormat from "xml-formatter";
 
 const schema = "http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet";

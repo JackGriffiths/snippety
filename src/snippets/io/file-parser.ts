@@ -6,9 +6,9 @@ import {
     Snippet,
     SnippetKind,
     SnippetType,
-} from "./snippet-model";
-import { createDefaultSnippet } from "./snippet-model";
-import Result, * as res from "../utilities/result";
+} from "../snippet-model";
+import { createDefaultSnippet } from "../snippet-model";
+import Result, * as res from "../../utilities/result";
 
 export function parseSnippetFromXml(xml: string): Result<Snippet> {
     const doc = new DOMParser().parseFromString(xml, "application/xml");

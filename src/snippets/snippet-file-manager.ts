@@ -1,12 +1,11 @@
 import type { Snippet } from "./snippet-model";
+import { parseSnippetFromXml } from "./io/file-parser";
+import { writeSnippetToXml } from "./io/file-writer";
 import Result, * as res from "../utilities/result";
 import { FileWithHandle, fileOpen, fileSave, supported as isFileSystemAccessSupported } from "browser-fs-access";
 import { Accessor, createSignal } from "solid-js";
 
 export { isFileSystemAccessSupported as hasFileSystemAccess };
-
-type FileParser = (text: string) => Result<Snippet>;
-type FileWriter = (snippet: Snippet) => string;
 
 type Operations = {
     tryOpen: (file: FileWithHandle) => Promise<Result<Snippet>>,
@@ -16,12 +15,12 @@ type Operations = {
     closeFile: VoidFunction,
 };
 
-export function createFileManager(parser: FileParser, writer: FileWriter): [fileName: Accessor<string | null>, fileOperations: Operations] {
+export function createFileManager(): [fileName: Accessor<string | null>, fileOperations: Operations] {
     const [fileName, setFileName] = createSignal<string | null>(null);
     const [fileHandle, setFileHandle] = createSignal<FileSystemFileHandle | null>(null);
 
     const tryOpen = async (file: FileWithHandle) => {
-        const result = parser(await file.text());
+        const result = parseSnippetFromXml(await file.text());
 
         if (result.isOk) {
             setFileName(file.name);
@@ -50,7 +49,7 @@ export function createFileManager(parser: FileParser, writer: FileWriter): [file
     };
 
     const trySaveInternal = async (snippet: Snippet, useExistingFileHandle: boolean) => {
-        const xml = writer(snippet);
+        const xml = writeSnippetToXml(snippet);
         const existingFileHandle = useExistingFileHandle ? fileHandle() : null;
         const defaultFileName = fileName() ?? getDefaultFileName(snippet);
         const saveResult = await trySaveText(xml, existingFileHandle, defaultFileName);

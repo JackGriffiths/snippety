@@ -8,9 +8,7 @@ import {
     SnippetType,
     snippetTypeDescriptions
 } from "./snippets/snippet-model";
-import { parseSnippetFromXml } from "./snippets/snippet-parser";
 import createSnippetStore from "./snippets/snippet-store";
-import { writeSnippetToXml } from "./snippets/snippet-writer";
 import { makeFileDragAndDropHandler } from "./utilities/file-drag-and-drop";
 import { createDirtyFlag, makeLeavePrompt } from "./utilities/unsaved-changes";
 import { showScreenReaderOnlyToast, showSuccessToast } from "./notifications";
@@ -25,7 +23,7 @@ registerWebComponents();
 
 function App() {
     // Configure the file manager
-    const [fileName, fileOperations] = createFileManager(parseSnippetFromXml, writeSnippetToXml);
+    const [fileName, fileOperations] = createFileManager();
     const { tryOpen, tryPick, trySave, trySaveAs, closeFile } = fileOperations;
 
     // Use user-specific settings
