@@ -15,6 +15,7 @@ export interface Snippet {
 }
 
 export const defaultDelimiter = "$";
+export const reservedPlaceholders: ReadonlySet<string> = new Set(["selected", "end"]);
 
 export enum Language {
     Cpp = "CPP",

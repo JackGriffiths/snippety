@@ -1,5 +1,6 @@
-import { createPlaceholderRegex, parsePlaceholdersFromCode } from "./snippet-helpers";
-import { defaultDelimiter, Language, Snippet, SnippetKind, SnippetType } from "./snippet-model";
+import { evaluate } from "./analysis/evaluator";
+import { TokenKind, parse } from "./analysis/parser";
+import { defaultDelimiter, Language, reservedPlaceholders, Snippet, SnippetKind, SnippetType } from "./snippet-model";
 import { batch, createMemo } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
@@ -8,10 +9,12 @@ export default function createSnippetStore(createDefault: () => Snippet) {
     const setWith = (func: (snippet: Snippet) => void) => set(produce(func));
 
     const canHaveNamespaces = () => snippet.language === Language.CSharp || snippet.language === Language.VisualBasic;
-    const placeholderRegex = createMemo(() => createPlaceholderRegex(snippet.delimiter || defaultDelimiter));
+    const parsedTokens = createMemo(() => parse(snippet.code, snippet.delimiter || defaultDelimiter));
+    const isValidCode = () => parsedTokens().find(i => i.kind === TokenKind.BadToken) === undefined;
+    const preview = createMemo(() => evaluate(snippet, parsedTokens()));
 
     const updatePlaceholders = () => {
-        const [added, removed] = reparsePlaceholders(snippet, placeholderRegex());
+        const [added, removed] = reparsePlaceholders(snippet);
 
         if (added.size === 0 && removed.size === 0) {
             // No change, nothing to do.
@@ -37,9 +40,11 @@ export default function createSnippetStore(createDefault: () => Snippet) {
     return {
         snippet,
         canHaveNamespaces,
+        isValidCode,
         snippetOps: {
             new: () => set(createDefault()),
             replace: (snippet: Snippet) => set(snippet),
+            preview,
             updateTitle: (title: string) =>
                 set("title", title),
             updateDescription: (description: string) =>
@@ -101,12 +106,22 @@ export default function createSnippetStore(createDefault: () => Snippet) {
     };
 }
 
-function reparsePlaceholders(snippet: Snippet, placeholderRegex: RegExp): [added: Set<string>, removed: Set<string>] {
+function reparsePlaceholders(snippet: Snippet): [added: Set<string>, removed: Set<string>] {
     const previous = snippet.placeholders.map(i => i.name);
-    const current = parsePlaceholdersFromCode(snippet.code, placeholderRegex);
+    const current = parsePlaceholders(snippet.code, snippet.delimiter || defaultDelimiter);
 
     const added = Array.from(current).filter(i => !previous.includes(i));
     const removed = Array.from(previous).filter(i => !current.has(i));
 
     return [new Set(added), new Set(removed)];
+}
+
+function parsePlaceholders(code: string, delimiter: string): Set<string> {
+    const tokens = parse(code, delimiter);
+    const placeholders = tokens
+        .filter(i => i.kind === TokenKind.PlaceholderToken)
+        .map(i => i.value as string)
+        .filter(i => !reservedPlaceholders.has(i));
+
+    return new Set(placeholders);
 }

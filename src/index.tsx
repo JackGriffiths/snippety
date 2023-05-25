@@ -1,5 +1,4 @@
 import { createFileManager, hasFileSystemAccess } from "./snippets/snippet-file-manager";
-import { generateCodePreview } from "./snippets/snippet-helpers";
 import {
     createDefaultSnippet,
     defaultDelimiter,
@@ -17,7 +16,7 @@ import { createDirtyFlag, makeLeavePrompt } from "./utilities/unsaved-changes";
 import { showScreenReaderOnlyToast, showSuccessToast } from "./notifications";
 import { registerWebComponents } from "./web-components";
 import type { FileWithHandle } from "browser-fs-access";
-import { batch, createEffect, createMemo, createUniqueId, For, Index, Show } from "solid-js";
+import { batch, createEffect, createUniqueId, For, Index, Show } from "solid-js";
 import { render } from "solid-js/web";
 import { createStorageSignal } from "@solid-primitives/storage";
 import { Toaster } from "solid-toast";
@@ -34,7 +33,7 @@ function App() {
     const [defaultHelpUrl, setDefaultHelpUrl] = createStorageSignal("default-help-url", "");
 
     // Set up the model
-    const { snippet, canHaveNamespaces, snippetOps } = createSnippetStore(createNewSnippet);
+    const { snippet, canHaveNamespaces, isValidCode, snippetOps } = createSnippetStore(createNewSnippet);
     const [isDirty, markClean] = createDirtyFlag(snippet);
 
     // Configure some page-wide logic
@@ -109,6 +108,13 @@ function App() {
 
     function Form() {
         const shortcutPattern = () => snippet.language === Language.Css ? "@[A-Za-z0-9_]*" : "[A-Za-z0-9_]*";
+
+        const addCodeValidation = (element: HTMLTextAreaElement) => {
+            createEffect(() => {
+                const errorMessage = isValidCode() ? "" : "Please ensure all opening delimiters have a corresponding closing delimiter.";
+                element.setCustomValidity(errorMessage);
+            });
+        };
 
         return (
             <form id="main-form" action="" onSubmit={saveSnippet}>
@@ -205,6 +211,7 @@ function App() {
                     </label>
 
                     <textarea
+                        ref={(ref) => addCodeValidation(ref)}
                         id="code"
                         aria-describedby="code-help-text-1 code-help-text-2 code-help-text-3"
                         rows="7"
@@ -473,15 +480,13 @@ function App() {
     }
 
     function Preview() {
-        const codePreview = createMemo(() => generateCodePreview(snippet));
-
         return (
             <section id="preview" aria-labeledby="preview-heading">
                 <h2 id="preview-heading" class="screen-reader-only">
                     Preview
                 </h2>
 
-                <highlighted-code-block attr:language={snippet.language} attr:code={codePreview()} />
+                <highlighted-code-block attr:language={snippet.language} attr:code={snippetOps.preview()} />
 
                 <Show when={snippet.placeholders.length > 0}>
                     <h3 class="screen-reader-only">
