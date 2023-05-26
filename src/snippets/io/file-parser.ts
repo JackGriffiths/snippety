@@ -37,7 +37,6 @@ function parseSnippetFromElement(codeSnippetElement: Element): Snippet {
         model.shortcut = getSingleStringValue(headerElement, "Shortcut") ?? "";
         model.description = getSingleStringValue(headerElement, "Description") ?? "";
         model.author = getSingleStringValue(headerElement, "Author") ?? "";
-        model.helpUrl = getSingleStringValue(headerElement, "HelpUrl") ?? "";
 
         const types = getSingleElement(headerElement, "SnippetTypes");
         if (types !== null) {

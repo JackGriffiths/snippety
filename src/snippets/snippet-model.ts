@@ -4,7 +4,6 @@ export interface Snippet {
     shortcut: string;
     description: string;
     author: string;
-    helpUrl: string;
     language: Language | "";
     code: string;
     placeholders: Placeholder[];
@@ -147,7 +146,6 @@ export function createDefaultSnippet(): Snippet {
         shortcut: "",
         description: "",
         author: "",
-        helpUrl: "",
         language: "",
         code: "",
         placeholders: [],

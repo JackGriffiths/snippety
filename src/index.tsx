@@ -28,7 +28,6 @@ function App() {
 
     // Use user-specific settings
     const [defaultAuthor, setDefaultAuthor] = createStorageSignal("default-author", "");
-    const [defaultHelpUrl, setDefaultHelpUrl] = createStorageSignal("default-help-url", "");
 
     // Set up the model
     const { snippet, canHaveNamespaces, isValidCode, snippetOps } = createSnippetStore(createNewSnippet);
@@ -456,27 +455,6 @@ function App() {
 
                 </div>
 
-                <div>
-                    <label for="helpUrl">
-                        Help URL
-                    </label>
-
-                    <div class="input-group flex-horizontal flex-wrap" style={{"gap": "1rem"}}>
-                        <input
-                            id="helpUrl"
-                            type="url"
-                            autocomplete="off"
-                            value={snippet.helpUrl}
-                            onInput={e => snippetOps.updateHelpUrl(e.target.value)} />
-
-                        <Show when={snippet.helpUrl !== defaultHelpUrl()}>
-                            <button type="button" class="flex-no-shrink" onClick={saveCurrentHelpUrlAsDefault}>
-                                Save As Default
-                            </button>
-                        </Show>
-                    </div>
-                </div>
-
                 <div class="button-toolbar" role="toolbar" aria-label="Secondary">
                     <SaveButtons />
                 </div>
@@ -532,7 +510,6 @@ function App() {
     function createNewSnippet() {
         const newSnippet = createDefaultSnippet();
         newSnippet.author = defaultAuthor() ?? "";
-        newSnippet.helpUrl = defaultHelpUrl() ?? "";
         return newSnippet;
     }
 
@@ -625,11 +602,6 @@ function App() {
     function saveCurrentAuthorAsDefault() {
         setDefaultAuthor(snippet.author);
         showSuccessToast("Default author updated");
-    }
-
-    function saveCurrentHelpUrlAsDefault() {
-        setDefaultHelpUrl(snippet.helpUrl);
-        showSuccessToast("Default help URL updated");
     }
 
     return <Page />;

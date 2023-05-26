@@ -55,8 +55,6 @@ export default function createSnippetStore(createDefault: () => Snippet) {
                 set("kind", kind),
             updateAuthor: (author: string) =>
                 set("author", author),
-            updateHelpUrl: (url: string) =>
-                set("helpUrl", url),
             updateLanguage: (language: Language | "") =>
                 batch(() => {
                     set("language", language);

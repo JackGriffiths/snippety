@@ -52,10 +52,6 @@ function appendHeader(codeSnippetElement: Node, model: Snippet) {
         appendChildStringElement(headerElement, "Author", model.author);
     }
 
-    if (isNotNullOrWhiteSpace(model.helpUrl)) {
-        appendChildStringElement(headerElement, "HelpUrl", model.helpUrl);
-    }
-
     if (model.types.length > 0) {
         const snippetTypesElement = appendChildElement(headerElement, "SnippetTypes");
         const sortedSelectedTypes = Array.from(model.types).sort((a, b) => a.localeCompare(b));
