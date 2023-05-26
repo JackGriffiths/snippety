@@ -2,6 +2,7 @@ import { createFileManager, hasFileSystemAccess } from "./snippets/snippet-file-
 import {
     createDefaultSnippet,
     defaultDelimiter,
+    getShortcutRegexPatternForLanguage,
     Language,
     languageDescriptions,
     snippetKindDescriptions,
@@ -104,8 +105,6 @@ function App() {
     }
 
     function Form() {
-        const shortcutPattern = () => snippet.language === Language.Css ? "@[A-Za-z0-9_]*" : "[A-Za-z0-9_]*";
-
         const addCodeValidation = (element: HTMLTextAreaElement) => {
             createEffect(() => {
                 const errorMessage = isValidCode() ? "" : "Please ensure all opening delimiters have a corresponding closing delimiter.";
@@ -165,13 +164,13 @@ function App() {
                         aria-describedby="shortcut-help-text-1 shortcut-help-text-2"
                         type="text"
                         autocomplete="off"
-                        pattern={shortcutPattern()}
+                        pattern={getShortcutRegexPatternForLanguage(snippet.language)}
                         value={snippet.shortcut}
                         onInput={e => snippetOps.updateShortcut(e.target.value)} />
 
                     <p id="shortcut-help-text-1" class="help-text">
-                        Must only contain alphanumeric characters or underscores. The exception is that CSS
-                        snippets must start with the @ character.
+                        Must only contain alphanumeric and underscore characters. The exceptions are that for CSS snippets it must
+                        start with the @ character and for C++ snippets the underscore character is not allowed.
                     </p>
 
                     <p id="shortcut-help-text-2" class="help-text">

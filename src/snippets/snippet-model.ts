@@ -71,6 +71,20 @@ export function getLanguageById(id: string | null): Language | null {
     return null;
 }
 
+export function getShortcutRegexPatternForLanguage(language: Language | "") {
+    switch (language) {
+        case Language.Css:
+            // The @ char followed by alphanumeric and underscore chars
+            return "@[A-Za-z0-9_]*";
+        case Language.Cpp:
+            // Alphanumeric chars only
+            return "[A-Za-z0-9]*";
+        default:
+            // Alphanumeric and underscore chars
+            return "[A-Za-z0-9_]*";
+    }
+}
+
 export interface Placeholder {
     name: string;
     defaultValue: string;
