@@ -1,5 +1,5 @@
 import { evaluate } from "./analysis/evaluator";
-import { TokenKind, parse } from "./analysis/parser";
+import { Token, TokenKind, parse } from "./analysis/parser";
 import { defaultDelimiter, Language, Placeholder, reservedPlaceholders, Snippet, SnippetKind, SnippetType } from "./snippet-model";
 import { batch, createMemo } from "solid-js";
 import { createStore, produce } from "solid-js/store";
@@ -13,7 +13,7 @@ export default function createSnippetStore(createDefault: () => Snippet) {
     const canHaveNamespaces = () => snippet.language === Language.CSharp || snippet.language === Language.VisualBasic;
     const parsedTokens = createMemo(() => parse(snippet.code, snippet.delimiter || defaultDelimiter));
     const isValidCode = () => parsedTokens().find(i => i.kind === TokenKind.BadToken) === undefined;
-    const preview = createMemo(() => evaluate(snippet, parsedTokens()));
+    const preview = () => evaluate(snippet, parsedTokens());
 
     // While editing the snippet's code, it's quite easy to briefly lose a placeholder.
     // For example, to replace the method name of this code "public int Add(int $x1$, int $x2$) {}"
@@ -32,7 +32,7 @@ export default function createSnippetStore(createDefault: () => Snippet) {
 
     // Reparse the placeholders in the code block and synchronize the model.
     const updatePlaceholders = () => {
-        const [added, removed] = reparsePlaceholders(snippet);
+        const [added, removed] = reparsePlaceholders(snippet, parsedTokens());
 
         if (added.size === 0 && removed.size === 0) {
             // No change, nothing to do.
@@ -133,9 +133,9 @@ function createPlaceholder(name: string): Placeholder {
     };
 }
 
-function reparsePlaceholders(snippet: Snippet): [added: Set<string>, removed: Set<string>] {
+function reparsePlaceholders(snippet: Snippet, tokens: Token[]): [added: Set<string>, removed: Set<string>] {
     const previous = snippet.placeholders.map(i => i.name);
-    const current = parsePlaceholders(snippet.code, snippet.delimiter || defaultDelimiter);
+    const current = parsePlaceholders(tokens);
 
     const added = Array.from(current).filter(i => !previous.includes(i));
     const removed = Array.from(previous).filter(i => !current.has(i));
@@ -143,8 +143,7 @@ function reparsePlaceholders(snippet: Snippet): [added: Set<string>, removed: Se
     return [new Set(added), new Set(removed)];
 }
 
-function parsePlaceholders(code: string, delimiter: string): Set<string> {
-    const tokens = parse(code, delimiter);
+function parsePlaceholders(tokens: Token[]): Set<string> {
     const placeholders = tokens
         .filter(i => i.kind === TokenKind.PlaceholderToken)
         .map(i => i.value as string)
