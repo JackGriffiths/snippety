@@ -27,7 +27,7 @@
         display: grid;
         grid-template-rows: auto;
         grid-template-columns: minmax(0, 1fr);
-        gap: 2.5rem;
+        gap: 3rem;
     }
 
     .button-toolbar {
@@ -39,7 +39,7 @@
     form {
         display: flex;
         flex-direction: column;
-        gap: 2.5rem;
+        gap: 3rem;
     }
 
     label {
