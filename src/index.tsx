@@ -320,6 +320,7 @@ function App() {
                         type="text"
                         autocomplete="off"
                         maxLength="1"
+                        pattern="\\S{1}"
                         value={snippet.delimiter}
                         onInput={e => snippetOps.updateDelimiter(e.target.value)}
                         aria-describedby="delimiter-help-text" />
