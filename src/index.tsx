@@ -211,7 +211,7 @@ function App() {
                     <textarea
                         ref={(ref) => addCodeValidation(ref)}
                         id="code"
-                        aria-describedby="code-help-text-1 code-help-text-2 code-help-text-3"
+                        aria-describedby="code-help-text-1 code-help-text-2 code-help-text-3 code-help-text-4"
                         rows="7"
                         autocomplete="off"
                         required
@@ -231,6 +231,12 @@ function App() {
                     <p id="code-help-text-3" class="help-text">
                         <code>{wrapWithDelimiter("selected")}</code> represents text selected in the document that is to be inserted into the snippet
                         when it is invoked. This is only relevant for "Surrounds With" snippets.
+                    </p>
+
+                    <p id="code-help-text-4" class="help-text">
+                        To include the <code>{getDelimiterOrDefault()}</code> character as text, escape it by
+                        typing <code>{getDelimiterOrDefault()}{getDelimiterOrDefault()}</code>.
+                        Alternatively, the delimiter character can be changed.
                     </p>
                 </div>
 
@@ -591,8 +597,12 @@ function App() {
     }
 
     function wrapWithDelimiter(name: string) {
-        const delimiter = snippet.delimiter || defaultDelimiter;
+        const delimiter = getDelimiterOrDefault();
         return delimiter + name + delimiter;
+    }
+
+    function getDelimiterOrDefault() {
+        return snippet.delimiter || defaultDelimiter;
     }
 
     function addOrRemoveType(type: SnippetType, isSelected: boolean) {
