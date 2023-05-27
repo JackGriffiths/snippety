@@ -14,6 +14,7 @@ import { makeFileDragAndDropHandler } from "./utilities/file-drag-and-drop";
 import { createDirtyFlag, makeLeavePrompt } from "./utilities/unsaved-changes";
 import { showScreenReaderOnlyToast, showSuccessToast } from "./notifications";
 import { registerWebComponents } from "./web-components";
+import { WindowMessage, tryMakeMessageChannel } from "./window-messaging";
 import type { FileWithHandle } from "browser-fs-access";
 import { batch, createEffect, createUniqueId, For, Index, Show } from "solid-js";
 import { render } from "solid-js/web";
@@ -39,6 +40,14 @@ function App() {
     createEffect(() => document.title = `${pageTitle()} - Snippety`);
     makeFileDragAndDropHandler(document.body, "link", "application/xml", fileDropped);
     makeLeavePrompt(() => isDirty(), "Are you sure you want to leave? There are unsaved changes that will be lost.");
+
+    // This page can be opened by dragging and dropping a file on to the home page.
+    // If the "opener" for this page is the home page, then we need to send a "ready"
+    // message to it in case it's waiting to send a file.
+    const channel = tryMakeMessageChannel(window.opener, windowMessageHandler);
+    if (channel !== null) {
+        channel.postMessage({ type: "ready" });
+    }
 
     function Page() {
         return (
@@ -601,6 +610,16 @@ function App() {
     function saveCurrentAuthorAsDefault() {
         setDefaultAuthor(snippet.author);
         showSuccessToast("Default author updated");
+    }
+
+    async function windowMessageHandler(message: WindowMessage) {
+        // This message will be received if a file is dropped on to the home page.
+        // The home page opens up the editor and redirects the file to this page.
+        if (message.type === "droppedFile") {
+            const fileWithHandle: FileWithHandle = message.data.file;
+            fileWithHandle.handle = message.data.handle;
+            await fileDropped(fileWithHandle);
+        }
     }
 
     return <Page />;

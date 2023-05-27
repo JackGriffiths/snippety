@@ -7,6 +7,20 @@ export function makeFileDragAndDropHandler(
     acceptedMimeType: string,
     fileDropped: (file: FileWithHandle) => void) {
 
+    const [dragOverListener, dropListener] = attachDragDropListener(dropTargetElement, dropEffect, acceptedMimeType, fileDropped);
+
+    return onCleanup(() => {
+        dropTargetElement.removeEventListener("dragover", dragOverListener);
+        dropTargetElement.removeEventListener("drop", dropListener);
+    });
+}
+
+export function attachDragDropListener(
+    dropTargetElement: HTMLElement,
+    dropEffect: "copy" | "none" | "link" | "move",
+    acceptedMimeType: string,
+    fileDropped: (file: FileWithHandle) => void): [dragOverListener: (e: DragEvent) => void, dropListener: (e: DragEvent) => void] {
+
     const dragOverListener = (e: DragEvent) => {
         if (e.dataTransfer === null) {
             return;
@@ -26,10 +40,7 @@ export function makeFileDragAndDropHandler(
     dropTargetElement.addEventListener("dragover", dragOverListener);
     dropTargetElement.addEventListener("drop", dropListener);
 
-    return onCleanup(() => {
-        dropTargetElement.removeEventListener("dragover", dragOverListener);
-        dropTargetElement.removeEventListener("drop", dropListener);
-    });
+    return [dragOverListener, dropListener];
 }
 
 async function getFirstDroppedFile(dropEventArgs: DragEvent, acceptedMimeType: string): Promise<FileWithHandle | null> {
