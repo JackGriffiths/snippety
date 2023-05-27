@@ -148,8 +148,7 @@ async function trySaveText(
         console.error(error);
 
         if (error instanceof DOMException) {
-            // There appear to be three possible ways in which the save could fail.
-            // None of these are easy to detect in a robust way.
+            // There are a few ways in which the save can fail.
 
             if (error.name === "AbortError") {
                 if (error.message === "The user aborted a request.") {
@@ -164,6 +163,10 @@ async function trySaveText(
             if (error.name === "NotAllowedError") {
                 // 3) User denied permission for the application to save the file in place.
                 return res.ok(null);
+            }
+
+            if (error.name === "NoModificationAllowedError") {
+                return res.error("File cannot be modified. This could be because it is in a folder that contains system files. Try using 'Save As'.");
             }
         }
 
