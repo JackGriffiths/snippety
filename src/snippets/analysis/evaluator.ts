@@ -51,7 +51,7 @@ function formatCodeBlock(tokens: Token[], placeholders: Placeholder[]) {
                 break;
             case TokenKind.PlaceholderToken:
                 if (token.value !== null && !reservedPlaceholders.has(token.value)) {
-                    code += placeholderReplacements.get(token.value);
+                    code += placeholderReplacements.get(token.value) || "";
                 }
                 break;
             case TokenKind.EndOfFileToken:
