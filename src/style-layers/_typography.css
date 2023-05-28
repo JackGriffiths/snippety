@@ -1,5 +1,5 @@
 :root {
-    --ff-normal: "Arial", sans-serif;
+    --ff-normal: system-ui;
     --ff-monospace: "Consolas", monospace;
     --fw-normal: 400;
     --fw-bold: 700;

@@ -124,7 +124,7 @@ label.required::after {
 
 /* Add margin above inputs when following a label */
 label + :is(input, textarea, select, .input-group) {
-    margin-block-start: 0.4rem;
+    margin-block-start: 0.5rem;
 }
 
 /* Add spacing between checkboxes/radios and their labels */
@@ -158,8 +158,9 @@ button, .button {
     border-color: var(--btn-default-border-color);
     background: var(--btn-default-background-color);
     color: var(--btn-default-text-color);
-    padding-block: 0.35em;
+    padding-block: 0.5em;
     padding-inline: 0.7em;
+    line-height: 1em;
     letter-spacing: 0.01em;
     flex-shrink: 0;
 
