@@ -6,5 +6,59 @@
 @import url("style-layers/_utilities.css") layer(utilities);
 
 @layer page {
+    body {
+        padding: 2rem;
+        max-inline-size: 1200px;
+        margin-inline: auto;
 
+        @media (width >= 1100px) {
+            padding: 3rem;
+        }
+    }
+
+    .hero-section {
+        & h1 {
+            font-size: 4rem;
+        }
+
+        & #subtitle {
+            margin-block-start: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        & a.button {
+            margin-block-start: 2em;
+        }
+    }
+
+    .sub-section {
+        margin-block-start: 5rem;
+
+        & h2 {
+            margin-block-end: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: var(--fw-bold)
+        }
+    }
+
+    footer {
+        margin-block-start: 5rem;
+        border-block: 1px solid var(--grey-color-dark);
+        padding-block: 2rem;
+    }
+
+    ul {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    a.button {
+        padding-block: 0.6em;
+        padding-inline: 0.75em;
+    }
+
+    .folder-path {
+        font-style: italic;
+    }
 }

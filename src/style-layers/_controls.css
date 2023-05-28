@@ -132,7 +132,7 @@ label + :is(input, textarea, select, .input-group) {
     margin-inline-start: 0.4rem;
 }
 
-button {
+button, .button {
     @media (prefers-color-scheme: light) {
         --btn-default-border-color: var(--grey-color-light);
         --btn-default-background-color: var(--grey-color-light);
@@ -170,7 +170,7 @@ button {
     }
 }
 
-button.accent {
+button.accent, .button.accent {
     @media (prefers-color-scheme: light) {
         --btn-default-border-color: var(--accent-color-dark);
         --btn-default-background-color: var(--accent-color-dark);
@@ -188,6 +188,12 @@ button.accent {
         --btn-hover-background-color: var(--accent-color-dark);
         --btn-hover-text-color: var(--btn-default-text-color);
     }
+}
+
+a.button {
+    display: inline-block;
+    text-decoration: none;
+    cursor: default;
 }
 
 fieldset {
