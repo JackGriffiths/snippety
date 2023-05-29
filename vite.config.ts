@@ -7,7 +7,7 @@ export default defineConfig({
         solidPlugin()
     ],
     test: {
-        environment: "node"
+        environment: "jsdom"
     },
     css: {
         postcss: {
