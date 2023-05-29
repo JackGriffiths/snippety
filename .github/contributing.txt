@@ -1,0 +1,1 @@
+You are welcome to create issues however this project is not open for code contributions.
