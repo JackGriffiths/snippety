@@ -477,6 +477,12 @@ function App() {
                     Preview
                 </h2>
 
+                <Show when={snippet.code.length === 0}>
+                    <p class="screen-reader-only">
+                        This snippet has no code.
+                    </p>
+                </Show>
+
                 <highlighted-code-block attr:language={snippet.language} attr:code={snippetOps.preview()} />
 
                 <Show when={snippet.placeholders.length > 0}>
