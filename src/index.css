@@ -7,13 +7,17 @@
 
 @layer page {
     body {
+        min-block-size: 100dvh;
         padding: 2rem;
-        max-inline-size: 1200px;
-        margin-inline: auto;
 
         @media (width >= 1100px) {
             padding: 3rem;
         }
+    }
+
+    #content-wrapper {
+        max-inline-size: 1200px;
+        margin-inline: auto;
     }
 
     .hero-section {
