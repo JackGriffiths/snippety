@@ -1,5 +1,3 @@
-import { onCleanup } from "solid-js";
-
 // These are the messages that can be sent between pages.
 export type WindowMessage =
     | { type: "ready" }
@@ -34,15 +32,6 @@ export function tryInitMessageChannel(otherWindow: Window | null, messageHandler
 
     window.addEventListener("message", messageListener);
 
-    return channel;
-}
-
-// This is the SolidJS version, with automatic cleanup.
-export function tryMakeMessageChannel(otherWindow: Window | null, messageHandler: MessageHandler): MessageChannel | null {
-    const channel = tryInitMessageChannel(otherWindow, messageHandler);
-    if (channel !== null) {
-        onCleanup(() => channel.close());
-    }
     return channel;
 }
 

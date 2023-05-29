@@ -10,11 +10,11 @@ import {
     snippetTypeDescriptions
 } from "./snippets/snippet-model";
 import createSnippetStore from "./snippets/snippet-store";
-import { makeFileDragAndDropHandler } from "./utilities/file-drag-and-drop";
+import { makeFileDragAndDropHandler } from "./utilities/file-drag-and-drop-solidjs";
 import { createDirtyFlag, makeLeavePrompt } from "./utilities/unsaved-changes";
 import { showScreenReaderOnlyToast, showSuccessToast } from "./notifications";
 import { registerWebComponents } from "./web-components";
-import { WindowMessage, tryMakeMessageChannel } from "./window-messaging";
+import { WindowMessage, tryMakeMessageChannel } from "./window-messaging-solidjs";
 import type { FileWithHandle } from "browser-fs-access";
 import { batch, createEffect, createUniqueId, For, Index, Show } from "solid-js";
 import { render } from "solid-js/web";

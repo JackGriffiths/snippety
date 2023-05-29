@@ -1,4 +1,4 @@
-import { attachDragDropListener } from "./utilities/file-drag-and-drop";
+import { attachFileDragAndDropHandler } from "./utilities/file-drag-and-drop";
 import { MessageChannel, WindowMessage, tryInitMessageChannel } from "./window-messaging";
 import type { FileWithHandle } from "browser-fs-access";
 
@@ -15,7 +15,7 @@ import type { FileWithHandle } from "browser-fs-access";
 // process it accordingly.
 
 let droppedFile: FileWithHandle | null = null;
-attachDragDropListener(document.body, "link", "application/xml", onFileDropped);
+attachFileDragAndDropHandler(document.body, "link", "application/xml", onFileDropped);
 
 function onFileDropped(file: FileWithHandle) {
     // Open up the editor in a new tab.

@@ -1,21 +1,6 @@
 import type { FileSystemHandle, FileWithHandle } from "browser-fs-access";
-import { onCleanup } from "solid-js";
 
-export function makeFileDragAndDropHandler(
-    dropTargetElement: HTMLElement,
-    dropEffect: "copy" | "none" | "link" | "move",
-    acceptedMimeType: string,
-    fileDropped: (file: FileWithHandle) => void) {
-
-    const [dragOverListener, dropListener] = attachDragDropListener(dropTargetElement, dropEffect, acceptedMimeType, fileDropped);
-
-    return onCleanup(() => {
-        dropTargetElement.removeEventListener("dragover", dragOverListener);
-        dropTargetElement.removeEventListener("drop", dropListener);
-    });
-}
-
-export function attachDragDropListener(
+export function attachFileDragAndDropHandler(
     dropTargetElement: HTMLElement,
     dropEffect: "copy" | "none" | "link" | "move",
     acceptedMimeType: string,
