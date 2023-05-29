@@ -6,6 +6,9 @@ export default defineConfig({
     plugins: [
         solidPlugin()
     ],
+    test: {
+        environment: "node"
+    },
     css: {
         postcss: {
             plugins: [
