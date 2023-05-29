@@ -1,18 +1,14 @@
 :root {
-    --accent-color-light: hsl(261, 36%, 50%);
-    --accent-color-mid: hsl(261, 36%, 45%);
-    --accent-color-dark: hsl(261, 36%, 40%);
-
     @media (prefers-color-scheme: light) {
-        --grey-color-light: hsl(0, 0%, 82%);
-        --grey-color-dark: hsl(0, 0%, 79%);
+        --accent-color-light: hsl(261, 45%, 53%);
+        --accent-color-dark: hsl(261, 45%, 50%);
         --outline-color: hsl(0, 0%, 50%);
         --validation-color: hsl(0, 100%, 50%);
     }
 
     @media (prefers-color-scheme: dark) {
-        --grey-color-light: hsl(0, 0%, 25%);
-        --grey-color-dark: hsl(0, 0%, 20%);
+        --accent-color-light: hsl(261, 36%, 45%);
+        --accent-color-dark: hsl(261, 36%, 40%);
         --outline-color: hsl(0, 0%, 70%);
         --validation-color: hsl(0, 90%, 65%);
     }
@@ -67,7 +63,7 @@ textarea {
 
 input[type="checkbox"],
 input[type="radio"] {
-    accent-color: var(--accent-color-mid);
+    accent-color: var(--accent-color-light);
 }
 
 select {
@@ -134,6 +130,8 @@ label + :is(input, textarea, select, .input-group) {
 
 button, .button {
     @media (prefers-color-scheme: light) {
+        --grey-color-light: hsl(0, 0%, 82%);
+        --grey-color-dark: hsl(0, 0%, 79%);
         --btn-default-border-color: var(--grey-color-light);
         --btn-default-background-color: var(--grey-color-light);
         --btn-default-text-color: hsl(0, 0%, 10%);
@@ -143,6 +141,8 @@ button, .button {
     }
 
     @media (prefers-color-scheme: dark) {
+        --grey-color-light: hsl(0, 0%, 30%);
+        --grey-color-dark: hsl(0, 0%, 25%);
         --btn-default-border-color: var(--grey-color-dark);
         --btn-default-background-color: var(--grey-color-dark);
         --btn-default-text-color: hsl(0, 0%, 95%);
@@ -176,14 +176,14 @@ button.accent, .button.accent {
         --btn-default-border-color: var(--accent-color-dark);
         --btn-default-background-color: var(--accent-color-dark);
         --btn-default-text-color: hsl(0, 0%, 95%);
-        --btn-hover-border-color: var(--accent-color-mid);
-        --btn-hover-background-color: var(--accent-color-mid);
+        --btn-hover-border-color: var(--accent-color-light);
+        --btn-hover-background-color: var(--accent-color-light);
         --btn-hover-text-color: var(--btn-default-text-color);
     }
 
     @media (prefers-color-scheme: dark) {
-        --btn-default-border-color: var(--accent-color-mid);
-        --btn-default-background-color: var(--accent-color-mid);
+        --btn-default-border-color: var(--accent-color-light);
+        --btn-default-background-color: var(--accent-color-light);
         --btn-default-text-color: hsl(0, 0%, 95%);
         --btn-hover-border-color: var(--accent-color-dark);
         --btn-hover-background-color: var(--accent-color-dark);

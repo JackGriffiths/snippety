@@ -37,25 +37,20 @@ p {
 
 p code {
     @media (prefers-color-scheme: light) {
-        --inline-code-border-color: hsl(0, 0%, 50%);
-        --inline-code-background-color: var(--body-background-color);
+        --inline-code-background-color: hsl(0, 0%, 90%);
         --inline-code-text-color: currentColor;
     }
 
     @media (prefers-color-scheme: dark) {
-        --inline-code-border-color: hsl(0, 0%, 65%);
-        --inline-code-background-color: var(--body-background-color);
+        --inline-code-background-color: hsl(0, 0%, 25%);
         --inline-code-text-color: currentColor;
     }
 
-    border-radius: 0px;
-    border-width: 1px;
-    border-style: solid;
-    border-color: var(--inline-code-border-color);
+    border-radius: 2px;
     background: var(--inline-code-background-color);
     color: var(--inline-code-text-color);
     padding-block: 0.05em;
-    padding-inline: 0.1em;
+    padding-inline: 0.25em;
 }
 
 pre,
