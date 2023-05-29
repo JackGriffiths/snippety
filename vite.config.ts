@@ -1,6 +1,6 @@
+import postcssNesting from "postcss-nesting";
 import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
-import postcssNesting from "postcss-nesting";
 
 export default defineConfig({
     plugins: [
@@ -12,5 +12,21 @@ export default defineConfig({
                 postcssNesting()
             ]
         }
+    },
+    build: {
+        rollupOptions: {
+            input: {
+                "index": "index.html",
+                "editor": "editor.html",
+            },
+            output: {
+                manualChunks: {
+                    "common": [
+                        "/src/window-messaging.ts",
+                        "/src/utilities/file-drag-and-drop.ts"
+                    ]
+                }
+            }
+        },
     }
 });
