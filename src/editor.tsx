@@ -52,25 +52,31 @@ function App() {
     function Page() {
         return (
             <>
-                <Toaster position="top-center" />
+                <main>
+                    <Toaster position="top-center" />
 
-                <h1>
+                    <h1>
+                        <Show when={isDirty()}>
+                            <span aria-hidden="true">*</span>
+                        </Show>
+                        {pageTitle()}
+                    </h1>
+
                     <Show when={isDirty()}>
-                        <span aria-hidden="true">*</span>
+                        <p class="screen-reader-only">
+                            This snippet has changes that are unsaved.
+                        </p>
                     </Show>
-                    {pageTitle()}
-                </h1>
 
-                <Show when={isDirty()}>
-                    <p class="screen-reader-only">
-                        This snippet has changes that are unsaved.
-                    </p>
-                </Show>
+                    <div id="form-and-preview-wrapper">
+                        <Form />
+                        <Preview />
+                    </div>
+                </main>
 
-                <div id="form-and-preview-wrapper">
-                    <Form />
-                    <Preview />
-                </div>
+                <footer>
+                    Created by Jack Griffiths. <a href="/">Find out more</a> or <a href="https://github.com/JackGriffiths/snippety">view the source code on GitHub.</a>
+                </footer>
             </>
         );
     }
