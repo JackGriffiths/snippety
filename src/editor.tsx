@@ -51,7 +51,7 @@ function App() {
 
     function Page() {
         return (
-            <main>
+            <>
                 <Toaster position="top-center" />
 
                 <h1>
@@ -71,7 +71,7 @@ function App() {
                     <Form />
                     <Preview />
                 </div>
-            </main>
+            </>
         );
     }
 
