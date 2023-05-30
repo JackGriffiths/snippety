@@ -75,7 +75,7 @@ function App() {
                 </main>
 
                 <footer>
-                    Created by Jack Griffiths. <a href="/">Find out more</a> or <a href="https://github.com/JackGriffiths/snippety">view the source code on GitHub.</a>
+                    Created by Jack Griffiths. <a href="index.html">Find out more</a> or <a href="https://github.com/JackGriffiths/snippety">view the source code on GitHub.</a>
                 </footer>
             </>
         );
