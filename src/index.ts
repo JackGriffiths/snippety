@@ -19,7 +19,7 @@ attachFileDragAndDropHandler(document.body, "link", "application/xml", onFileDro
 
 function onFileDropped(file: FileWithHandle) {
     // Open up the editor in a new tab.
-    const targetWindowForDroppedFile = window.open("/editor.html");
+    const targetWindowForDroppedFile = window.open("editor.html");
 
     if (targetWindowForDroppedFile !== null) {
         // Set up a channel with the new tab so that
