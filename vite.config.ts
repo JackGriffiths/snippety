@@ -1,3 +1,5 @@
+/// <reference types="vitest" />
+
 import postcssNesting from "postcss-nesting";
 import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
